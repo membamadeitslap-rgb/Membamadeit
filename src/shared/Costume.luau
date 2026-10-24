@@ -764,88 +764,16 @@ Costume.SKIN = Color3.fromRGB(234, 184, 146)
 -- Per-hero default look. Receives the skin (Primary/Secondary/Name) and returns { colors?, pieces }.
 -- colors override body-part groups: Head, Chest, Waist, Arms, Hands, Legs, Feet.
 local SKIN, GOLD, WHITE = C(234, 184, 146), C(215, 170, 50), C(245, 245, 245)
-Costume.Heroes = {
-	-- Spider-Man: red mask/chest/gloves/boots with black webbing, blue sides/legs, big white lenses, black spider
-	SpiderMan = function(s) return { colors = { Head = s.Primary, Chest = s.Primary, Waist = s.Secondary, UpperArms = s.Secondary, Gloves = s.Primary, Legs = s.Secondary, Boots = s.Primary },
-		pieces = { { "SidePanels", s.Secondary, 0.2 }, { "WebLines", C(15, 15, 20), { "Head", "UpperTorso", "LeftLowerArm", "RightLowerArm", "LeftLowerLeg", "RightLowerLeg" } },
-			{ "Lenses", C(15, 15, 20), WHITE }, { "Emblem", "✱", s.Secondary == WHITE and WHITE or C(15, 15, 15) } } } end,
-	-- Iron Man Mark VI: red helmet + gold faceplate, red torso/forearms/boots, gold upper arms/thighs, triangle reactor, repulsors
-	IronMan = function(s) return { colors = { Chest = s.Primary, Waist = s.Primary, UpperArms = s.Secondary, LowerArms = s.Primary, Hands = s.Primary, UpperLegs = s.Secondary, LowerLegs = s.Primary, Feet = s.Primary },
-		pieces = { { "Material", Enum.Material.Metal }, { "Helmet", s.Primary, s.Secondary }, { "Eyes", WHITE }, { "IronFace", s.Secondary }, { "Reactor", true },
-			{ "Shoulders", s.Primary }, { "PalmGlow", C(190, 240, 255) } } } end,
-	-- Thor: dark armor with six silver discs, red cape, bare arms, silver bracers, long blond hair + beard
-	Thor = function(s) return { colors = { Head = SKIN, Chest = s.Primary, Waist = s.Primary, UpperArms = SKIN, LowerArms = C(190, 190, 200), Hands = SKIN, Legs = C(40, 40, 50), Boots = C(230, 190, 60) },
-		pieces = { { "Cape", s.Secondary }, { "Hair", C(220, 180, 90), "Long" }, { "Face", C(60, 120, 200), C(190, 150, 70), "angry" }, { "WingedHelmet", C(200, 202, 212) },
-			{ "ChestDiscs", C(205, 205, 215) }, { "Belt", C(230, 190, 60) }, { "StrappedBoots", C(150, 110, 40) } } } end,
-	-- Captain America: blue suit, white star, red/white midsection stripes, A-helmet with wings, red gloves/boots, brown belt
-	CaptainAmerica = function(s) return { colors = { Head = SKIN, Chest = s.Primary, Waist = s.Primary, Arms = s.Primary, Gloves = s.Secondary, Legs = s.Primary, Boots = s.Secondary },
-		pieces = { { "CapHelmet", s.Primary, WHITE }, { "Eyes", WHITE }, { "LowerFace" }, { "Emblem", "★", WHITE }, { "Stripes", s.Secondary, WHITE }, { "Belt", C(110, 80, 50), { color = C(200, 200, 210) } },
-			{ "Cuffs", s.Secondary }, { "Pouches", C(110, 80, 50), 4 } } } end,
-	-- Loki: green/black leather, gold horned helmet + shoulders, long green cape, black hair
-	Loki = function(s) return { colors = { Head = SKIN, Chest = C(25, 25, 30), Waist = C(25, 25, 30), Arms = s.Primary, Gloves = C(25, 25, 30), Legs = C(25, 25, 30), Feet = C(25, 25, 30) },
-		pieces = { { "Material", Enum.Material.Leather }, { "Cape", s.Primary, C(20, 20, 25) }, { "Hair", C(15, 15, 15), "Long" }, { "Face", C(60, 140, 90), C(20, 20, 20), "smirk" }, { "Horns", s.Secondary }, { "Shoulders", s.Secondary },
-			{ "Harness", s.Secondary, "X" } } } end,
-	-- Thanos: purple skin with chin ridges, gold helmet, blue armor, gold shoulders/belt/boots
-	Thanos = function(s) return { colors = { Head = C(130, 90, 160), Chest = s.Primary, Waist = s.Primary, Arms = C(130, 90, 160), Gloves = s.Secondary, Legs = s.Primary, Boots = s.Secondary },
-		pieces = { { "Face", C(90, 60, 120), C(90, 60, 120), "grin", C(80, 40, 90) }, { "Helmet", s.Secondary }, { "JawOpening", C(130, 90, 160) }, { "ChinRidges", C(100, 65, 130) }, { "Shoulders", s.Secondary }, { "Belt", s.Secondary }, { "Harness", s.Secondary, "X" } } } end,
-	-- Hulk: green skin, torn purple shorts, bare feet, black hair
-	Hulk = function(s) return { colors = { Head = s.Primary, Chest = s.Primary, Arms = s.Primary, Hands = s.Primary, Waist = s.Secondary, UpperLegs = s.Secondary, LowerLegs = s.Secondary, Feet = s.Primary },
-		pieces = { { "Hair", C(20, 20, 20), "Spiky" }, { "Face", C(60, 110, 40), C(20, 20, 20), "angry" }, { "TornHem", s.Secondary }, { "Belt", C(120, 70, 40) } } } end,
-	-- Venom: black symbiote, huge white lenses, giant white spider, fanged grin + tongue
-	Venom = function(s) return { colors = { Head = s.Primary, Chest = s.Primary, Waist = s.Primary, Arms = s.Primary, Hands = s.Primary, Legs = s.Primary, Feet = s.Primary },
-		pieces = { { "Lenses", s.Primary, s.Secondary, 1.35 }, { "Fangs", C(120, 20, 30), WHITE, C(200, 60, 90) }, { "Emblem", "✱", s.Secondary } } } end,
-	-- Green Goblin: green skin, purple tunic/hat/gloves/boots, pointed ears, yellow eyes, satchel
-	GreenGoblin = function(s) return { colors = { Head = s.Primary, Chest = s.Secondary, Waist = s.Secondary, Arms = s.Primary, Gloves = s.Secondary, Legs = s.Primary, Boots = s.Secondary },
-		pieces = { { "GoblinHat", s.Secondary }, { "Face", C(255, 220, 40), C(30, 50, 20), "grin", C(40, 20, 20) }, { "Satchel", C(120, 70, 40) }, { "Belt", s.Secondary } } } end,
-	-- Batman (TAS): gray suit, dark cowl/cape/gloves/boots/trunks, yellow oval + belt, glove fins
-	Batman = function(s) return { colors = { Head = SKIN, Chest = s.Primary, Waist = s.Secondary, Arms = s.Primary, Gloves = s.Secondary, Legs = s.Primary, Boots = s.Secondary },
-		pieces = { { "Cowl", s.Secondary, 0.6, SKIN }, { "Eyes", WHITE }, { "LowerFace" }, { "Cape", s.Secondary }, { "Emblem", "🦇", C(0, 0, 0), C(255, 215, 60), true },
-			{ "Belt", C(255, 205, 60), { color = C(255, 215, 80) } }, { "Pouches", C(240, 195, 55), 6 }, { "Cuffs", s.Secondary, true } } } end,
-	-- Superman: blue suit, red cape/trunks/boots, yellow belt, diamond S-shield, black hair
-	Superman = function(s) return { colors = { Head = SKIN, Chest = s.Primary, Waist = s.Secondary, Arms = s.Primary, Hands = s.Primary, Legs = s.Primary, Boots = s.Secondary },
-		pieces = { { "Cape", s.Secondary }, { "CapeEmblem", "S", C(255, 215, 40) }, { "Hair", C(15, 15, 20) }, { "Face", C(60, 120, 210), C(20, 20, 25), "neutral" }, { "Shield", s.Secondary, C(255, 215, 40), s.Secondary },
-			{ "Belt", C(255, 215, 40), { color = C(255, 215, 40) } } } } end,
-	-- Flash: all red, open jaw, yellow ear wings, lightning emblem in a white circle, yellow belt + boots
-	Flash = function(s) return { colors = { Head = s.Primary, Chest = s.Primary, Waist = s.Primary, Arms = s.Primary, Hands = s.Primary, Legs = s.Primary, Boots = s.Secondary },
-		pieces = { { "JawOpening", SKIN }, { "LowerFace", "smirk" }, { "EarWings", s.Secondary }, { "Emblem", "ϟ", s.Secondary, WHITE, true }, { "Belt", s.Secondary }, { "Eyes", WHITE } } } end,
-	-- Wonder Woman: red top w/ gold eagle, blue star briefs, silver bracers, tiara, red boots, lasso
-	WonderWoman = function(s) return { colors = { Head = SKIN, Chest = s.Primary, Waist = s.Secondary, Arms = SKIN, LowerArms = C(200, 200, 210), Hands = SKIN, UpperLegs = SKIN, Boots = s.Primary },
-		pieces = { { "Hair", C(20, 15, 15), "Long" }, { "Face", C(60, 110, 190), C(30, 20, 20), "neutral", C(190, 40, 50) }, { "Tiara", GOLD, C(220, 30, 40) }, { "Emblem", "W", GOLD }, { "Belt", GOLD },
-			{ "Lasso", C(255, 210, 80) }, { "WWDetails" } } } end,
-	-- Harley Quinn (classic): red/black harlequin split, jester cowl with white poms, white face, domino mask
-	HarleyQuinn = function(s) return { colors = { Head = WHITE },
-		pieces = { { "Harlequin", s.Primary, s.Secondary }, { "Face", C(70, 130, 220), C(20, 20, 20), "grin", C(200, 20, 30) }, { "JesterCowl", s.Primary, s.Secondary, WHITE } } } end,
-	-- Joker: white face, green hair, red grin, purple suit, orange vest, green shirt, bow tie
-	Joker = function(s) return { colors = { Head = WHITE, Chest = s.Primary, Waist = s.Primary, Arms = s.Primary, Hands = C(240, 240, 240), Legs = s.Primary, Feet = C(25, 25, 30) },
-		pieces = { { "Hair", s.Secondary, "Spiky" }, { "Face", C(60, 150, 60), C(40, 90, 40), "grin", C(200, 20, 30) }, { "Smile", C(200, 20, 30) }, { "SuitFront", C(230, 120, 30), s.Secondary, s.Secondary, s.Primary:Lerp(C(0, 0, 0), 0.3) },
-			{ "Flower" } } } end,
-	-- Deathstroke: orange/black split mask (one eye), dark blue armor, orange gloves/boots, katana + staff
-	Deathstroke = function(s) return { colors = { Chest = s.Secondary, Waist = s.Secondary, Arms = s.Secondary, Gloves = s.Primary, Legs = s.Secondary, Boots = s.Primary },
-		pieces = { { "HalfMask", s.Primary, C(20, 20, 25), C(10, 10, 10) }, { "Belt", C(60, 50, 40) }, { "Pouches", C(50, 45, 40), 4 }, { "Shoulders", s.Primary }, { "Harness", C(40, 40, 45), "X" },
-			{ "Scabbards", C(30, 30, 35) }, { "Cuffs", s.Primary } } } end,
-	-- Black Adam: black suit, gold lightning bolt, gold belt + bracers + boots, short white cape, widow's peak
-	BlackAdam = function(s) return { colors = { Head = SKIN, Chest = s.Primary, Waist = s.Primary, Arms = s.Primary, Gloves = s.Secondary, Legs = s.Primary, Boots = s.Secondary },
-		pieces = { { "Cape", C(190, 160, 120) }, { "Hair", C(15, 15, 15) }, { "Face", C(40, 30, 25), C(15, 15, 15), "angry" }, { "Emblem", "ϟ", s.Secondary }, { "Belt", s.Secondary, { color = s.Secondary, text = "▲", textColor = C(120, 90, 20) } },
-			{ "Cuffs", s.Secondary } } } end,
-	-- Darkseid: gray craggy stone face, blue hood + tunic, red Omega eyes, black legs
-	Darkseid = function(s) return { colors = { Head = s.Primary, Chest = s.Secondary, Waist = s.Secondary, Arms = s.Secondary, Gloves = s.Primary, Legs = C(30, 30, 40), Feet = s.Secondary },
-		pieces = { { "Craggy", s.Primary:Lerp(C(0, 0, 0), 0.35) }, { "Eyes", C(255, 40, 40) }, { "DarkseidArmor", s.Secondary, C(90, 95, 110) }, { "Shoulders", C(90, 95, 110) } } } end,
-	-- Nova: gold helmet with red crest, blue/black suit, gold orbs and armor
-	Nova = function(s) return { colors = { Head = s.Secondary, Chest = s.Primary, Arms = s.Primary, Gloves = s.Secondary, Legs = s.Primary, Boots = s.Secondary },
-		pieces = { { "Helmet", s.Secondary, nil, C(220, 30, 40) }, { "JawOpening", SKIN }, { "LowerFace" }, { "Eyes", WHITE }, { "NovaOrbs", s.Secondary }, { "Belt", s.Secondary }, { "Shoulders", s.Secondary, true, s.Secondary } } } end,
-	-- Cyclops (X-Men '97): blue suit, yellow X-harness, bands, gloves, boots, visor with pods, red X buckle, pouches
-	Cyclops = function(s) return { colors = { Head = SKIN, Chest = s.Primary, Waist = s.Primary, Arms = s.Primary, Legs = s.Primary, Hands = s.Secondary, Boots = s.Secondary },
-		pieces = { { "Hair", C(130, 60, 30), "Spiky" }, { "LowerFace" }, { "Visor", s.Secondary, C(255, 30, 30) }, { "Harness", s.Secondary, "X" }, { "Bands", s.Secondary },
-			{ "Belt", s.Secondary, { color = C(190, 20, 20), text = "X", textColor = C(110, 10, 10) } }, { "Pouches", s.Secondary, 6 }, { "Shoulders", s.Primary } } } end,
-	-- Ghost Rider: leather jacket, flaming skull, spikes, chains, knee pads
-	GhostRider = function(s) return { colors = { Head = C(235, 228, 210), Chest = s.Primary, Waist = s.Primary, Arms = s.Primary, Hands = s.Primary, Legs = s.Primary, Feet = C(20, 20, 22) },
-		pieces = { { "Material", Enum.Material.Leather }, { "FlamingSkull", s.Flame, s.Flame2 }, { "BikerJacket", s.Primary, s.Secondary },
-			{ "Shoulders", s.Primary, true, s.Secondary }, { "Studs", s.Secondary }, { "GloveBootSpikes", s.Secondary },
-			{ "Chains", s.Secondary }, { "ArmChain", s.Secondary }, { "KneePads", s.Primary:Lerp(C(0, 0, 0), 0.3) } } } end,
-	-- Red Hood: red helmet, brown leather jacket, dark armor, red bat on chest, gun-belt
-	RedHood = function(s) return { colors = { Head = s.Primary, Chest = s.Primary, Waist = s.Primary, Arms = s.Secondary, Gloves = C(25, 25, 30), Legs = s.Primary, Boots = C(25, 25, 30) },
-		pieces = { { "Helmet", C(200, 30, 40) }, { "Eyes", WHITE }, { "Emblem", "🦇", C(200, 30, 40) }, { "Belt", C(60, 50, 40) }, { "Pouches", C(60, 50, 40), 4 }, { "Cape", s.Secondary } } } end,
+-- Shared helpers handed to every per-hero costume module (src/shared/Costumes/<HeroId>.luau)
+Costume.Helpers = {
+	C = C, SKIN = SKIN, GOLD = GOLD, WHITE = WHITE, P = P,
+	find = find, chestOf = chestOf, waistOf = waistOf, piece = piece, glyph = glyph, front = front,
+	spike = function(...) return spike(...) end, hellfire = hellfire,
 }
+Costume.Heroes = {}
+for _, mod in script.Parent:WaitForChild("Costumes"):GetChildren() do
+	if mod:IsA("ModuleScript") then Costume.Heroes[mod.Name] = require(mod) end
+end
 
 local GROUPS = {
 	Head = { "Head" }, Chest = { "UpperTorso", "Torso" }, Waist = { "LowerTorso", "Belt" },
@@ -859,8 +787,8 @@ local GROUPS = {
 	Gloves = { "LeftLowerArm", "RightLowerArm", "LeftHand", "RightHand" },
 }
 
-function Costume.Apply(m, heroId, skin)
-	local def = Costume.Heroes[heroId] and Costume.Heroes[heroId](skin)
+function Costume.Apply(m, heroId, skin, rarity)
+	local def = Costume.Heroes[heroId] and Costume.Heroes[heroId](skin, Costume.Helpers, rarity or "Common")
 	if not def then return end
 	local colors = table.clone(def.colors or {})
 	for k, v in skin.Colors or {} do colors[k] = v end -- per-variant overrides
@@ -871,8 +799,12 @@ function Costume.Apply(m, heroId, skin)
 	local list = table.clone(skin.Pieces or def.pieces)
 	for _, extra in skin.Extra or {} do table.insert(list, extra) end
 	for _, entry in list do
-		local fn = P[entry[1]]
-		if fn then fn(m, table.unpack(entry, 2)) end
+		if type(entry) == "function" then
+			entry(m) -- hero-specific custom piece
+		else
+			local fn = P[entry[1]]
+			if fn then fn(m, table.unpack(entry, 2)) else warn("Costume: unknown piece " .. tostring(entry[1]) .. " for " .. heroId) end
+		end
 	end
 end
 return Costume

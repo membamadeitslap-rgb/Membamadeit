@@ -21,7 +21,7 @@ return function(heroId, rarity)
 	p("RightHand", Vector3.new(1, 0.4, 1), Vector3.new(1.5, 1.8, 0), skin.Secondary)
 	p("LeftLeg", Vector3.new(1, 2, 1), Vector3.new(-0.5, 1, 0), skin.Secondary)
 	p("RightLeg", Vector3.new(1, 2, 1), Vector3.new(0.5, 1, 0), skin.Secondary)
-	Costume.Apply(m, heroId, skin)
+	Costume.Apply(m, heroId, skin, rarity)
 	for hand, id in (Heroes[heroId].Weapons or {}) do
 		local w = Weapons.Attach(m, id, hand)
 		if w then for _, x in w:GetDescendants() do if x:IsA("BasePart") then x.Anchored = true end end end

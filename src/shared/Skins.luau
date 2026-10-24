@@ -213,7 +213,7 @@ function S.Apply(model, heroId, rarity)
 			p:Destroy() -- skins replace the player's clothing
 		end
 	end
-	Costume.Apply(model, heroId, skin) -- capes, cowls, helmets, emblems, per-part colors
+	Costume.Apply(model, heroId, skin, rarity) -- capes, cowls, helmets, emblems, per-part colors
 	local head = model:FindFirstChild("Head")
 	local face = head and head:FindFirstChild("face")
 	if face then face:Destroy() end -- every hero has a built face or mask now
