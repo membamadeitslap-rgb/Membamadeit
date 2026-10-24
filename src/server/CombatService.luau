@@ -6,6 +6,7 @@ local Debris = game:GetService("Debris")
 local Config = require(RS.Shared.Config)
 local Heroes = require(RS.Shared.Heroes)
 local Net = require(RS.Shared.Net)
+local Weapons = require(RS.Shared.Weapons)
 
 local Combat = {}
 local state = {} -- [player] = { combo, lastM1, cds = {}, counterUntil }
@@ -32,6 +33,7 @@ function Combat.SetupCharacter(player, heroId)
 	local hum = char:FindFirstChildOfClass("Humanoid")
 	hum.MaxHealth = Config.MaxHealth; hum.Health = Config.MaxHealth
 	hum.BreakJointsOnDeath = false
+	for hand, id in (Heroes[heroId] and Heroes[heroId].Weapons or {}) do Weapons.Attach(char, id, hand) end
 	state[player] = { combo = 0, lastM1 = 0, cds = {}, counterUntil = 0 }
 end
 
@@ -112,7 +114,7 @@ end
 local function projectile(attacker, info)
 	local hrp = hrpOf(attacker.Character)
 	local origin, dir = hrp.Position, hrp.CFrame.LookVector
-	Net.Fx:FireAllClients("Projectile", { origin = origin, dir = dir, speed = info.Speed, hero = attacker.Character:GetAttribute("Hero") })
+	Net.Fx:FireAllClients("Projectile", { origin = origin, dir = dir, speed = info.Speed, hero = attacker.Character:GetAttribute("Hero"), visual = info.Visual, returns = info.Returns, char = attacker.Character })
 	local params = RaycastParams.new(); params.FilterDescendantsInstances = { attacker.Character }
 	local traveled, pos = 0, origin
 	while traveled < 120 do

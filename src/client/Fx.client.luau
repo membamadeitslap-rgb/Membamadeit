@@ -6,6 +6,7 @@ local Lighting = game:GetService("Lighting")
 local Players = game:GetService("Players")
 local Net = require(RS.Shared.Net)
 local Heroes = require(RS.Shared.Heroes)
+local Weapons = require(RS.Shared.Weapons)
 local cam = workspace.CurrentCamera
 
 local shake = 0
@@ -41,14 +42,37 @@ Net.Fx.OnClientEvent:Connect(function(kind, d)
 	elseif kind == "Ability" and d.ult then ultFlash()
 	elseif kind == "Projectile" then
 		local hero = Heroes[d.hero]
-		local p = Instance.new("Part"); p.Anchored = true; p.CanCollide = false; p.CanQuery = false
-		p.Size = Vector3.new(0.6, 0.6, 2); p.Material = Enum.Material.Neon
-		p.Color = hero and hero.Color or Color3.new(1, 1, 1); p.Parent = workspace
-		local pos, t = d.origin, 0
-		while t < 1 and p.Parent do
-			local dt = task.wait(); t += dt; pos += d.dir * d.speed * dt
-			p.CFrame = CFrame.lookAt(pos, pos + d.dir)
+		local obj, held
+		if d.visual and Weapons.Ids[d.visual] then
+			-- Throw the real weapon model; hide the one in hand until it returns.
+			obj = Weapons.Build(d.visual)
+			for _, w in d.char and d.char:GetChildren() or {} do
+				if w:GetAttribute("WeaponId") == d.visual and not held then
+					for _, x in w:GetDescendants() do if x:IsA("BasePart") then x.LocalTransparencyModifier = 1 end end
+					held = w
+				end
+			end
+			for _, x in obj:GetDescendants() do if x:IsA("BasePart") then x.Anchored = true end end
+		else
+			obj = Instance.new("Part"); obj.CanCollide = false; obj.Anchored = true
+			obj.Size = Vector3.new(0.6, 0.6, 2); obj.Material = Enum.Material.Neon
+			obj.Color = hero and hero.Color or Color3.new(1, 1, 1)
 		end
-		p:Destroy()
+		obj.Parent = workspace
+		local life = 120 / d.speed
+		local pos, t, spin = d.origin, 0, 0
+		while t < life * (d.returns and 2 or 1) and obj.Parent do
+			local dt = task.wait(); t += dt; spin += dt * 25
+			if t < life then pos += d.dir * d.speed * dt
+			else -- fly back to thrower's hand
+				local hrp = d.char and d.char:FindFirstChild("HumanoidRootPart"); if not hrp then break end
+				local to = hrp.Position - pos
+				if to.Magnitude < 3 then break end
+				pos += to.Unit * math.min(to.Magnitude, d.speed * 1.2 * dt)
+			end
+			obj:PivotTo(CFrame.lookAt(pos, pos + d.dir) * CFrame.Angles(0, spin, 0))
+		end
+		obj:Destroy()
+		if held then for _, x in held:GetDescendants() do if x:IsA("BasePart") then x.LocalTransparencyModifier = 0 end end end
 	end
 end)

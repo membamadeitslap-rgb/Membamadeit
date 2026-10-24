@@ -79,12 +79,12 @@ for i = 1, 4 do
 end
 
 -- Hero select (lobby)
-local select = new("Frame", { BackgroundTransparency = 1, Size = UDim2.fromOffset(500, 60), AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -120) }, gui)
-new("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, HorizontalAlignment = Enum.HorizontalAlignment.Center, Padding = UDim.new(0, 8) }, select)
+local select = new("Frame", { BackgroundTransparency = 1, Size = UDim2.fromOffset(830, 110), AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -110) }, gui)
+new("UIGridLayout", { CellSize = UDim2.fromOffset(130, 48), CellPadding = UDim2.fromOffset(8, 8), HorizontalAlignment = Enum.HorizontalAlignment.Center, SortOrder = Enum.SortOrder.Name }, select)
 local pick = RS:WaitForChild("MvD_PickHero")
 for id, h in Heroes do
 	local b = new("TextButton", { Size = UDim2.fromOffset(130, 44), BackgroundColor3 = h.Color, Font = FONT, TextSize = 16, TextColor3 = Color3.new(1, 1, 1),
-		Text = h.Name .. "\n" .. h.Faction }, select)
+		Text = h.Name .. "\n" .. h.Faction .. " " .. (h.Role or "Hero"), Name = h.Faction .. h.Name }, select)
 	new("UIStroke", { Color = Color3.new(1, 1, 1), ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, b)
 	b.Activated:Connect(function() pick:FireServer(id) end)
 end

@@ -1,5 +1,6 @@
 return {
-	Name = "Spider-Man", Faction = "Marvel", Color = Color3.fromRGB(200, 30, 40),
+	Name = "Spider-Man", Faction = "Marvel", Weapons = { Right = "WebShooter", Left = "WebShooter" }, Role = "Hero",
+	Color = Color3.fromRGB(200, 30, 40),
 	Abilities = {
 		{ Name = "Web Shot", Kind = "Projectile", Cooldown = 4, Damage = 6, Speed = 120, Stun = 1.2 },
 		{ Name = "Web Zip", Kind = "Leap", Cooldown = 6, Damage = 8, Distance = 35, Knockback = 30 },
