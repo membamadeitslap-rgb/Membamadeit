@@ -96,6 +96,14 @@ B.PumpkinBomb = function(m) -- orange jack-o'-lantern grenade with glowing face
 	p(m, "Face", Vector3.new(0.5, 0.2, 0.05), CFrame.new(0, -0.05, -0.44), C(255, 230, 80), Enum.Material.Neon)
 end
 
+B.HellfireChain = function(m) -- glowing chain coiled in the fist, trailing a short length
+	p(m, "Grip", Vector3.new(0.4, 0.4, 0.4), CFrame.new(), C(150, 150, 160), Enum.Material.DiamondPlate)
+	for i = 1, 8 do
+		local link = p(m, "Link" .. i, Vector3.new(0.12, 0.2, 0.3), CFrame.new(0, -i * 0.24, -0.05 * i) * CFrame.Angles(0, (i % 2) * math.rad(90), 0), C(170, 160, 150), Enum.Material.DiamondPlate)
+		if i % 3 == 0 then local f = Instance.new("Fire"); f.Size = 1.5; f.Heat = 2; f.Color = C(255, 120, 20); f.Parent = link end
+	end
+end
+
 function W.Build(id)
 	local m = Instance.new("Model"); m.Name = id
 	B[id](m); m.PrimaryPart = m.Grip

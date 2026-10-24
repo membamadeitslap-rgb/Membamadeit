@@ -26,6 +26,7 @@ local function glyph(part, face, text, color, font)
 end
 
 local P = {}
+local spike -- defined with the Ghost Rider pieces below
 -- Long cape hanging from the shoulders (Batman, Superman, Thor, Loki, Red Hood jacket tails...)
 function P.Cape(m, color, inner)
 	local t = chestOf(m); if not t then return end
@@ -125,14 +126,16 @@ function P.Harness(m, color)
 	piece(m, t, "Strap", Vector3.new(s.X * 0.14, s.Y * 1.1, 0.08), CFrame.new(-s.X * 0.1, 0, -s.Z / 2 - 0.04) * CFrame.Angles(0, 0, math.rad(-28)), color)
 	piece(m, t, "Strap2", Vector3.new(s.X * 0.14, s.Y * 1.0, 0.08), CFrame.new(s.X * 0.25, -s.Y * 0.05, -s.Z / 2 - 0.04), color)
 end
-function P.Shoulders(m, color, spiky)
+function P.Shoulders(m, color, spiky, spikeColor)
 	for _, n in { "LeftUpperArm", "RightUpperArm", "LeftArm", "RightArm" } do
 		local a = m:FindFirstChild(n)
 		if a then
 			local s = a.Size
 			local h = a.Name:find("Upper") and s.Y * 0.4 or s.Y * 0.4
 			piece(m, a, "Pad", Vector3.new(s.X * 1.35, s.Y * 0.35, s.Z * 1.35), CFrame.new(0, h, 0), color)
-			if spiky then piece(m, a, "Spike", Vector3.new(0.25, s.Y * 0.7, 0.25), CFrame.new(0, h + s.Y * 0.4, 0) * CFrame.Angles(0, 0, math.rad(a.Name:find("Left") and 25 or -25)), color) end
+			if spiky then
+				for k = -1, 1 do spike(m, a, CFrame.new(k * s.X * 0.35, h + s.Y * 0.3, 0), spikeColor or color) end
+			end
 		end
 	end
 end
@@ -152,6 +155,73 @@ function P.Cuffs(m, color, fins)
 			piece(m, a, "Cuff", Vector3.new(s.X * 1.15, s.Y * 0.3, s.Z * 1.15), CFrame.new(0, -s.Y * 0.3, 0), color, Enum.Material.Metal)
 			if fins then piece(m, a, "Fin", Vector3.new(0.1, s.Y * 0.35, s.Z * 0.5), CFrame.new(a.Name:find("Left") and -s.X * 0.6 or s.X * 0.6, -s.Y * 0.2, 0), color) end
 		end
+	end
+end
+-- Ghost Rider: bone-white skull with dark sockets/teeth, burning head (Fire + embers)
+function P.FlamingSkull(m, flame, flame2)
+	local hd = find(m, "Head"); if not hd then return end
+	local s = hd.Size
+	flame, flame2 = flame or C(255, 120, 20), flame2 or C(255, 220, 60)
+	local skull = piece(m, hd, "Skull", s * 1.02, CFrame.new(), C(235, 228, 210), Enum.Material.Slate)
+	for _, x in { -0.22, 0.22 } do -- angry, slanted eye sockets
+		piece(m, hd, "Socket", Vector3.new(s.X * 0.26, s.Y * 0.18, 0.08), CFrame.new(x * s.X, s.Y * 0.08, -s.Z * 0.5) * CFrame.Angles(0, 0, math.rad(x > 0 and 12 or -12)), C(25, 15, 10))
+	end
+	piece(m, hd, "Nose", Vector3.new(s.X * 0.12, s.Y * 0.12, 0.08), CFrame.new(0, -s.Y * 0.1, -s.Z * 0.5), C(25, 15, 10))
+	piece(m, hd, "Teeth", Vector3.new(s.X * 0.6, s.Y * 0.16, 0.08), CFrame.new(0, -s.Y * 0.32, -s.Z * 0.5), C(245, 240, 225))
+	for i = -2, 2 do piece(m, hd, "Gap", Vector3.new(0.02, s.Y * 0.16, 0.1), CFrame.new(i * s.X * 0.11, -s.Y * 0.32, -s.Z * 0.5), C(40, 25, 15)) end
+	local fire = Instance.new("Fire"); fire.Color = flame; fire.SecondaryColor = flame2; fire.Size = s.Y * 3.5; fire.Heat = 12; fire.Parent = skull
+	local pe = Instance.new("ParticleEmitter"); pe.Name = "Embers"; pe.LightEmission = 1; pe.Color = ColorSequence.new(flame, flame2)
+	pe.Size = NumberSequence.new(0.5, 0); pe.Lifetime = NumberRange.new(0.5, 1); pe.Rate = 30; pe.Speed = NumberRange.new(2, 5)
+	pe.SpreadAngle = Vector2.new(25, 25); pe.EmissionDirection = Enum.NormalId.Top; pe.Parent = skull
+	local l = Instance.new("PointLight"); l.Color = flame; l.Range = 14; l.Brightness = 2; l.Parent = skull
+end
+-- Biker jacket: collar lapels, diagonal zipper, zip pockets
+function P.BikerJacket(m, color, metal)
+	local t = chestOf(m); if not t then return end
+	local s = t.Size
+	for _, x in { -1, 1 } do
+		piece(m, t, "Lapel", Vector3.new(s.X * 0.28, s.Y * 0.4, 0.08), CFrame.new(x * s.X * 0.2, s.Y * 0.28, -s.Z / 2 - 0.04) * CFrame.Angles(0, 0, math.rad(x * 25)), color)
+		piece(m, t, "Pocket", Vector3.new(s.X * 0.22, 0.04, 0.06), CFrame.new(x * s.X * 0.28, -s.Y * 0.15, -s.Z / 2 - 0.03), metal, Enum.Material.Metal)
+	end
+	piece(m, t, "Zip", Vector3.new(0.05, s.Y * 0.95, 0.06), CFrame.new(s.X * 0.08, -s.Y * 0.02, -s.Z / 2 - 0.03) * CFrame.Angles(0, 0, math.rad(-12)), metal, Enum.Material.Metal)
+end
+function spike(m, anchor, cf, metal) -- pointed metal stud
+	local p = piece(m, anchor, "Stud", Vector3.new(0.2, 0.34, 0.2), cf, metal, Enum.Material.Metal)
+	local sm = Instance.new("SpecialMesh"); sm.MeshType = Enum.MeshType.Sphere; sm.Scale = Vector3.new(0.7, 1.4, 0.7); sm.Parent = p
+end
+-- Spikes along the outer forearms and shins
+function P.Studs(m, metal)
+	for _, name in { "LeftLowerArm", "RightLowerArm", "LeftArm", "RightArm", "LeftLowerLeg", "RightLowerLeg", "LeftLeg", "RightLeg" } do
+		local a = m:FindFirstChild(name)
+		if a then
+			local s = a.Size; local side = name:find("Left") and -1 or 1
+			for k = 0, 1 do
+				spike(m, a, CFrame.new(side * (s.X / 2 + 0.1), s.Y * 0.2 - k * s.Y * 0.35, 0) * CFrame.Angles(0, 0, math.rad(-side * 90)), metal)
+			end
+		end
+	end
+end
+-- Heavy chain links: X across the chest, around the waist, one strand hanging off the hip
+function P.Chains(m, metal)
+	local t, w = chestOf(m), waistOf(m)
+	local function link(anchor, p, dir, i)
+		piece(m, anchor, "Link", Vector3.new(0.13, 0.22, 0.3), CFrame.lookAt(p, p + dir) * CFrame.Angles(0, 0, (i % 2) * math.rad(90)), metal, Enum.Material.DiamondPlate)
+	end
+	local function run(anchor, from, to, n)
+		for i = 0, n do link(anchor, from:Lerp(to, i / n), (to - from).Unit, i) end
+	end
+	if t then
+		local s = t.Size; local fz = -s.Z / 2 - 0.12
+		run(t, Vector3.new(-s.X * 0.45, s.Y * 0.45, fz), Vector3.new(s.X * 0.42, -s.Y * 0.45, fz), 9)
+		run(t, Vector3.new(s.X * 0.45, s.Y * 0.45, fz - 0.05), Vector3.new(-s.X * 0.42, -s.Y * 0.45, fz - 0.05), 9)
+	end
+	if w then
+		local s = w.Size; local y = w.Name == "Torso" and -s.Y * 0.4 or 0
+		for i = 0, 13 do
+			local a = i / 14 * math.pi * 2
+			link(w, Vector3.new(math.cos(a) * (s.X / 2 + 0.1), y, math.sin(a) * (s.Z / 2 + 0.12)), Vector3.new(-math.sin(a), 0, math.cos(a)), i)
+		end
+		run(w, Vector3.new(s.X * 0.58, y, -0.1), Vector3.new(s.X * 0.62, y - 1.6, 0), 6)
 	end
 end
 Costume.Pieces = P
@@ -203,6 +273,9 @@ Costume.Heroes = {
 	Cyclops = function(s) return { colors = { Head = SKIN, Hands = s.Secondary, Feet = s.Secondary, Waist = s.Primary },
 		pieces = { { "Hair", C(140, 70, 40) }, { "Visor", s.Secondary, C(255, 40, 40) }, { "Harness", s.Secondary },
 			{ "Belt", s.Secondary, { color = C(20, 20, 20), text = "X", textColor = C(220, 30, 30) } } } } end,
+	GhostRider = function(s) return { colors = { Head = C(235, 228, 210), Chest = s.Primary, Waist = s.Primary, Arms = s.Primary, Hands = s.Primary, Legs = s.Primary, Feet = C(20, 20, 22) },
+		pieces = { { "FlamingSkull", s.Flame, s.Flame2 }, { "BikerJacket", s.Primary, s.Secondary }, { "Shoulders", s.Primary, true, s.Secondary },
+			{ "Studs", s.Secondary }, { "Chains", s.Secondary } } } end,
 	RedHood = function(s) return { colors = { Head = s.Primary, Hands = C(25, 25, 30), Feet = C(25, 25, 30) },
 		pieces = { { "Helmet", s.Primary }, { "Eyes", WHITE }, { "Emblem", "🦇", C(0, 0, 0), s.Primary }, { "Belt", C(60, 50, 40) }, { "Cape", s.Secondary } } } end,
 }

@@ -49,7 +49,7 @@ State lives as Character attributes: Hero, Stamina, Ult, Blocking, StunUntil, IF
 
 - DONE (session 3):
   - Movement penalties in the CombatService loop: Frozen (countdown) 0, stunned 3, blocking 7. Per-hero `WalkSpeed` (Flash 22, Hulk/Darkseid 14).
-  - +7 characters: Hulk, Superman, Flash (heroes); Venom, Green Goblin with pumpkin bomb weapon (Marvel villains); Black Adam, Darkseid (DC villains). Roster is now 18.
+  - +7 characters: Hulk, Superman, Flash (heroes); Venom, Green Goblin with pumpkin bomb weapon (Marvel villains); Black Adam, Darkseid (DC villains). Roster is now 22 (+ Nova, Cyclops, Red Hood, Ghost Rider).
   - 5 themed arenas in ArenaBuilder (`A.Themes`): Stark Tower, Gotham, Wakanda, Metropolis, Asgard. Random one per match; the name splashes on round 1.
   - DataService: Wins, Losses and Coins saved to DataStore "MvD_v1" (+25 coins per win, +5 per loss). Enable Studio API access to test saving.
 - Syntax check: download the luau binary from github.com/luau-lang/luau releases and run `luau-compile --text file.luau` on every file (all pass).
@@ -63,10 +63,10 @@ State lives as Character attributes: Hero, Stamina, Ult, Blocking, StunUntil, IF
 4. Rebirths (reset cash for an income multiplier), the classic Brainrot progression.
 5. Animations: idle on pedestal heroes, walk on convoy/walk-home, M1 and ability anims in duels.
 6. Ranked ELO for fight mode, a leaderboard board in the world, a robux shop (lock-time boost, 2x cash) via MarketplaceService.
-7. Original MeshPart costume models (made by us, not ripped) to replace the part-built pieces.
+7. Custom meshes: the user REJECTED the generated-mesh attempts ("goofy"). Do not build meshes; stick to the part-built Roblox style (see the user's Ghost Rider reference: blocky body, detailed accessories).
 
 ## Publishing
-Live at place 95876647985129 (universe 10772668310). Run `ROBLOX_API_KEY=<key> ./scripts/publish.sh` (needs rojo; the environment must allow apis.roblox.com). Ask the user for the key; never commit it. Last published: version 7 (costumes + Nova/Cyclops/Red Hood).
+Live at place 95876647985129 (universe 10772668310). Run `ROBLOX_API_KEY=<key> ./scripts/publish.sh` (needs rojo; the environment must allow apis.roblox.com). Ask the user for the key; never commit it. Last published: version 8 (Ghost Rider).
 
 ## Rules for whoever picks this up
 - Keep the server authoritative for damage and cooldowns; the client only does visuals and its own dash velocity.
