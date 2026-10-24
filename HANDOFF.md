@@ -64,7 +64,7 @@ State lives as Character attributes: Hero, Stamina, Ult, Blocking, StunUntil, IF
 7. Real MeshPart heroes and weapons later; for now skins only recolor the default R15 body.
 
 ## Publishing
-Live at place 95876647985129 (universe 10772668310). Run `ROBLOX_API_KEY=<key> ./scripts/publish.sh` (needs rojo; the environment must allow apis.roblox.com). Ask the user for the key; never commit it. Last published: version 5 (Gotham theme).
+Live at place 95876647985129 (universe 10772668310). Run `ROBLOX_API_KEY=<key> ./scripts/publish.sh` (needs rojo; the environment must allow apis.roblox.com). Ask the user for the key; never commit it. Last published: version 6 (Gotham theme).
 
 ## Rules for whoever picks this up
 - Keep the server authoritative for damage and cooldowns; the client only does visuals and its own dash velocity.
