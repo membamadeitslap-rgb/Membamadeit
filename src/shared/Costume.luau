@@ -1,0 +1,233 @@
+-- Costume pieces built from parts and welded onto a rig (R15 player/NPC or the select-screen Mannequin).
+-- Each piece is a function(model, ...) ; Costume.Apply runs a list of { "Piece", args... }.
+local C = Color3.fromRGB
+local Costume = {}
+
+local function find(m, ...) for _, n in { ... } do local p = m:FindFirstChild(n); if p then return p end end end
+local function chestOf(m) return find(m, "UpperTorso", "Torso") end
+local function waistOf(m) return find(m, "LowerTorso", "Belt", "Torso") end
+
+local function piece(m, anchor, name, size, offset, color, mat, shape)
+	local p = Instance.new("Part"); p.Name = "Costume_" .. name; p.Size = size; p.Color = color
+	p.Material = mat or Enum.Material.SmoothPlastic; p.CanCollide = false; p.CanQuery = false; p.Massless = true
+	p.CastShadow = false
+	if shape then p.Shape = shape end
+	p.CFrame = anchor.CFrame * offset
+	p.Anchored = anchor.Anchored
+	local w = Instance.new("WeldConstraint"); w.Part0 = anchor; w.Part1 = p; w.Parent = p
+	p.Parent = m
+	return p
+end
+local function glyph(part, face, text, color, font)
+	local g = Instance.new("SurfaceGui"); g.Face = face; g.LightInfluence = 0; g.Parent = part
+	local t = Instance.new("TextLabel"); t.Size = UDim2.fromScale(1, 1); t.BackgroundTransparency = 1; t.TextScaled = true
+	t.Font = font or Enum.Font.GothamBlack; t.Text = text; t.TextColor3 = color; t.Parent = g
+	return t
+end
+
+local P = {}
+-- Long cape hanging from the shoulders (Batman, Superman, Thor, Loki, Red Hood jacket tails...)
+function P.Cape(m, color, inner)
+	local t = chestOf(m); if not t then return end
+	local h = t.Size.Y
+	local cape = piece(m, t, "Cape", Vector3.new(t.Size.X * 1.25, h * 2.6, 0.15), CFrame.new(0, -h * 0.75, t.Size.Z / 2 + 0.12) * CFrame.Angles(math.rad(-6), 0, 0), color, Enum.Material.Fabric)
+	if inner then piece(m, cape, "CapeInner", cape.Size - Vector3.new(0.05, 0.05, 0.1), CFrame.new(0, 0, -0.06), inner, Enum.Material.Fabric) end
+	piece(m, t, "CapeCollar", Vector3.new(t.Size.X * 1.1, 0.3, t.Size.Z * 1.1), CFrame.new(0, h / 2, 0), color, Enum.Material.Fabric)
+end
+-- Bat cowl: mask shell + two ears; earLen 0.6 = TAS/classic, 1.1 = Longest Halloween / BTAS long ears
+function P.Cowl(m, color, earLen, jaw)
+	local hd = find(m, "Head"); if not hd then return end
+	local s = hd.Size
+	piece(m, hd, "Cowl", Vector3.new(s.X * 1.04, s.Y * 0.7, s.Z * 1.04), CFrame.new(0, s.Y * 0.17, 0), color)
+	for _, x in { -0.28, 0.28 } do
+		piece(m, hd, "Ear", Vector3.new(s.X * 0.16, s.Y * (earLen or 0.6), s.Z * 0.16), CFrame.new(x * s.X, s.Y * (0.5 + (earLen or 0.6) / 2), 0), color)
+	end
+	if jaw then piece(m, hd, "Jaw", Vector3.new(s.X * 0.7, s.Y * 0.32, s.Z * 0.2), CFrame.new(0, -s.Y * 0.3, -s.Z * 0.45), jaw) end -- skin-tone jaw
+end
+-- Full helmet (Iron Man, Red Hood, Nova); faceplate color + optional crest
+function P.Helmet(m, color, plate, crest)
+	local hd = find(m, "Head"); if not hd then return end
+	local s = hd.Size
+	piece(m, hd, "Helmet", s * 1.08, CFrame.new(), color)
+	if plate then piece(m, hd, "Faceplate", Vector3.new(s.X * 0.8, s.Y * 0.85, 0.1), CFrame.new(0, -s.Y * 0.04, -s.Z * 0.56), plate) end
+	if crest == "Fin" then piece(m, hd, "Fin", Vector3.new(0.15, s.Y * 0.5, s.Z * 0.9), CFrame.new(0, s.Y * 0.58, 0), color)
+	elseif crest then -- Nova star crest
+		local c = piece(m, hd, "Crest", Vector3.new(s.X * 0.6, s.Y * 0.5, 0.1), CFrame.new(0, s.Y * 0.35, -s.Z * 0.58), crest, Enum.Material.Neon)
+		c.Transparency = 1; glyph(c, Enum.NormalId.Front, "✦", crest)
+	end
+end
+-- Glowing eye slits (Iron Man white, Batman white, Superman red heat vision...)
+function P.Eyes(m, color)
+	local hd = find(m, "Head"); if not hd then return end
+	local s = hd.Size
+	for _, x in { -0.2, 0.2 } do
+		piece(m, hd, "Eye", Vector3.new(s.X * 0.22, s.Y * 0.08, 0.06), CFrame.new(x * s.X, s.Y * 0.08, -s.Z * 0.6), color or C(255, 255, 255), Enum.Material.Neon)
+	end
+end
+-- Cyclops visor / Deathstroke band: single wide glowing band
+function P.Visor(m, frame, glow)
+	local hd = find(m, "Head"); if not hd then return end
+	local s = hd.Size
+	piece(m, hd, "VisorFrame", Vector3.new(s.X * 1.1, s.Y * 0.24, s.Z * 1.06), CFrame.new(0, s.Y * 0.08, 0), frame)
+	piece(m, hd, "VisorGlow", Vector3.new(s.X * 0.7, s.Y * 0.08, 0.06), CFrame.new(0, s.Y * 0.08, -s.Z * 0.56), glow, Enum.Material.Neon)
+end
+function P.Hair(m, color, style)
+	local hd = find(m, "Head"); if not hd then return end
+	local s = hd.Size
+	piece(m, hd, "Hair", Vector3.new(s.X * 1.06, s.Y * 0.35, s.Z * 1.06), CFrame.new(0, s.Y * 0.4, s.Z * 0.04), color)
+	if style == "Spiky" then
+		for i = -1, 1 do piece(m, hd, "Spike", Vector3.new(0.2, s.Y * 0.35, 0.2), CFrame.new(i * s.X * 0.3, s.Y * 0.65, 0) * CFrame.Angles(0, 0, math.rad(-i * 25)), color) end
+	elseif style == "Pigtails" then
+		for _, x in { -0.62, 0.62 } do piece(m, hd, "Pigtail", Vector3.new(s.X * 0.3, s.Y * 0.8, s.Z * 0.3), CFrame.new(x * s.X, s.Y * 0.1, s.Z * 0.2), color) end
+	elseif style == "Long" then
+		piece(m, hd, "HairBack", Vector3.new(s.X * 1.06, s.Y * 1.1, s.Z * 0.3), CFrame.new(0, -s.Y * 0.1, s.Z * 0.5), color)
+	end
+end
+-- Chest emblem drawn as a glyph on a colored plate (bat oval, S shield, X, star, spider, triangle...)
+function P.Emblem(m, text, color, plate)
+	local t = chestOf(m); if not t then return end
+	local s = t.Size
+	local p = piece(m, t, "Emblem", Vector3.new(s.X * 0.62, s.Y * 0.42, 0.08), CFrame.new(0, s.Y * 0.12, -s.Z / 2 - 0.05), plate or color, plate and Enum.Material.SmoothPlastic or Enum.Material.Neon)
+	if not plate then p.Transparency = 1 end
+	glyph(p, Enum.NormalId.Front, text, color)
+end
+-- Iron Man arc reactor (triangle for Mark VI, circle otherwise)
+function P.Reactor(m, tri)
+	local t = chestOf(m); if not t then return end
+	local s = t.Size
+	local p = piece(m, t, "Reactor", Vector3.new(s.X * 0.32, s.X * 0.32, 0.08), CFrame.new(0, s.Y * 0.18, -s.Z / 2 - 0.05), C(200, 240, 255), Enum.Material.Neon)
+	if tri then p.Transparency = 1; glyph(p, Enum.NormalId.Front, "▼", C(220, 245, 255)) end
+	local l = Instance.new("PointLight"); l.Color = C(180, 230, 255); l.Range = 8; l.Parent = p
+end
+-- Nova Corps: three glowing chest orbs
+function P.NovaOrbs(m, plate)
+	local t = chestOf(m); if not t then return end
+	local s = t.Size
+	for _, o in { { -0.24, 0.25 }, { 0.24, 0.25 }, { 0, -0.05 } } do
+		piece(m, t, "OrbPlate", Vector3.new(s.X * 0.3, s.X * 0.3, 0.06), CFrame.new(o[1] * s.X, o[2] * s.Y, -s.Z / 2 - 0.03), plate)
+		piece(m, t, "Orb", Vector3.new(s.X * 0.18, s.X * 0.18, 0.08), CFrame.new(o[1] * s.X, o[2] * s.Y, -s.Z / 2 - 0.07), C(240, 250, 255), Enum.Material.Neon)
+	end
+end
+function P.Belt(m, color, buckle)
+	local w = waistOf(m); if not w then return end
+	local s = w.Size
+	local y = w.Name == "Torso" and -s.Y * 0.42 or s.Y * 0.3
+	piece(m, w, "Belt", Vector3.new(s.X * 1.06, 0.3, s.Z * 1.08), CFrame.new(0, y, 0), color)
+	if buckle then
+		local b = piece(m, w, "Buckle", Vector3.new(s.X * 0.3, 0.36, 0.1), CFrame.new(0, y, -s.Z * 0.56), buckle.color or color)
+		if buckle.text then glyph(b, Enum.NormalId.Front, buckle.text, buckle.textColor or C(200, 30, 30)) end
+	end
+end
+-- Cyclops-style shoulder-to-hip harness straps
+function P.Harness(m, color)
+	local t = chestOf(m); if not t then return end
+	local s = t.Size
+	piece(m, t, "Strap", Vector3.new(s.X * 0.14, s.Y * 1.1, 0.08), CFrame.new(-s.X * 0.1, 0, -s.Z / 2 - 0.04) * CFrame.Angles(0, 0, math.rad(-28)), color)
+	piece(m, t, "Strap2", Vector3.new(s.X * 0.14, s.Y * 1.0, 0.08), CFrame.new(s.X * 0.25, -s.Y * 0.05, -s.Z / 2 - 0.04), color)
+end
+function P.Shoulders(m, color, spiky)
+	for _, n in { "LeftUpperArm", "RightUpperArm", "LeftArm", "RightArm" } do
+		local a = m:FindFirstChild(n)
+		if a then
+			local s = a.Size
+			local h = a.Name:find("Upper") and s.Y * 0.4 or s.Y * 0.4
+			piece(m, a, "Pad", Vector3.new(s.X * 1.35, s.Y * 0.35, s.Z * 1.35), CFrame.new(0, h, 0), color)
+			if spiky then piece(m, a, "Spike", Vector3.new(0.25, s.Y * 0.7, 0.25), CFrame.new(0, h + s.Y * 0.4, 0) * CFrame.Angles(0, 0, math.rad(a.Name:find("Left") and 25 or -25)), color) end
+		end
+	end
+end
+-- Back spikes / crown spikes (Batman Who Laughs, Hellbat)
+function P.Spikes(m, color)
+	local hd = find(m, "Head")
+	if hd then for i = -2, 2 do piece(m, hd, "Crown", Vector3.new(0.15, hd.Size.Y * 0.5, 0.15), CFrame.new(i * hd.Size.X * 0.2, hd.Size.Y * 0.7, 0) * CFrame.Angles(0, 0, math.rad(-i * 15)), color, Enum.Material.Metal) end end
+	local t = chestOf(m)
+	if t then for i = -1, 1 do piece(m, t, "BackSpike", Vector3.new(0.25, t.Size.Y * 0.6, 0.25), CFrame.new(i * t.Size.X * 0.3, t.Size.Y * 0.4, t.Size.Z / 2) * CFrame.Angles(math.rad(35), 0, 0), color, Enum.Material.Metal) end end
+end
+-- Wrist cuffs / gauntlet flares (Batman fins, Wonder Woman bracelets)
+function P.Cuffs(m, color, fins)
+	for _, n in { "LeftLowerArm", "RightLowerArm", "LeftArm", "RightArm" } do
+		local a = m:FindFirstChild(n)
+		if a then
+			local s = a.Size
+			piece(m, a, "Cuff", Vector3.new(s.X * 1.15, s.Y * 0.3, s.Z * 1.15), CFrame.new(0, -s.Y * 0.3, 0), color, Enum.Material.Metal)
+			if fins then piece(m, a, "Fin", Vector3.new(0.1, s.Y * 0.35, s.Z * 0.5), CFrame.new(a.Name:find("Left") and -s.X * 0.6 or s.X * 0.6, -s.Y * 0.2, 0), color) end
+		end
+	end
+end
+Costume.Pieces = P
+Costume.SKIN = Color3.fromRGB(234, 184, 146)
+
+-- Per-hero default look. Receives the skin (Primary/Secondary/Name) and returns { colors?, pieces }.
+-- colors override body-part groups: Head, Chest, Waist, Arms, Hands, Legs, Feet.
+local SKIN, GOLD, WHITE = C(234, 184, 146), C(215, 170, 50), C(245, 245, 245)
+Costume.Heroes = {
+	SpiderMan = function(s) return { colors = { Head = s.Primary, Hands = s.Primary, Feet = s.Primary },
+		pieces = { { "Eyes", WHITE }, { "Emblem", "✱", s.Secondary == WHITE and WHITE or C(15, 15, 15) } } } end,
+	IronMan = function(s) return { colors = { Legs = s.Secondary, Arms = s.Primary, Hands = s.Primary, Feet = s.Primary },
+		pieces = { { "Helmet", s.Primary, s.Secondary }, { "Eyes", WHITE }, { "Reactor", true }, { "Shoulders", s.Primary } } } end,
+	Thor = function(s) return { colors = { Head = SKIN, Arms = SKIN, Hands = SKIN, Legs = C(40, 40, 50) },
+		pieces = { { "Cape", s.Secondary }, { "Hair", C(220, 180, 90), "Long" }, { "Emblem", "◉ ◉", C(190, 190, 200) }, { "Cuffs", C(170, 170, 180) } } } end,
+	CaptainAmerica = function(s) return { colors = { Hands = s.Secondary, Feet = s.Secondary },
+		pieces = { { "Helmet", s.Primary, nil, "Fin" }, { "Emblem", "★", WHITE }, { "Belt", C(110, 80, 50) } } } end,
+	Loki = function(s) return { colors = { Head = SKIN, Legs = C(25, 25, 30) },
+		pieces = { { "Cape", s.Primary, C(20, 20, 25) }, { "Hair", C(15, 15, 15), "Long" }, { "Shoulders", s.Secondary } } } end,
+	Thanos = function(s) return { colors = { Head = C(130, 90, 160), Arms = s.Secondary, Hands = s.Secondary },
+		pieces = { { "Helmet", s.Secondary }, { "Shoulders", s.Secondary }, { "Belt", s.Secondary } } } end,
+	Hulk = function(s) return { colors = { Head = s.Primary, Chest = s.Primary, Arms = s.Primary, Hands = s.Primary, Waist = s.Secondary, Legs = s.Secondary, Feet = s.Primary },
+		pieces = { { "Hair", C(20, 20, 20), "Spiky" } } } end,
+	Venom = function(s) return { colors = { Head = s.Primary, Hands = s.Primary, Feet = s.Primary, Legs = s.Primary },
+		pieces = { { "Eyes", WHITE }, { "Emblem", "✱", s.Secondary } } } end,
+	GreenGoblin = function(s) return { colors = { Head = s.Primary, Hands = s.Secondary, Feet = s.Secondary },
+		pieces = { { "Eyes", C(255, 230, 60) }, { "Spikes", s.Primary }, { "Belt", s.Secondary } } } end,
+	Batman = function(s) return { colors = { Head = SKIN, Hands = s.Secondary, Feet = s.Secondary, Waist = s.Secondary },
+		pieces = { { "Cowl", s.Secondary, 0.6, SKIN }, { "Eyes", WHITE }, { "Cape", s.Secondary }, { "Emblem", "🦇", C(0, 0, 0), C(255, 215, 60), Enum.PartType.Cylinder },
+			{ "Belt", C(255, 205, 60), { color = C(255, 215, 80) } }, { "Cuffs", s.Secondary, true } } } end,
+	Superman = function(s) return { colors = { Head = SKIN, Hands = s.Primary, Feet = s.Secondary, Waist = s.Secondary },
+		pieces = { { "Cape", s.Secondary }, { "Hair", C(15, 15, 20) }, { "Emblem", "S", s.Secondary, C(255, 215, 40) }, { "Belt", C(255, 215, 40) } } } end,
+	Flash = function(s) return { colors = { Head = s.Primary, Hands = s.Primary, Feet = s.Secondary, Legs = s.Primary },
+		pieces = { { "Emblem", "ϟ", s.Secondary, WHITE, Enum.PartType.Cylinder }, { "Belt", s.Secondary }, { "Eyes", WHITE } } } end,
+	WonderWoman = function(s) return { colors = { Head = SKIN, Arms = SKIN, Legs = SKIN, Feet = s.Primary },
+		pieces = { { "Hair", C(20, 15, 15), "Long" }, { "Emblem", "W", GOLD }, { "Belt", GOLD }, { "Cuffs", C(200, 200, 210) } } } end,
+	HarleyQuinn = function(s) return { colors = { Head = WHITE },
+		pieces = { { "Hair", C(250, 240, 200), "Pigtails" }, { "Emblem", "♦", s.Secondary } } } end,
+	Joker = function(s) return { colors = { Head = WHITE, Hands = C(240, 240, 240), Legs = s.Primary },
+		pieces = { { "Hair", C(60, 160, 60) }, { "Belt", s.Secondary } } } end,
+	Deathstroke = function(s) return { colors = { Head = s.Primary, Arms = s.Secondary },
+		pieces = { { "Helmet", s.Primary, s.Secondary }, { "Visor", s.Primary, C(20, 20, 20) }, { "Belt", C(60, 50, 40) }, { "Shoulders", s.Primary } } } end,
+	BlackAdam = function(s) return { colors = { Head = SKIN, Hands = s.Secondary, Feet = s.Secondary },
+		pieces = { { "Cape", C(240, 240, 245) }, { "Hair", C(15, 15, 15) }, { "Emblem", "ϟ", s.Secondary }, { "Belt", s.Secondary } } } end,
+	Darkseid = function(s) return { colors = { Head = s.Primary, Arms = s.Secondary, Hands = s.Secondary },
+		pieces = { { "Eyes", C(255, 40, 40) }, { "Shoulders", s.Secondary }, { "Belt", s.Secondary } } } end,
+	Nova = function(s) return { colors = { Head = s.Secondary, Arms = s.Primary, Hands = s.Secondary, Feet = s.Secondary },
+		pieces = { { "Helmet", s.Secondary, nil, C(220, 30, 40) }, { "Eyes", WHITE }, { "NovaOrbs", s.Secondary }, { "Belt", s.Secondary }, { "Shoulders", s.Secondary } } } end,
+	Cyclops = function(s) return { colors = { Head = SKIN, Hands = s.Secondary, Feet = s.Secondary, Waist = s.Primary },
+		pieces = { { "Hair", C(140, 70, 40) }, { "Visor", s.Secondary, C(255, 40, 40) }, { "Harness", s.Secondary },
+			{ "Belt", s.Secondary, { color = C(20, 20, 20), text = "X", textColor = C(220, 30, 30) } } } } end,
+	RedHood = function(s) return { colors = { Head = s.Primary, Hands = C(25, 25, 30), Feet = C(25, 25, 30) },
+		pieces = { { "Helmet", s.Primary }, { "Eyes", WHITE }, { "Emblem", "🦇", C(0, 0, 0), s.Primary }, { "Belt", C(60, 50, 40) }, { "Cape", s.Secondary } } } end,
+}
+
+local GROUPS = {
+	Head = { "Head" }, Chest = { "UpperTorso", "Torso" }, Waist = { "LowerTorso", "Belt" },
+	Arms = { "LeftUpperArm", "RightUpperArm", "LeftLowerArm", "RightLowerArm", "LeftArm", "RightArm" },
+	Hands = { "LeftHand", "RightHand" },
+	Legs = { "LeftUpperLeg", "RightUpperLeg", "LeftLowerLeg", "RightLowerLeg", "LeftLeg", "RightLeg" },
+	Feet = { "LeftFoot", "RightFoot" },
+}
+
+function Costume.Apply(m, heroId, skin)
+	local def = Costume.Heroes[heroId] and Costume.Heroes[heroId](skin)
+	if not def then return end
+	local colors = table.clone(def.colors or {})
+	for k, v in skin.Colors or {} do colors[k] = v end -- per-variant overrides
+	for group, color in colors do
+		for _, n in GROUPS[group] do local p = m:FindFirstChild(n); if p then p.Color = color end end
+	end
+	local list = table.clone(skin.Pieces or def.pieces)
+	for _, extra in skin.Extra or {} do table.insert(list, extra) end
+	for _, entry in list do
+		local fn = P[entry[1]]
+		if fn then fn(m, table.unpack(entry, 2)) end
+	end
+end
+return Costume

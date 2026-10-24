@@ -23,6 +23,8 @@ A Roblox game that mixes Steal a Brainrot with Dueling Grounds, using Marvel and
 - `src/server/DataService.luau`: DataStore "MvD_v2" {Cash, Wins, Losses, Owned={{H,R}}}
 - `src/shared/Rarity.luau`: tiers (weight, price, income, color), Roll, Format
 - `src/shared/Skins.luau`: 18 heroes x 6 rarity variants (name + colors), `Skins.Apply(model, hero, rarity)`
+- `src/shared/Costume.luau`: costume pieces (Cape, Cowl, Helmet, Eyes, Visor, Hair, Emblem, Reactor, NovaOrbs, Belt, Harness, Shoulders, Spikes, Cuffs) plus a per-hero default look. Variants in Skins can pass `Colors` / `Extra` / `Pieces`.
+  Policy: do NOT download or upload official Marvel/DC art (copyright, and Roblox moderation would take the game down). Recreate details from the user's references with parts.
 - `src/shared/Mannequin.luau`: blocky figure for ViewportFrame portraits
 - `src/client/BaseHUD.client.luau`: cash, $/s, slots, FIGHT button, alerts, carry banner, Secret rainbow
 - `src/client/SelectScreen.client.luau`: MK vs DC style fighter select
@@ -61,10 +63,10 @@ State lives as Character attributes: Hero, Stamina, Ult, Blocking, StunUntil, IF
 4. Rebirths (reset cash for an income multiplier), the classic Brainrot progression.
 5. Animations: idle on pedestal heroes, walk on convoy/walk-home, M1 and ability anims in duels.
 6. Ranked ELO for fight mode, a leaderboard board in the world, a robux shop (lock-time boost, 2x cash) via MarketplaceService.
-7. Real MeshPart heroes and weapons later; for now skins only recolor the default R15 body.
+7. Original MeshPart costume models (made by us, not ripped) to replace the part-built pieces.
 
 ## Publishing
-Live at place 95876647985129 (universe 10772668310). Run `ROBLOX_API_KEY=<key> ./scripts/publish.sh` (needs rojo; the environment must allow apis.roblox.com). Ask the user for the key; never commit it. Last published: version 6 (Gotham theme).
+Live at place 95876647985129 (universe 10772668310). Run `ROBLOX_API_KEY=<key> ./scripts/publish.sh` (needs rojo; the environment must allow apis.roblox.com). Ask the user for the key; never commit it. Last published: version 7 (costumes + Nova/Cyclops/Red Hood).
 
 ## Rules for whoever picks this up
 - Keep the server authoritative for damage and cooldowns; the client only does visuals and its own dash velocity.

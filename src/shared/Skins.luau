@@ -1,20 +1,25 @@
 -- Cosmetic variant per hero per rarity: { Name, Primary (torso/arms), Secondary (legs/head accents) }.
 -- Higher tiers also get aura effects (see Skins.Apply).
 local C = Color3.fromRGB
-local function v(name, a, b) return { Name = name, Primary = a, Secondary = b } end
+-- opts (optional): Colors = { group = color } overrides, Extra = { costume pieces } added, Pieces = replace defaults
+local function v(name, a, b, opts)
+	local t = { Name = name, Primary = a, Secondary = b }
+	for k, x in opts or {} do t[k] = x end
+	return t
+end
 local S = {}
 S.Data = {
 	SpiderMan = {
 		Common = v("Classic Spider-Man", C(200, 30, 40), C(30, 60, 160)),
 		Rare = v("Miles Morales", C(25, 25, 30), C(200, 30, 40)),
 		Epic = v("Iron Spider", C(190, 30, 30), C(215, 170, 50)),
-		Legendary = v("Symbiote Spider-Man", C(15, 15, 18), C(240, 240, 240)),
+		Legendary = v("Symbiote Spider-Man", C(15, 15, 18), C(240, 240, 240), { Colors = { Legs = C(15, 15, 18), Hands = C(240, 240, 240) } }),
 		Mythic = v("Spider-Man 2099", C(25, 35, 90), C(220, 30, 40)),
 		Secret = v("Cosmic Spider-Man", C(240, 240, 250), C(40, 60, 200)),
 	},
 	IronMan = {
-		Common = v("Mark III", C(180, 25, 30), C(215, 170, 50)),
-		Rare = v("Mark I", C(110, 110, 115), C(80, 80, 85)),
+		Common = v("Mark VI", C(180, 25, 30), C(205, 160, 60)),
+		Rare = v("Mark I", C(110, 110, 115), C(80, 80, 85), { Extra = {} }),
 		Epic = v("Hulkbuster", C(170, 30, 30), C(200, 160, 50)),
 		Legendary = v("Iron Patriot", C(30, 50, 140), C(200, 30, 40)),
 		Mythic = v("Mark 85", C(200, 20, 30), C(255, 200, 60)),
@@ -24,7 +29,7 @@ S.Data = {
 		Common = v("Classic Thor", C(60, 70, 110), C(170, 30, 30)),
 		Rare = v("Ragnarok Thor", C(70, 70, 75), C(150, 25, 25)),
 		Epic = v("Infinity War Thor", C(30, 30, 35), C(130, 20, 20)),
-		Legendary = v("Mighty Thor (Jane Foster)", C(180, 185, 195), C(190, 25, 30)),
+		Legendary = v("Mighty Thor (Jane Foster)", C(180, 185, 195), C(190, 25, 30), { Extra = { { "Helmet", C(190, 195, 205), nil, "Fin" } } }),
 		Mythic = v("King Thor", C(215, 170, 50), C(90, 20, 20)),
 		Secret = v("God of Thunder Unleashed", C(220, 240, 255), C(80, 200, 255)),
 	},
@@ -76,13 +81,43 @@ S.Data = {
 		Mythic = v("Demogoblin", C(120, 20, 20), C(255, 130, 30)),
 		Secret = v("Goblin King", C(40, 160, 60), C(255, 215, 80)),
 	},
-	Batman = {
-		Common = v("Classic Batman", C(110, 110, 120), C(25, 25, 30)),
-		Rare = v("Blue & Gray Batman", C(130, 130, 140), C(40, 60, 130)),
-		Epic = v("Batman Beyond", C(20, 20, 25), C(200, 25, 30)),
-		Legendary = v("Hellbat", C(50, 50, 55), C(255, 120, 30)),
-		Mythic = v("Red Death", C(170, 20, 25), C(30, 10, 10)),
-		Secret = v("Batman Who Laughs", C(15, 15, 18), C(200, 200, 210)),
+	Batman = { -- variants follow the user's reference sheets (TAS, Filmation, Long Halloween...)
+		Common = v("Animated Series Batman", C(120, 120, 130), C(25, 25, 35)),
+		Rare = v("Filmation Batman", C(160, 160, 170), C(60, 110, 210)),
+		Epic = v("Long Halloween Batman", C(95, 80, 70), C(30, 25, 25), { Pieces = {
+			{ "Cowl", C(30, 25, 25), 1.1, C(234, 184, 146) }, { "Eyes", C(245, 245, 245) }, { "Cape", C(30, 25, 25) },
+			{ "Emblem", "🦇", C(0, 0, 0), C(95, 80, 70) }, { "Belt", C(200, 160, 70) }, { "Cuffs", C(30, 25, 25), true } } }),
+		Legendary = v("Hellbat", C(50, 50, 55), C(255, 120, 30), { Extra = { { "Shoulders", C(60, 60, 70), true } } }),
+		Mythic = v("Red Death", C(170, 20, 25), C(30, 10, 10), { Extra = { { "Hair", C(170, 20, 25), "Spiky" } } }),
+		Secret = v("Batman Who Laughs", C(15, 15, 18), C(200, 200, 210), { Extra = { { "Spikes", C(200, 200, 210) } } }),
+	},
+	Nova = { -- from the user's Nova sheets (Richard Rider gold/blue, Sam Alexander black/gold)
+		Common = v("Nova Corps Rookie", C(40, 50, 120), C(205, 165, 60)),
+		Rare = v("Sam Alexander Nova", C(20, 20, 25), C(205, 165, 60), { Colors = { Feet = C(205, 165, 60), Hands = C(205, 165, 60) } }),
+		Epic = v("Richard Rider Nova", C(30, 40, 100), C(200, 160, 60)),
+		Legendary = v("Nova Prime", C(25, 30, 70), C(230, 190, 80)),
+		Mythic = v("Human Rocket", C(240, 120, 30), C(255, 220, 90)),
+		Secret = v("Nova Force Unleashed", C(240, 245, 255), C(120, 200, 255)),
+	},
+	Cyclops = { -- from the user's X-Men '97 / Marvel references
+		Common = v("X-Men '97 Cyclops", C(30, 60, 170), C(255, 220, 60)),
+		Rare = v("Jim Lee Cyclops", C(35, 55, 150), C(240, 200, 40)),
+		Epic = v("X-Factor Cyclops", C(25, 70, 160), C(230, 230, 240)),
+		Legendary = v("Astonishing Cyclops", C(20, 20, 25), C(255, 220, 60)),
+		Mythic = v("Phoenix Five Cyclops", C(255, 140, 30), C(255, 230, 120)),
+		Secret = v("Dark Phoenix Cyclops", C(150, 20, 30), C(255, 90, 40)),
+	},
+	RedHood = { -- from the user's Robin / Red Hood / Arkham Knight sheet
+		Common = v("Red Hood", C(35, 35, 40), C(110, 70, 45)),
+		Rare = v("Robin (Jason Todd)", C(190, 30, 40), C(255, 210, 60), { Pieces = {
+			{ "Hair", C(25, 20, 20) }, { "Visor", C(25, 25, 30), C(245, 245, 245) }, { "Cape", C(255, 210, 60) }, { "Emblem", "R", C(20, 20, 20), C(255, 210, 60), Enum.PartType.Cylinder }, { "Belt", C(255, 210, 60) } } }),
+		Epic = v("Red Hood 2.0", C(30, 30, 35), C(240, 240, 245)),
+		Legendary = v("Arkham Knight", C(30, 35, 50), C(80, 140, 220), { Pieces = {
+			{ "Cowl", C(30, 35, 50), 0.7 }, { "Eyes", C(120, 200, 255) }, { "Emblem", "✦", C(220, 30, 40) }, { "Shoulders", C(40, 45, 60), true }, { "Belt", C(60, 60, 70) } } }),
+		Mythic = v("Red X", C(30, 30, 35), C(200, 30, 30), { Pieces = {
+			{ "Helmet", C(240, 240, 245) }, { "Emblem", "✕", C(220, 30, 30) }, { "Cape", C(25, 25, 30) }, { "Belt", C(60, 60, 70) } } }),
+		Secret = v("Jasonstroke", C(30, 30, 35), C(220, 30, 30), { Pieces = {
+			{ "Helmet", C(220, 30, 30) }, { "Eyes", C(245, 245, 245) }, { "Harness", C(220, 30, 30) }, { "Shoulders", C(220, 30, 30) }, { "Belt", C(220, 30, 30) } } }),
 	},
 	Superman = {
 		Common = v("Classic Superman", C(30, 70, 190), C(200, 30, 40)),
@@ -151,6 +186,7 @@ S.Data = {
 }
 
 local Rarity = require(script.Parent.Rarity)
+local Costume = require(script.Parent.Costume)
 function S.Get(heroId, rarity)
 	return S.Data[heroId] and S.Data[heroId][rarity] or S.Data[heroId] and S.Data[heroId].Common
 end
@@ -166,8 +202,10 @@ function S.Apply(model, heroId, rarity)
 			p:Destroy() -- skins replace the player's clothing
 		end
 	end
-	local face = model:FindFirstChild("Head") and model.Head:FindFirstChild("face")
-	if face then face:Destroy() end -- masked heroes
+	Costume.Apply(model, heroId, skin) -- capes, cowls, helmets, emblems, per-part colors
+	local head = model:FindFirstChild("Head")
+	local face = head and head:FindFirstChild("face")
+	if face and head.Color ~= Costume.SKIN then face:Destroy() end -- masked heroes lose the default face
 	local tier = Rarity.Tiers[rarity]
 	local root = model:FindFirstChild("HumanoidRootPart")
 	if tier and tier.Index >= 4 and root then
