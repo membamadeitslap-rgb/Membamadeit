@@ -212,6 +212,15 @@ task.spawn(function()
 			if c and not c:GetAttribute("Blocking") then
 				c:SetAttribute("Stamina", math.min(Config.MaxStamina, (c:GetAttribute("Stamina") or 0) + Config.StaminaRegen * dt))
 			end
+			-- Movement penalties: frozen (countdown) > stunned > blocking
+			local hum = c and c:FindFirstChildOfClass("Humanoid")
+			if hum then
+				local hero = Heroes[c:GetAttribute("Hero")]
+				local base = hero and hero.WalkSpeed or Config.WalkSpeed
+				hum.WalkSpeed = c:GetAttribute("Frozen") and 0 or stunned(c) and Config.StunWalkSpeed
+					or c:GetAttribute("Blocking") and Config.BlockWalkSpeed or base
+				hum.JumpPower = (c:GetAttribute("Frozen") or stunned(c)) and 0 or Config.JumpPower
+			end
 		end
 	end
 end)

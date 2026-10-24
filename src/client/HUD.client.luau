@@ -79,7 +79,7 @@ for i = 1, 4 do
 end
 
 -- Hero select (lobby)
-local select = new("Frame", { BackgroundTransparency = 1, Size = UDim2.fromOffset(830, 110), AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -110) }, gui)
+local select = new("Frame", { BackgroundTransparency = 1, Size = UDim2.fromOffset(830, 170), AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -100) }, gui)
 new("UIGridLayout", { CellSize = UDim2.fromOffset(130, 48), CellPadding = UDim2.fromOffset(8, 8), HorizontalAlignment = Enum.HorizontalAlignment.Center, SortOrder = Enum.SortOrder.Name }, select)
 local pick = RS:WaitForChild("MvD_PickHero")
 for id, h in Heroes do
@@ -122,7 +122,7 @@ Net.Match.OnClientEvent:Connect(function(d)
 		P[i].face.Image = ("rbxthumb://type=AvatarHeadShot&id=%d&w=150&h=150"):format(info.userId)
 		for k, pip in P[i].pips do pip.BackgroundColor3 = d.wins[i] >= k and Color3.fromRGB(230, 40, 60) or Color3.fromRGB(40, 40, 50) end
 	end
-	if d.phase == "Countdown" then center.Text = "ROUND " .. d.round; splashText(tostring(d.n))
+	if d.phase == "Countdown" then center.Text = "ROUND " .. d.round; splashText(d.n == 3 and d.round == 1 and d.arena and d.arena:upper() or tostring(d.n))
 	elseif d.phase == "Fight" then splashText("FIGHT!", Color3.fromRGB(255, 70, 70)); fightStart = os.clock()
 	elseif d.phase == "RoundEnd" then splashText(d.winner == me.UserId and "ROUND WON" or "ROUND LOST"); fightStart = 0
 	elseif d.phase == "MatchEnd" then splashText(d.winner == me.UserId and "VICTORY" or "DEFEAT", d.winner == me.UserId and Color3.fromRGB(255, 215, 0) or Color3.fromRGB(200, 60, 60)); task.delay(4, function() match = nil end)

@@ -6,6 +6,7 @@ local Net = require(RS.Shared.Net)
 local Combat = require(script.Parent.CombatService)
 
 local Duel = {}
+Duel.OnMatchEnd = Instance.new("BindableEvent") -- (winner, loser)
 local map, onPad, busy = nil, { nil, nil }, false
 
 local function tp(p, pos, look)
@@ -20,14 +21,14 @@ local function broadcast(a, b, data)
 end
 
 local function freeze(p, on)
-	local hum = p.Character and p.Character:FindFirstChildOfClass("Humanoid")
-	if hum then hum.WalkSpeed = on and 0 or 16; hum.JumpPower = on and 0 or 50 end
+	if p.Character then p.Character:SetAttribute("Frozen", on or nil) end
 end
 
 local function runDuel(a, b)
 	busy = true
 	local wins = { [a] = 0, [b] = 0 }
 	local round = 0
+	local arena = map.Arenas[math.random(#map.Arenas)]
 	while wins[a] < Config.RoundsToWin and wins[b] < Config.RoundsToWin do
 		round += 1
 		for _, p in { a, b } do
@@ -37,9 +38,9 @@ local function runDuel(a, b)
 			p.Character:SetAttribute("InDuel", true)
 		end
 		if not (a.Parent and b.Parent) then break end
-		tp(a, map.SpawnA, map.ArenaCenter); tp(b, map.SpawnB, map.ArenaCenter)
+		tp(a, arena.SpawnA, arena.Center); tp(b, arena.SpawnB, arena.Center)
 		freeze(a, true); freeze(b, true)
-		for i = 3, 1, -1 do broadcast(a, b, { phase = "Countdown", n = i, round = round, wins = { wins[a], wins[b] } }); task.wait(1) end
+		for i = 3, 1, -1 do broadcast(a, b, { phase = "Countdown", n = i, arena = arena.Name, round = round, wins = { wins[a], wins[b] } }); task.wait(1) end
 		freeze(a, false); freeze(b, false)
 		broadcast(a, b, { phase = "Fight", round = round, wins = { wins[a], wins[b] } })
 		local winner, t0 = nil, os.clock()
@@ -58,7 +59,7 @@ local function runDuel(a, b)
 	end
 	local champ = wins[a] > wins[b] and a or b
 	if a.Parent and b.Parent then broadcast(a, b, { phase = "MatchEnd", winner = champ.UserId, wins = { wins[a], wins[b] } }) end
-	local ls = champ:FindFirstChild("leaderstats"); if ls then ls.Wins.Value += 1 end
+	Duel.OnMatchEnd:Fire(champ, champ == a and b or a)
 	task.wait(4)
 	for _, p in { a, b } do if p.Parent then p:LoadCharacter() end end
 	busy = false

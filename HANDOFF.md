@@ -31,14 +31,20 @@ State lives as Character attributes: Hero, Stamina, Ult, Blocking, StunUntil, IF
   - DC heroes: Batman (batarangs), Wonder Woman (God Killer sword, Amazon shield, Lasso of Truth as a Grab)
   - DC villains: Harley Quinn (mallet), Joker (crowbar), Deathstroke (katana + bo staff)
 
+- DONE (session 3):
+  - Movement penalties in the CombatService loop: Frozen (countdown) 0, stunned 3, blocking 7. Per-hero `WalkSpeed` (Flash 22, Hulk/Darkseid 14).
+  - +7 characters: Hulk, Superman, Flash (heroes); Venom, Green Goblin with pumpkin bomb weapon (Marvel villains); Black Adam, Darkseid (DC villains). Roster is now 18.
+  - 5 themed arenas in ArenaBuilder (`A.Themes`): Stark Tower, Gotham, Wakanda, Metropolis, Asgard. Random one per match; the name splashes on round 1.
+  - DataService: Wins, Losses and Coins saved to DataStore "MvD_v1" (+25 coins per win, +5 per loss). Enable Studio API access to test saving.
+- Syntax check: download the luau binary from github.com/luau-lang/luau releases and run `luau-compile --text file.luau` on every file (all pass).
+
 ## Next up (in order)
-1. Test in Studio and fix runtime errors.
-2. Stunned or blocking players should have their WalkSpeed reduced (stun currently only blocks actions).
-3. Animations: add AnimationIds per M1 combo step and per ability (Fx "Swing" / "Ability" events already fire).
-4. Remaining roster: Hulk, Superman, Flash (no weapons, power-based), plus more villains (Venom, Green Goblin with glider and pumpkin bombs, Black Adam, Darkseid). Copy the Heroes/*.luau format.
-4b. Tune weapon grip offsets/rotation in Weapons.Attach once seen in Studio (written blind; shields/gauntlet may need a different rotation than swords). Consider swapping in MeshParts later.
-5. Real arena builds (Stark Tower, Gotham, Wakanda, Metropolis, Asgard) plus random arena pick.
-6. DataStore (coins, wins, unlocks), shop, ranked ELO, spectate, 2v2/FFA pads.
+1. Test in Studio (Test > Clients and Servers, 2 players) and fix runtime errors. Nobody has run it yet.
+2. Animations: AnimationIds per M1 combo step and per ability, played on the "Swing" / "Ability" Fx events.
+3. Tune weapon grip offsets/rotation in Weapons.Attach once seen in Studio. Consider MeshParts.
+4. Shop: spend Coins to unlock heroes (add `Price` to hero data, gate the pick remote server-side, grey out locked buttons).
+5. Ranked ELO, spectate camera for lobby players, 2v2/FFA pads, emotes, daily reward.
+6. Per-hero ability VFX (lightning for Thor/Black Adam, heat vision beam, symbiote tendrils).
 
 ## Rules for whoever picks this up
 - Keep the server authoritative for damage and cooldowns; the client only does visuals and its own dash velocity.

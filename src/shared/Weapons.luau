@@ -90,6 +90,11 @@ B.DeathstrokeStaff = function(m) -- folding bo staff on the back hand
 	p(m, "CapA", Vector3.new(0.24, 0.3, 0.24), CFrame.new(0, 2.2, 0), C(220, 130, 30))
 	p(m, "CapB", Vector3.new(0.24, 0.3, 0.24), CFrame.new(0, -2.2, 0), C(220, 130, 30))
 end
+B.PumpkinBomb = function(m) -- orange jack-o'-lantern grenade with glowing face
+	p(m, "Grip", Vector3.one * 0.9, CFrame.new(), C(230, 110, 20), Enum.Material.SmoothPlastic, Enum.PartType.Ball)
+	p(m, "Stem", Vector3.new(0.15, 0.3, 0.15), CFrame.new(0, 0.5, 0), C(60, 120, 40))
+	p(m, "Face", Vector3.new(0.5, 0.2, 0.05), CFrame.new(0, -0.05, -0.44), C(255, 230, 80), Enum.Material.Neon)
+end
 
 function W.Build(id)
 	local m = Instance.new("Model"); m.Name = id
