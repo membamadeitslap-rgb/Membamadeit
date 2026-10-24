@@ -189,22 +189,81 @@ function P.Cuffs(m, color, fins)
 	end
 end
 -- Ghost Rider: bone-white skull with dark sockets/teeth, burning head (Fire + embers)
+-- Realistic hellfire: layered particle flames (white-hot core -> flame color -> red -> smoke) + sparks.
+-- Uses Roblox's built-in fire/smoke particle textures instead of the cartoony Fire object.
+local FIRE_TEX, SMOKE_TEX, SPARK_TEX = "rbxasset://textures/particles/fire_main.dds", "rbxasset://textures/particles/smoke_main.dds", "rbxasset://textures/particles/sparkles_main.dds"
+local function hellfire(parent, flame, flame2, scale, rate)
+	scale, rate = scale or 1, rate or 1
+	local function emitter(name, tex, props)
+		local pe = Instance.new("ParticleEmitter"); pe.Name = name; pe.Texture = tex
+		pe.EmissionDirection = Enum.NormalId.Top; pe.LockedToPart = false
+		for k, v in props do pe[k] = v end
+		pe.Parent = parent; return pe
+	end
+	emitter("FlameCore", FIRE_TEX, { LightEmission = 1, LightInfluence = 0, Rate = 60 * rate,
+		Color = ColorSequence.new({ ColorSequenceKeypoint.new(0, Color3.new(1, 1, 0.9)), ColorSequenceKeypoint.new(0.3, flame2), ColorSequenceKeypoint.new(1, flame) }),
+		Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1.1 * scale), NumberSequenceKeypoint.new(0.6, 0.8 * scale), NumberSequenceKeypoint.new(1, 0) }),
+		Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.2), NumberSequenceKeypoint.new(0.7, 0.4), NumberSequenceKeypoint.new(1, 1) }),
+		Lifetime = NumberRange.new(0.35, 0.6), Speed = NumberRange.new(3 * scale, 5 * scale), SpreadAngle = Vector2.new(18, 18),
+		Rotation = NumberRange.new(-30, 30), RotSpeed = NumberRange.new(-90, 90), Acceleration = Vector3.new(0, 4, 0) })
+	emitter("FlameOuter", FIRE_TEX, { LightEmission = 0.8, LightInfluence = 0, Rate = 45 * rate,
+		Color = ColorSequence.new({ ColorSequenceKeypoint.new(0, flame), ColorSequenceKeypoint.new(0.7, flame:Lerp(Color3.new(0.6, 0.05, 0), 0.6)), ColorSequenceKeypoint.new(1, Color3.new(0.2, 0.02, 0)) }),
+		Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1.4 * scale), NumberSequenceKeypoint.new(1, 0.3 * scale) }),
+		Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.35), NumberSequenceKeypoint.new(1, 1) }),
+		Lifetime = NumberRange.new(0.5, 0.9), Speed = NumberRange.new(2.5 * scale, 4.5 * scale), SpreadAngle = Vector2.new(30, 30),
+		Rotation = NumberRange.new(0, 360), RotSpeed = NumberRange.new(-60, 60), Acceleration = Vector3.new(0, 3, 0) })
+	emitter("Smoke", SMOKE_TEX, { LightInfluence = 0.3, Rate = 8 * rate, Color = ColorSequence.new(Color3.fromRGB(40, 30, 28)),
+		Size = NumberSequence.new(1.2 * scale, 2.6 * scale), Transparency = NumberSequence.new(0.7, 1),
+		Lifetime = NumberRange.new(1, 1.6), Speed = NumberRange.new(3, 5), SpreadAngle = Vector2.new(20, 20) })
+	emitter("Sparks", SPARK_TEX, { LightEmission = 1, LightInfluence = 0, Rate = 14 * rate, Color = ColorSequence.new(flame2),
+		Size = NumberSequence.new(0.18 * scale, 0), Lifetime = NumberRange.new(0.6, 1.2), Speed = NumberRange.new(5, 9),
+		SpreadAngle = Vector2.new(35, 35), Acceleration = Vector3.new(0, -4, 0), Drag = 1 })
+end
+Costume.Hellfire = hellfire
+
+-- Ghost Rider skull: rounded cranium, cheekbones, brow ridge, separate jaw, upper/lower teeth rows,
+-- deep sockets with glowing pupils, inverted-heart nasal cavity. Flames pour off the top/back and creep up from the collar.
 function P.FlamingSkull(m, flame, flame2)
 	local hd = find(m, "Head"); if not hd then return end
 	local s = hd.Size
 	flame, flame2 = flame or C(255, 120, 20), flame2 or C(255, 220, 60)
-	local skull = piece(m, hd, "Skull", s * 1.02, CFrame.new(), C(235, 228, 210), Enum.Material.Slate)
-	for _, x in { -0.22, 0.22 } do -- angry, slanted eye sockets
-		piece(m, hd, "Socket", Vector3.new(s.X * 0.26, s.Y * 0.18, 0.08), CFrame.new(x * s.X, s.Y * 0.08, -s.Z * 0.5) * CFrame.Angles(0, 0, math.rad(x > 0 and 12 or -12)), C(25, 15, 10))
+	local BONE, DARK = C(232, 224, 204), C(22, 12, 8)
+	local function mesh(p, kind, scale) local sm = Instance.new("SpecialMesh"); sm.MeshType = kind; sm.Scale = scale or Vector3.one; sm.Parent = p end
+	local cranium = piece(m, hd, "Skull", Vector3.new(s.X * 1.0, s.Y * 0.82, s.Z * 1.05), CFrame.new(0, s.Y * 0.12, 0.02), BONE, Enum.Material.Slate)
+	mesh(cranium, Enum.MeshType.Sphere)
+	piece(m, hd, "Brow", Vector3.new(s.X * 0.86, s.Y * 0.12, s.Z * 0.2), CFrame.new(0, s.Y * 0.16, -s.Z * 0.42), BONE, Enum.Material.Slate)
+	for _, x in { -1, 1 } do
+		local cheek = piece(m, hd, "Cheekbone", Vector3.new(s.X * 0.3, s.Y * 0.22, s.Z * 0.42), CFrame.new(x * s.X * 0.33, -s.Y * 0.08, -s.Z * 0.22), BONE, Enum.Material.Slate)
+		mesh(cheek, Enum.MeshType.Sphere)
+		-- deep socket + ember pupil
+		local sock = piece(m, hd, "Socket", Vector3.new(s.X * 0.27, s.Y * 0.24, 0.12), CFrame.new(x * s.X * 0.2, s.Y * 0.03, -s.Z * 0.47) * CFrame.Angles(0, 0, math.rad(-x * 10)), DARK)
+		mesh(sock, Enum.MeshType.Sphere)
+		piece(m, hd, "Pupil", Vector3.new(0.07, 0.07, 0.04), CFrame.new(x * s.X * 0.2, s.Y * 0.02, -s.Z * 0.53), flame2, Enum.Material.Neon)
 	end
-	piece(m, hd, "Nose", Vector3.new(s.X * 0.12, s.Y * 0.12, 0.08), CFrame.new(0, -s.Y * 0.1, -s.Z * 0.5), C(25, 15, 10))
-	piece(m, hd, "Teeth", Vector3.new(s.X * 0.6, s.Y * 0.16, 0.08), CFrame.new(0, -s.Y * 0.32, -s.Z * 0.5), C(245, 240, 225))
-	for i = -2, 2 do piece(m, hd, "Gap", Vector3.new(0.02, s.Y * 0.16, 0.1), CFrame.new(i * s.X * 0.11, -s.Y * 0.32, -s.Z * 0.5), C(40, 25, 15)) end
-	local fire = Instance.new("Fire"); fire.Color = flame; fire.SecondaryColor = flame2; fire.Size = s.Y * 3.5; fire.Heat = 12; fire.Parent = skull
-	local pe = Instance.new("ParticleEmitter"); pe.Name = "Embers"; pe.LightEmission = 1; pe.Color = ColorSequence.new(flame, flame2)
-	pe.Size = NumberSequence.new(0.5, 0); pe.Lifetime = NumberRange.new(0.5, 1); pe.Rate = 30; pe.Speed = NumberRange.new(2, 5)
-	pe.SpreadAngle = Vector2.new(25, 25); pe.EmissionDirection = Enum.NormalId.Top; pe.Parent = skull
-	local l = Instance.new("PointLight"); l.Color = flame; l.Range = 14; l.Brightness = 2; l.Parent = skull
+	for _, x in { -1, 1 } do -- inverted-heart nasal cavity (two angled slots)
+		piece(m, hd, "Nasal", Vector3.new(s.X * 0.07, s.Y * 0.16, 0.08), CFrame.new(x * s.X * 0.035, -s.Y * 0.14, -s.Z * 0.5) * CFrame.Angles(0, 0, math.rad(x * 18)), DARK)
+	end
+	local maxilla = piece(m, hd, "Maxilla", Vector3.new(s.X * 0.56, s.Y * 0.14, s.Z * 0.3), CFrame.new(0, -s.Y * 0.27, -s.Z * 0.34), BONE, Enum.Material.Slate)
+	local jaw = piece(m, hd, "Jaw", Vector3.new(s.X * 0.66, s.Y * 0.16, s.Z * 0.72), CFrame.new(0, -s.Y * 0.47, -s.Z * 0.06), BONE, Enum.Material.Slate)
+	mesh(jaw, Enum.MeshType.Brick)
+	for row, y in { -0.33, -0.41 } do -- upper / lower teeth
+		for i = -3, 3 do
+			piece(m, hd, "Tooth", Vector3.new(s.X * 0.068, s.Y * 0.075, 0.07), CFrame.new(i * s.X * 0.075, y * s.Y, -s.Z * 0.5 + math.abs(i) * 0.012), C(245, 240, 222), Enum.Material.Slate)
+		end
+	end
+	piece(m, hd, "Bite", Vector3.new(s.X * 0.54, 0.02, 0.08), CFrame.new(0, -s.Y * 0.37, -s.Z * 0.5), DARK)
+	-- flames: big crown off the cranium + collar flames creeping up around the neck
+	local crown = piece(m, hd, "FlameCrown", Vector3.new(s.X * 0.8, 0.1, s.Z * 0.8), CFrame.new(0, s.Y * 0.45, 0.08), flame, Enum.Material.Neon)
+	crown.Transparency = 1
+	hellfire(crown, flame, flame2, s.Y * 1.1, 1.3)
+	local collar = chestOf(m)
+	if collar then
+		local ring = piece(m, collar, "CollarFire", Vector3.new(collar.Size.X * 0.45, 0.1, collar.Size.Z * 0.7), CFrame.new(0, collar.Size.Y / 2, 0), flame, Enum.Material.Neon)
+		ring.Transparency = 1
+		hellfire(ring, flame, flame2, 0.55, 0.6)
+	end
+	local l = Instance.new("PointLight"); l.Color = flame; l.Range = 16; l.Brightness = 2.5; l.Shadows = true; l.Parent = cranium
+	game:GetService("CollectionService"):AddTag(l, "HellfireFlicker")
 end
 -- Biker jacket: collar lapels, diagonal zipper, zip pockets
 function P.BikerJacket(m, color, metal)
@@ -236,7 +295,7 @@ end
 function P.Chains(m, metal)
 	local t, w = chestOf(m), waistOf(m)
 	local function link(anchor, p, dir, i)
-		piece(m, anchor, "Link", Vector3.new(0.13, 0.22, 0.3), CFrame.lookAt(p, p + dir) * CFrame.Angles(0, 0, (i % 2) * math.rad(90)), metal, Enum.Material.DiamondPlate)
+		piece(m, anchor, "Link", Vector3.new(0.13, 0.22, 0.3), CFrame.lookAt(p, p + dir) * CFrame.Angles(0, 0, (i % 2) * math.rad(90)), metal, Enum.Material.Metal)
 	end
 	local function run(anchor, from, to, n)
 		for i = 0, n do link(anchor, from:Lerp(to, i / n), (to - from).Unit, i) end
@@ -262,8 +321,7 @@ function P.HellfireBody(m, flame, flame2)
 	for _, n in { "LeftHand", "RightHand", "LeftLowerArm", "RightLowerArm", "LeftFoot", "RightFoot", "LeftArm", "RightArm", "LeftLeg", "RightLeg" } do
 		local a = m:FindFirstChild(n)
 		if a then
-			local f = Instance.new("Fire"); f.Color = flame; f.SecondaryColor = flame2
-			f.Size = n:find("Hand") and 3 or 2; f.Heat = n:find("Foot") and 3 or 6; f.Parent = a
+			hellfire(a, flame, flame2, n:find("Hand") and 0.7 or 0.5, n:find("Hand") and 0.8 or 0.5)
 		end
 	end
 	for _, n in { "UpperTorso", "Torso" } do
@@ -275,6 +333,39 @@ function P.HellfireBody(m, flame, flame2)
 			pe.Acceleration = Vector3.new(0, 6, 0); pe.SpreadAngle = Vector2.new(60, 60); pe.Parent = t
 			local l = Instance.new("PointLight"); l.Name = "HellGlow"; l.Color = flame; l.Range = 16; l.Brightness = 2; l.Parent = t
 			CS:AddTag(l, "HellfireFlicker")
+		end
+	end
+end
+-- Swap the body to a material (Ghost Rider: Leather)
+function P.Material(m, mat)
+	for _, p in m:GetChildren() do
+		if p:IsA("BasePart") and p.Name ~= "HumanoidRootPart" and p.Name ~= "Head" then p.Material = mat end
+	end
+end
+-- Spiked gloves (knuckles) and boots (outer ankle)
+function P.GloveBootSpikes(m, metal)
+	for _, n in { "LeftHand", "RightHand" } do
+		local h = m:FindFirstChild(n)
+		if h then for k = -1, 1 do spike(m, h, CFrame.new(k * h.Size.X * 0.3, 0, -h.Size.Z / 2 - 0.1) * CFrame.Angles(math.rad(-90), 0, 0), metal) end end
+	end
+	for _, n in { "LeftFoot", "RightFoot" } do
+		local f = m:FindFirstChild(n)
+		if f then local side = n:find("Left") and -1 or 1
+			spike(m, f, CFrame.new(side * (f.Size.X / 2 + 0.1), f.Size.Y * 0.3, 0.1) * CFrame.Angles(0, 0, math.rad(-side * 90)), metal) end
+	end
+end
+-- Chain wrapped in a spiral around the right arm (upper + lower)
+function P.ArmChain(m, metal)
+	for _, n in { "RightUpperArm", "RightLowerArm", "Right Arm" } do
+		local a = m:FindFirstChild(n)
+		if a then
+			local s = a.Size
+			for i = 0, 9 do
+				local t = i / 9
+				local ang = t * math.pi * 3
+				local pos = Vector3.new(math.cos(ang) * (s.X / 2 + 0.08), s.Y / 2 - t * s.Y, math.sin(ang) * (s.Z / 2 + 0.08))
+				piece(m, a, "ArmLink", Vector3.new(0.12, 0.2, 0.26), CFrame.lookAt(pos, pos + Vector3.new(-math.sin(ang), -0.3, math.cos(ang))) * CFrame.Angles(0, 0, (i % 2) * math.rad(90)), metal, Enum.Material.Metal)
+			end
 		end
 	end
 end
@@ -328,8 +419,9 @@ Costume.Heroes = {
 		pieces = { { "Hair", C(130, 60, 30), "Spiky" }, { "Visor", s.Secondary, C(255, 30, 30) }, { "Harness", s.Secondary, "X" }, { "Bands", s.Secondary },
 			{ "Belt", s.Secondary, { color = C(190, 20, 20), text = "X", textColor = C(110, 10, 10) } } } } end,
 	GhostRider = function(s) return { colors = { Head = C(235, 228, 210), Chest = s.Primary, Waist = s.Primary, Arms = s.Primary, Hands = s.Primary, Legs = s.Primary, Feet = C(20, 20, 22) },
-		pieces = { { "FlamingSkull", s.Flame, s.Flame2 }, { "BikerJacket", s.Primary, s.Secondary }, { "Shoulders", s.Primary, true, s.Secondary },
-			{ "Studs", s.Secondary }, { "Chains", s.Secondary } } } end,
+		pieces = { { "Material", Enum.Material.Leather }, { "FlamingSkull", s.Flame, s.Flame2 }, { "BikerJacket", s.Primary, s.Secondary },
+			{ "Shoulders", s.Primary, true, s.Secondary }, { "Studs", s.Secondary }, { "GloveBootSpikes", s.Secondary },
+			{ "Chains", s.Secondary }, { "ArmChain", s.Secondary } } } end,
 	RedHood = function(s) return { colors = { Head = s.Primary, Hands = C(25, 25, 30), Feet = C(25, 25, 30) },
 		pieces = { { "Helmet", s.Primary }, { "Eyes", WHITE }, { "Emblem", "🦇", C(0, 0, 0), s.Primary }, { "Belt", C(60, 50, 40) }, { "Cape", s.Secondary } } } end,
 }

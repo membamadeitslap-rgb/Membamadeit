@@ -96,12 +96,16 @@ B.PumpkinBomb = function(m) -- orange jack-o'-lantern grenade with glowing face
 	p(m, "Face", Vector3.new(0.5, 0.2, 0.05), CFrame.new(0, -0.05, -0.44), C(255, 230, 80), Enum.Material.Neon)
 end
 
-B.HellfireChain = function(m) -- glowing chain coiled in the fist, trailing a short length
-	p(m, "Grip", Vector3.new(0.4, 0.4, 0.4), CFrame.new(), C(150, 150, 160), Enum.Material.DiamondPlate)
-	for i = 1, 8 do
-		local link = p(m, "Link" .. i, Vector3.new(0.12, 0.2, 0.3), CFrame.new(0, -i * 0.24, -0.05 * i) * CFrame.Angles(0, (i % 2) * math.rad(90), 0), C(170, 160, 150), Enum.Material.DiamondPlate)
-		if i % 3 == 0 then local f = Instance.new("Fire"); f.Size = 1.5; f.Heat = 2; f.Color = C(255, 120, 20); f.Parent = link end
+B.HellfireChain = function(m) -- Johnny Blaze's chain whip: links hanging from the fist, steel dart tip, burning
+	p(m, "Grip", Vector3.new(0.4, 0.4, 0.4), CFrame.new(), C(150, 150, 160), Enum.Material.Metal)
+	for i = 1, 11 do
+		p(m, "Link" .. i, Vector3.new(0.12, 0.2, 0.28), CFrame.new(0, -i * 0.22, -0.04 * i) * CFrame.Angles(0, (i % 2) * math.rad(90), 0), C(175, 170, 165), Enum.Material.Metal)
 	end
+	local dart = p(m, "Dart", Vector3.new(0.22, 0.5, 0.22), CFrame.new(0, -2.75, -0.48), C(200, 205, 215), Enum.Material.Metal)
+	local sm = Instance.new("SpecialMesh"); sm.MeshType = Enum.MeshType.Sphere; sm.Scale = Vector3.new(0.6, 1.4, 0.6); sm.Parent = dart
+	local f = Instance.new("ParticleEmitter"); f.Texture = "rbxasset://textures/particles/fire_main.dds"; f.LightEmission = 1
+	f.Color = ColorSequence.new(C(255, 220, 120), C(255, 90, 20)); f.Size = NumberSequence.new(0.6, 0); f.Rate = 30
+	f.Lifetime = NumberRange.new(0.3, 0.5); f.Speed = NumberRange.new(1, 2); f.Parent = m.Link6
 end
 
 function W.Build(id)
