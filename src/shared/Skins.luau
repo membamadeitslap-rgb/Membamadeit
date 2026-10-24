@@ -100,7 +100,7 @@ S.Data = {
 		Secret = v("Nova Force Unleashed", C(240, 245, 255), C(120, 200, 255)),
 	},
 	Cyclops = { -- from the user's X-Men '97 / Marvel references
-		Common = v("X-Men '97 Cyclops", C(30, 60, 170), C(255, 220, 60)),
+		Common = v("X-Men '97 Cyclops", C(35, 70, 200), C(250, 215, 40)),
 		Rare = v("Jim Lee Cyclops", C(35, 55, 150), C(240, 200, 40)),
 		Epic = v("X-Factor Cyclops", C(25, 70, 160), C(230, 230, 240)),
 		Legendary = v("Astonishing Cyclops", C(20, 20, 25), C(255, 220, 60)),

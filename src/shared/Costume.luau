@@ -71,13 +71,22 @@ function P.Visor(m, frame, glow)
 	local s = hd.Size
 	piece(m, hd, "VisorFrame", Vector3.new(s.X * 1.1, s.Y * 0.24, s.Z * 1.06), CFrame.new(0, s.Y * 0.08, 0), frame)
 	piece(m, hd, "VisorGlow", Vector3.new(s.X * 0.7, s.Y * 0.08, 0.06), CFrame.new(0, s.Y * 0.08, -s.Z * 0.56), glow, Enum.Material.Neon)
+	for _, x in { -1, 1 } do -- ear pods
+		piece(m, hd, "VisorPod", Vector3.new(0.12, s.Y * 0.34, s.Z * 0.34), CFrame.new(x * s.X * 0.56, 0, 0), frame)
+	end
 end
 function P.Hair(m, color, style)
 	local hd = find(m, "Head"); if not hd then return end
 	local s = hd.Size
 	piece(m, hd, "Hair", Vector3.new(s.X * 1.06, s.Y * 0.35, s.Z * 1.06), CFrame.new(0, s.Y * 0.4, s.Z * 0.04), color)
 	if style == "Spiky" then
-		for i = -1, 1 do piece(m, hd, "Spike", Vector3.new(0.2, s.Y * 0.35, 0.2), CFrame.new(i * s.X * 0.3, s.Y * 0.65, 0) * CFrame.Angles(0, 0, math.rad(-i * 25)), color) end
+		for row, zf in { -0.3, 0.05, 0.38 } do -- three rows of spikes, swept up and back
+			for i = -2, 2 do
+				local sp = piece(m, hd, "Spike", Vector3.new(0.2, s.Y * (0.42 - math.abs(i) * 0.05), 0.2),
+					CFrame.new(i * s.X * 0.2, s.Y * 0.62, zf * s.Z) * CFrame.Angles(math.rad(-20 - row * 8), 0, math.rad(-i * 18)), color)
+				local sm = Instance.new("SpecialMesh"); sm.MeshType = Enum.MeshType.Wedge; sm.Parent = sp
+			end
+		end
 	elseif style == "Pigtails" then
 		for _, x in { -0.62, 0.62 } do piece(m, hd, "Pigtail", Vector3.new(s.X * 0.3, s.Y * 0.8, s.Z * 0.3), CFrame.new(x * s.X, s.Y * 0.1, s.Z * 0.2), color) end
 	elseif style == "Long" then
@@ -120,11 +129,33 @@ function P.Belt(m, color, buckle)
 	end
 end
 -- Cyclops-style shoulder-to-hip harness straps
-function P.Harness(m, color)
+function P.Harness(m, color, style)
 	local t = chestOf(m); if not t then return end
 	local s = t.Size
+	if style == "X" then
+		local fz = -s.Z / 2 - 0.04
+		local diag = math.sqrt((s.X * 0.8) ^ 2 + s.Y ^ 2)
+		local ang = math.atan2(s.X * 0.8, s.Y)
+		for _, k in { -1, 1 } do
+			piece(m, t, "StrapX", Vector3.new(s.X * 0.13, diag, 0.08), CFrame.new(0, 0, fz) * CFrame.Angles(0, 0, k * ang), color)
+			piece(m, t, "StrapShoulder", Vector3.new(s.X * 0.13, 0.08, s.Z * 1.1), CFrame.new(k * s.X * 0.36, s.Y / 2 + 0.03, 0), color)
+			piece(m, t, "StrapBack", Vector3.new(s.X * 0.13, s.Y, 0.08), CFrame.new(k * s.X * 0.3, 0, s.Z / 2 + 0.04), color)
+			piece(m, t, "StrapSide", Vector3.new(s.X * 0.12, s.Y * 0.5, 0.08), CFrame.new(k * s.X * 0.3, -s.Y * 0.26, fz), color)
+		end
+		return
+	end
 	piece(m, t, "Strap", Vector3.new(s.X * 0.14, s.Y * 1.1, 0.08), CFrame.new(-s.X * 0.1, 0, -s.Z / 2 - 0.04) * CFrame.Angles(0, 0, math.rad(-28)), color)
 	piece(m, t, "Strap2", Vector3.new(s.X * 0.14, s.Y * 1.0, 0.08), CFrame.new(s.X * 0.25, -s.Y * 0.05, -s.Z / 2 - 0.04), color)
+end
+function P.Bands(m, color)
+	local spots = { LeftUpperArm = 0.05, RightUpperArm = 0.05, LeftLowerArm = -0.36, RightLowerArm = -0.36, LeftUpperLeg = 0.05, RightUpperLeg = 0.05 }
+	for name, y in spots do
+		local a = m:FindFirstChild(name)
+		if a then
+			local s = a.Size
+			piece(m, a, "Band", Vector3.new(s.X * 1.12, s.Y * (name:find("Lower") and 0.3 or 0.18), s.Z * 1.12), CFrame.new(0, y * s.Y, 0), color)
+		end
+	end
 end
 function P.Shoulders(m, color, spiky, spikeColor)
 	for _, n in { "LeftUpperArm", "RightUpperArm", "LeftArm", "RightArm" } do
@@ -293,9 +324,9 @@ Costume.Heroes = {
 		pieces = { { "Eyes", C(255, 40, 40) }, { "Shoulders", s.Secondary }, { "Belt", s.Secondary } } } end,
 	Nova = function(s) return { colors = { Head = s.Secondary, Arms = s.Primary, Hands = s.Secondary, Feet = s.Secondary },
 		pieces = { { "Helmet", s.Secondary, nil, C(220, 30, 40) }, { "Eyes", WHITE }, { "NovaOrbs", s.Secondary }, { "Belt", s.Secondary }, { "Shoulders", s.Secondary } } } end,
-	Cyclops = function(s) return { colors = { Head = SKIN, Hands = s.Secondary, Feet = s.Secondary, Waist = s.Primary },
-		pieces = { { "Hair", C(140, 70, 40) }, { "Visor", s.Secondary, C(255, 40, 40) }, { "Harness", s.Secondary },
-			{ "Belt", s.Secondary, { color = C(20, 20, 20), text = "X", textColor = C(220, 30, 30) } } } } end,
+	Cyclops = function(s) return { colors = { Head = SKIN, Chest = s.Primary, Waist = s.Primary, Arms = s.Primary, Legs = s.Primary, Hands = s.Secondary, Boots = s.Secondary },
+		pieces = { { "Hair", C(130, 60, 30), "Spiky" }, { "Visor", s.Secondary, C(255, 30, 30) }, { "Harness", s.Secondary, "X" }, { "Bands", s.Secondary },
+			{ "Belt", s.Secondary, { color = C(190, 20, 20), text = "X", textColor = C(110, 10, 10) } } } } end,
 	GhostRider = function(s) return { colors = { Head = C(235, 228, 210), Chest = s.Primary, Waist = s.Primary, Arms = s.Primary, Hands = s.Primary, Legs = s.Primary, Feet = C(20, 20, 22) },
 		pieces = { { "FlamingSkull", s.Flame, s.Flame2 }, { "BikerJacket", s.Primary, s.Secondary }, { "Shoulders", s.Primary, true, s.Secondary },
 			{ "Studs", s.Secondary }, { "Chains", s.Secondary } } } end,
@@ -309,6 +340,7 @@ local GROUPS = {
 	Hands = { "LeftHand", "RightHand" },
 	Legs = { "LeftUpperLeg", "RightUpperLeg", "LeftLowerLeg", "RightLowerLeg", "LeftLeg", "RightLeg" },
 	Feet = { "LeftFoot", "RightFoot" },
+	Boots = { "LeftLowerLeg", "RightLowerLeg", "LeftFoot", "RightFoot" },
 }
 
 function Costume.Apply(m, heroId, skin)
@@ -316,8 +348,9 @@ function Costume.Apply(m, heroId, skin)
 	if not def then return end
 	local colors = table.clone(def.colors or {})
 	for k, v in skin.Colors or {} do colors[k] = v end -- per-variant overrides
-	for group, color in colors do
-		for _, n in GROUPS[group] do local p = m:FindFirstChild(n); if p then p.Color = color end end
+	for _, group in { "Head", "Chest", "Waist", "Arms", "Hands", "Legs", "Feet", "Boots" } do
+		local color = colors[group]
+		if color then for _, n in GROUPS[group] do local p = m:FindFirstChild(n); if p then p.Color = color end end end
 	end
 	local list = table.clone(skin.Pieces or def.pieces)
 	for _, extra in skin.Extra or {} do table.insert(list, extra) end

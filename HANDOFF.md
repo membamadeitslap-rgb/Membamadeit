@@ -67,7 +67,7 @@ State lives as Character attributes: Hero, Stamina, Ult, Blocking, StunUntil, IF
 7. Custom meshes: the user REJECTED the generated-mesh attempts ("goofy"). Do not build meshes; stick to the part-built Roblox style (see the user's Ghost Rider reference: blocky body, detailed accessories).
 
 ## Publishing
-Live at place 95876647985129 (universe 10772668310). Run `ROBLOX_API_KEY=<key> ./scripts/publish.sh` (needs rojo; the environment must allow apis.roblox.com). Ask the user for the key; never commit it. Last published: version 11 (Ghost Rider Legendary+: burning body + Hell Cycle).
+Live at place 95876647985129 (universe 10772668310). Run `ROBLOX_API_KEY=<key> ./scripts/publish.sh` (needs rojo; the environment must allow apis.roblox.com). Ask the user for the key; never commit it. Last published: version 12 (Cyclops reference look).
 
 ## Rules for whoever picks this up
 - Keep the server authoritative for damage and cooldowns; the client only does visuals and its own dash velocity.
