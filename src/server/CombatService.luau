@@ -7,6 +7,7 @@ local Config = require(RS.Shared.Config)
 local Heroes = require(RS.Shared.Heroes)
 local Net = require(RS.Shared.Net)
 local Weapons = require(RS.Shared.Weapons)
+local Skins = require(RS.Shared.Skins)
 
 local Combat = {}
 local state = {} -- [player] = { combo, lastM1, cds = {}, counterUntil }
@@ -22,9 +23,11 @@ local function ready(p, key, cd)
 	return true
 end
 
-function Combat.SetupCharacter(player, heroId)
+-- heroId nil = lobby mode (no skin/weapons; M1 only knocks back, used to stop thieves)
+function Combat.SetupCharacter(player, heroId, rarity)
 	local char = player.Character
 	char:SetAttribute("Hero", heroId)
+	if heroId then Skins.Apply(char, heroId, rarity or "Common") end
 	char:SetAttribute("Stamina", Config.MaxStamina)
 	char:SetAttribute("Ult", 0)
 	char:SetAttribute("Blocking", false)
@@ -60,6 +63,7 @@ end
 function Combat.Hit(attacker, victimChar, info, fromPos)
 	local hum = victimChar:FindFirstChildOfClass("Humanoid")
 	if not hum or hum.Health <= 0 then return end
+	if not Players:GetPlayerFromCharacter(victimChar) then return end -- ignore display heroes on pedestals/convoy
 	if (victimChar:GetAttribute("IFrameUntil") or 0) > now() then return end
 	local victim = Players:GetPlayerFromCharacter(victimChar)
 	-- Counter stance: reflect the hit
@@ -70,7 +74,7 @@ function Combat.Hit(attacker, victimChar, info, fromPos)
 		Net.Fx:FireAllClients("Counter", { pos = hrpOf(victimChar).Position })
 		return
 	end
-	local dmg = info.Damage
+	local dmg = victimChar:GetAttribute("InDuel") and info.Damage or 0 -- lobby slaps: knockback only
 	local blocked = victimChar:GetAttribute("Blocking") and not info.Unblockable
 	if blocked then
 		local st = victimChar:GetAttribute("Stamina") - Config.Block.StaminaPerHit
@@ -84,7 +88,7 @@ function Combat.Hit(attacker, victimChar, info, fromPos)
 		victimChar:SetAttribute("Stamina", st)
 		dmg *= Config.Block.DamageMult
 	end
-	hum:TakeDamage(dmg)
+	if dmg > 0 then hum:TakeDamage(dmg) end
 	local ac = attacker.Character
 	if ac then ac:SetAttribute("Ult", math.min(100, (ac:GetAttribute("Ult") or 0) + dmg * Config.UltPerDamage)) end
 	if not blocked then
@@ -196,7 +200,8 @@ end
 
 Net.Action.OnServerEvent:Connect(function(p, action, arg)
 	local char = p.Character
-	if not char or not state[p] or not char:GetAttribute("InDuel") then return end
+	if not char or not state[p] then return end
+	if not char:GetAttribute("InDuel") and action == "Ability" then return end
 	local hum = char:FindFirstChildOfClass("Humanoid")
 	if hum.Health <= 0 or (stunned(char) and action ~= "BlockEnd") then return end
 	if char:GetAttribute("Blocking") and action ~= "BlockEnd" then return end
@@ -217,6 +222,7 @@ task.spawn(function()
 			if hum then
 				local hero = Heroes[c:GetAttribute("Hero")]
 				local base = hero and hero.WalkSpeed or Config.WalkSpeed
+				if c:GetAttribute("Carrying") then base = Config.CarryWalkSpeed end
 				hum.WalkSpeed = c:GetAttribute("Frozen") and 0 or stunned(c) and Config.StunWalkSpeed
 					or c:GetAttribute("Blocking") and Config.BlockWalkSpeed or base
 				hum.JumpPower = (c:GetAttribute("Frozen") or stunned(c)) and 0 or Config.JumpPower
@@ -225,5 +231,11 @@ task.spawn(function()
 	end
 end)
 Players.PlayerRemoving:Connect(function(p) state[p] = nil end)
+Players.PlayerAdded:Connect(function(p)
+	p.CharacterAdded:Connect(function(char)
+		task.wait()
+		if not char:GetAttribute("InDuel") and p.Character == char then Combat.SetupCharacter(p, nil) end
+	end)
+end)
 
 return Combat

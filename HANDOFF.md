@@ -3,21 +3,34 @@
 Read this first. Update the "Status" and "Next up" sections before you stop.
 
 ## What it is
-A Roblox 1v1 arena fighter modeled on Dueling Grounds (reference footage from the user).
-- **UI reference:** diamond avatar portraits at the top left and right with slanted red HP bars and a white damage trail, "ROUND" plus a timer in the center, diamond win pips under each bar, an ult meter at the bottom center, and a red screen tint on ultimates.
-- **Arena reference:** a circular arena with a red wooden railing and a blue swirl floor (Japanese temple vibe).
+A Roblox game that mixes Steal a Brainrot with Dueling Grounds, using Marvel and DC characters.
+- **Base world:** a convoy of trucks drives down a road. Each truck carries a random hero variant whose rarity is rolled by weight. Buy it with cash and it walks to your base and stands on a pedestal (10 slots). Heroes earn $/s by rarity.
+- **Stealing:** hold E on another player's pedestal hero (when their base isn't locked). It floats over your head, you're slowed, and you must run into your own base to keep it. Getting slapped (M1 in the lobby does knockback only) makes you drop it. Owners step on the lock pad for a 60s laser door (15s cooldown).
+- **Fight mode:** the FIGHT button queues you. Two players get paired and see a Mortal Kombat vs DC style select screen (big P1/P2 portraits, VS, roster grid of your own base heroes, lock-in reveal), then a best-of-3 duel in a random themed arena.
+- **Rarity** (Common, Rare, Epic, Legendary, Mythic, Secret) is cosmetic in combat: a different skin per hero (e.g. Spider-Man: Classic, Miles, Iron Spider, Symbiote, 2099, Cosmic). Legendary and above get a particle aura, Mythic and above an outline glow, and Secret a rainbow outline and tag. Rarity changes price and income only.
+- **Duel UI reference** (from the user's Dueling Grounds footage): diamond avatar portraits top left/right, slanted red HP bars with a white damage trail, ROUND and timer at center, win pips, ult meter at the bottom, red tint on ultimates.
 
 ## Project layout (Rojo: `rojo serve`, or `rojo build -o MvD.rbxlx`)
 - `src/shared/Config.luau`: all combat tuning numbers
 - `src/shared/Net.luau`: RemoteEvents (Action c->s, Fx s->c, Match s->c)
 - `src/shared/Heroes/*.luau`: hero data (abilities 1-4 + Ultimate). Kinds: Melee, Projectile, Leap, Grab, Counter
 - `src/server/CombatService.luau`: server-authoritative hits, block/guard break, knockback (LinearVelocity), ragdoll (PlatformStand), stun, i-frames, ult meter
-- `src/server/DuelService.luau`: two lobby pads -> best-of-3 -> back to lobby
-- `src/server/ArenaBuilder.luau`: placeholder lobby and arena built in code
-- `src/server/Main.server.luau`: bootstrap, hero pick remote, leaderstats
+- `src/server/DuelService.luau`: `Duel.Run(a, b, picks)` best-of-3 -> back to base. Fires OnMatchEnd(winner, loser)
+- `src/server/MatchmakingService.luau`: queue remote `MvD_Queue` (Join/Leave/Pick), one select session at a time
+- `src/server/ConvoyService.luau`: trucks, buy prompt, hero walks to the base
+- `src/server/BaseService.luau`: plot assignment, pedestal render, income tick, lock door, steal/carry/deliver/drop
+- `src/server/HeroModel.luau`: R15 display rig with skin, weapons and overhead tag
+- `src/server/DataService.luau`: DataStore "MvD_v2" {Cash, Wins, Losses, Owned={{H,R}}}
+- `src/shared/Rarity.luau`: tiers (weight, price, income, color), Roll, Format
+- `src/shared/Skins.luau`: 18 heroes x 6 rarity variants (name + colors), `Skins.Apply(model, hero, rarity)`
+- `src/shared/Mannequin.luau`: blocky figure for ViewportFrame portraits
+- `src/client/BaseHUD.client.luau`: cash, $/s, slots, FIGHT button, alerts, carry banner, Secret rainbow
+- `src/client/SelectScreen.client.luau`: MK vs DC style fighter select
+- `src/server/ArenaBuilder.luau`: base world (road, 8 plots) and 5 floating duel arenas
+- `src/server/Main.server.luau`: bootstrap (Base.Start must run before Data.Start)
 - `src/client/Input.client.luau`: LMB M1, hold F block, Q dash, 1-4 abilities, G ult
 - `src/client/Fx.client.luau`: sparks, camera shake, ult red flash, projectile visuals
-- `src/client/HUD.client.luau`: full fighting-game HUD plus hero select buttons
+- `src/client/HUD.client.luau`: in-duel fighting-game HUD only
 
 State lives as Character attributes: Hero, Stamina, Ult, Blocking, StunUntil, IFrameUntil, InDuel.
 
@@ -38,13 +51,16 @@ State lives as Character attributes: Hero, Stamina, Ult, Blocking, StunUntil, IF
   - DataService: Wins, Losses and Coins saved to DataStore "MvD_v1" (+25 coins per win, +5 per loss). Enable Studio API access to test saving.
 - Syntax check: download the luau binary from github.com/luau-lang/luau releases and run `luau-compile --text file.luau` on every file (all pass).
 
+- DONE (session 4): pivot to the Steal a Brainrot loop (convoy, bases, income, stealing, lock), rarity skins, matchmaking, MK-style select. All files compile with luau-compile.
+
 ## Next up (in order)
-1. Test in Studio (Test > Clients and Servers, 2 players) and fix runtime errors. Nobody has run it yet.
-2. Animations: AnimationIds per M1 combo step and per ability, played on the "Swing" / "Ability" Fx events.
-3. Tune weapon grip offsets/rotation in Weapons.Attach once seen in Studio. Consider MeshParts.
-4. Shop: spend Coins to unlock heroes (add `Price` to hero data, gate the pick remote server-side, grey out locked buttons).
-5. Ranked ELO, spectate camera for lobby players, 2v2/FFA pads, emotes, daily reward.
-6. Per-hero ability VFX (lightning for Thor/Black Adam, heat vision beam, symbiote tendrils).
+1. Test in Studio with 2 to 3 players. Check: convoy buy, the hero walking home, income, steal plus deliver, drop on slap, lock door, queue to select to duel to back to base. Nobody has run any of it yet.
+2. Sell button on pedestal heroes (refund around 50% of price) so full bases can make room.
+3. Slot upgrades bought with cash (10 -> 15 -> 20), with pedestals added to the plot.
+4. Rebirths (reset cash for an income multiplier), the classic Brainrot progression.
+5. Animations: idle on pedestal heroes, walk on convoy/walk-home, M1 and ability anims in duels.
+6. Ranked ELO for fight mode, a leaderboard board in the world, a robux shop (lock-time boost, 2x cash) via MarketplaceService.
+7. Real MeshPart heroes and weapons later; for now skins only recolor the default R15 body.
 
 ## Rules for whoever picks this up
 - Keep the server authoritative for damage and cooldowns; the client only does visuals and its own dash velocity.

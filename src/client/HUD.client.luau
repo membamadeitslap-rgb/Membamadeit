@@ -1,6 +1,6 @@
 -- Fighting-game HUD matching the reference footage:
 -- top-left / top-right diamond portraits + slanted HP bars, center ROUND text + win pips,
--- bottom-center stamina/ult meter, ability hotbar, countdown + result splash, hero select.
+-- bottom-center stamina/ult meter, ability hotbar, countdown + result splash.
 local Players = game:GetService("Players")
 local RS = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -78,17 +78,6 @@ for i = 1, 4 do
 	slots[i] = { cd = cd, name = n, readyAt = 0, dur = 1 }
 end
 
--- Hero select (lobby)
-local select = new("Frame", { BackgroundTransparency = 1, Size = UDim2.fromOffset(830, 170), AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -100) }, gui)
-new("UIGridLayout", { CellSize = UDim2.fromOffset(130, 48), CellPadding = UDim2.fromOffset(8, 8), HorizontalAlignment = Enum.HorizontalAlignment.Center, SortOrder = Enum.SortOrder.Name }, select)
-local pick = RS:WaitForChild("MvD_PickHero")
-for id, h in Heroes do
-	local b = new("TextButton", { Size = UDim2.fromOffset(130, 44), BackgroundColor3 = h.Color, Font = FONT, TextSize = 16, TextColor3 = Color3.new(1, 1, 1),
-		Text = h.Name .. "\n" .. h.Faction .. " " .. (h.Role or "Hero"), Name = h.Faction .. h.Name }, select)
-	new("UIStroke", { Color = Color3.new(1, 1, 1), ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, b)
-	b.Activated:Connect(function() pick:FireServer(id) end)
-end
-
 local function setHotbar(heroId)
 	local h = Heroes[heroId]; if not h then return end
 	for i, s in slots do s.name.Text = h.Abilities[i] and h.Abilities[i].Name or "" end
@@ -114,11 +103,10 @@ local function splashText(t, color)
 	task.delay(1.1, function() TweenService:Create(splash, TweenInfo.new(0.3), { TextTransparency = 1 }):Play() end)
 end
 Net.Match.OnClientEvent:Connect(function(d)
-	if d.phase == "Queued" then splashText("WAITING FOR OPPONENT", Color3.fromRGB(255, 220, 100)); return end
-	if d.phase == "Unqueued" then return end
+	if not ({ Countdown = 1, Fight = 1, RoundEnd = 1, MatchEnd = 1 })[d.phase] then return end -- other phases belong to BaseHUD/SelectScreen
 	match = d
 	for i, info in { d.p1, d.p2 } do
-		P[i].name.Text = info.name .. "  •  " .. (Heroes[info.hero] and Heroes[info.hero].Name or "")
+		P[i].name.Text = info.name .. "  •  " .. (info.skin or "")
 		P[i].face.Image = ("rbxthumb://type=AvatarHeadShot&id=%d&w=150&h=150"):format(info.userId)
 		for k, pip in P[i].pips do pip.BackgroundColor3 = d.wins[i] >= k and Color3.fromRGB(230, 40, 60) or Color3.fromRGB(40, 40, 50) end
 	end
@@ -132,7 +120,7 @@ end)
 RunService.RenderStepped:Connect(function(dt)
 	local inDuel = match ~= nil
 	P[1].root.Visible = inDuel; P[2].root.Visible = inDuel; center.Visible = inDuel; timer.Visible = inDuel and fightStart > 0
-	select.Visible = not inDuel
+	bottom.Visible = inDuel
 	if fightStart > 0 then timer.Text = tostring(math.max(0, math.ceil(Config.RoundTime - (os.clock() - fightStart)))) end
 	if inDuel then
 		for i, info in { match.p1, match.p2 } do

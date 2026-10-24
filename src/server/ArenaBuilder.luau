@@ -58,23 +58,55 @@ function A.BuildArena(root, c, t)
 	t.Props(root, c)
 end
 
+A.SLOTS = 10
+-- One player base: walled plot facing the road, 10 pedestals, laser door, lock pad.
+local function buildPlot(root, i, origin, facing)
+	local m = Instance.new("Model"); m.Name = "Plot" .. i; m.Parent = root
+	local cf = CFrame.lookAt(origin, origin + facing) -- -Z of cf points at the road
+	local function at(x, y, z) return cf * CFrame.new(x, y, z) end
+	part({ Name = "Floor", Size = Vector3.new(60, 1, 60), CFrame = at(0, 0.5, 0), Color = C(55, 55, 65), Material = Enum.Material.SmoothPlastic, Parent = m })
+	for _, w in { { -30, 0, 1, 60 }, { 30, 0, 1, 60 }, { 0, 30, 60, 1 } } do
+		part({ Size = Vector3.new(w[3], 14, w[4]), CFrame = at(w[1], 7, w[2]), Color = C(80, 80, 95), Material = Enum.Material.Brick, Parent = m })
+	end
+	for _, x in { -20, 20 } do -- front wall pieces, gap in the middle = entrance
+		part({ Size = Vector3.new(20, 14, 1), CFrame = at(x, 7, -30), Color = C(80, 80, 95), Material = Enum.Material.Brick, Parent = m })
+	end
+	local door = part({ Name = "Door", Size = Vector3.new(20, 14, 0.4), CFrame = at(0, 7, -30), Color = C(255, 40, 40), Material = Enum.Material.ForceField, Transparency = 1, CanCollide = false, Parent = m })
+	local lock = part({ Name = "LockPad", Size = Vector3.new(6, 0.4, 6), CFrame = at(22, 1.2, 22), Color = C(255, 60, 60), Material = Enum.Material.Neon, Parent = m })
+	local sign = part({ Name = "Sign", Size = Vector3.new(20, 5, 1), CFrame = at(0, 17, -30), Color = C(25, 25, 30), Parent = m })
+	local zone = part({ Name = "Zone", Size = Vector3.new(58, 16, 58), CFrame = at(0, 8, 0), Transparency = 1, CanCollide = false, CanQuery = false, Parent = m })
+	local pedestals = {}
+	for k = 1, A.SLOTS do
+		local row, col = (k - 1) // 5, (k - 1) % 5
+		pedestals[k] = part({ Name = "Pedestal" .. k, Shape = Enum.PartType.Cylinder, Size = Vector3.new(1, 6, 6),
+			CFrame = at(-20 + col * 10, 1.5, 4 + row * 14) * CFrame.Angles(0, 0, math.rad(90)), Color = C(35, 35, 45), Material = Enum.Material.Metal, Parent = m })
+	end
+	return { Index = i, Model = m, CFrame = cf, Door = door, LockPad = lock, Sign = sign, Zone = zone, Pedestals = pedestals,
+		Spawn = at(0, 4, 10).Position, Entrance = at(0, 3, -34).Position }
+end
+
 function A.Build()
 	local root = Instance.new("Folder"); root.Name = "Map"; root.Parent = workspace
-	-- Lobby
-	part({ Name = "LobbyFloor", Size = Vector3.new(120, 2, 120), Position = Vector3.new(0, 0, 0), Color = Color3.fromRGB(60, 60, 70), Material = Enum.Material.Concrete, Parent = root })
-	local spawn = Instance.new("SpawnLocation"); spawn.Anchored = true; spawn.Size = Vector3.new(8, 1, 8); spawn.Position = Vector3.new(0, 1.5, 30); spawn.Neutral = true; spawn.Parent = root
-	local pads = {}
-	for i, x in { -12, 12 } do
-		pads[i] = part({ Name = "DuelPad" .. i, Shape = Enum.PartType.Cylinder, Size = Vector3.new(1, 8, 8),
-			CFrame = CFrame.new(x, 1.2, 0) * CFrame.Angles(0, 0, math.rad(90)),
-			Color = i == 1 and Color3.fromRGB(200, 30, 40) or Color3.fromRGB(30, 80, 200), Material = Enum.Material.Neon, Parent = root })
+	-- Ground + convoy road running along X
+	part({ Name = "Ground", Size = Vector3.new(560, 2, 260), Position = Vector3.new(0, -1, 0), Color = C(70, 120, 60), Material = Enum.Material.Grass, Parent = root })
+	part({ Name = "Road", Size = Vector3.new(560, 0.2, 26), Position = Vector3.new(0, 0.1, 0), Color = C(40, 40, 45), Material = Enum.Material.Asphalt, Parent = root })
+	for x = -270, 270, 20 do
+		part({ Size = Vector3.new(8, 0.25, 0.8), Position = Vector3.new(x, 0.15, 0), Color = C(240, 200, 40), Material = Enum.Material.SmoothPlastic, Parent = root })
+	end
+	local spawn = Instance.new("SpawnLocation"); spawn.Anchored = true; spawn.Size = Vector3.new(10, 1, 10); spawn.Position = Vector3.new(0, 0.5, 20); spawn.Neutral = true; spawn.Transparency = 0.5; spawn.Parent = root
+	local plots = {}
+	for i = 1, 8 do
+		local side = i <= 4 and 1 or -1
+		local x = -195 + ((i - 1) % 4) * 130
+		plots[i] = buildPlot(root, i, Vector3.new(x, 0, side * 60), Vector3.new(0, 0, -side))
 	end
 	local arenas = {}
 	for i, theme in A.Themes do
-		local c = Vector3.new((i - 3) * 300, 0, 600)
+		local c = Vector3.new((i - 3) * 300, 300, 900) -- floating arenas, far from the base world
 		A.BuildArena(root, c, theme)
 		arenas[i] = { Name = theme.Name, Center = c, SpawnA = c + Vector3.new(0, 4, -20), SpawnB = c + Vector3.new(0, 4, 20) }
 	end
-	return { Pads = pads, Arenas = arenas, Lobby = spawn.Position + Vector3.new(0, 4, 0) }
+	return { Plots = plots, Arenas = arenas, Lobby = spawn.Position + Vector3.new(0, 4, 0),
+		RoadStart = Vector3.new(-270, 0.2, 0), RoadEnd = Vector3.new(270, 0.2, 0) }
 end
 return A
