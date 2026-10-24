@@ -53,7 +53,7 @@ function P.Helmet(m, color, plate, crest)
 	if plate then piece(m, hd, "Faceplate", Vector3.new(s.X * 0.8, s.Y * 0.85, 0.1), CFrame.new(0, -s.Y * 0.04, -s.Z * 0.56), plate) end
 	if crest == "Fin" then piece(m, hd, "Fin", Vector3.new(0.15, s.Y * 0.5, s.Z * 0.9), CFrame.new(0, s.Y * 0.58, 0), color)
 	elseif crest then -- Nova star crest
-		local c = piece(m, hd, "Crest", Vector3.new(s.X * 0.6, s.Y * 0.5, 0.1), CFrame.new(0, s.Y * 0.35, -s.Z * 0.58), crest, Enum.Material.Neon)
+		local c = piece(m, hd, "Crest", Vector3.new(s.X * 0.6, s.Y * 0.5, 0.1), CFrame.new(0, s.Y * 0.35, -s.Z * 0.58), crest, Enum.Material.SmoothPlastic)
 		c.Transparency = 1; glyph(c, Enum.NormalId.Front, "✦", crest)
 	end
 end
@@ -62,7 +62,7 @@ function P.Eyes(m, color)
 	local hd = find(m, "Head"); if not hd then return end
 	local s = hd.Size
 	for _, x in { -0.2, 0.2 } do
-		piece(m, hd, "Eye", Vector3.new(s.X * 0.22, s.Y * 0.08, 0.06), CFrame.new(x * s.X, s.Y * 0.08, -s.Z * 0.6), color or C(255, 255, 255), Enum.Material.Neon)
+		piece(m, hd, "Eye", Vector3.new(s.X * 0.22, s.Y * 0.08, 0.06), CFrame.new(x * s.X, s.Y * 0.08, -s.Z * 0.6), color or C(255, 255, 255), Enum.Material.SmoothPlastic)
 	end
 end
 -- Cyclops visor / Deathstroke band: single wide glowing band
@@ -70,7 +70,7 @@ function P.Visor(m, frame, glow)
 	local hd = find(m, "Head"); if not hd then return end
 	local s = hd.Size
 	piece(m, hd, "VisorFrame", Vector3.new(s.X * 1.1, s.Y * 0.24, s.Z * 1.06), CFrame.new(0, s.Y * 0.08, 0), frame)
-	piece(m, hd, "VisorGlow", Vector3.new(s.X * 0.7, s.Y * 0.08, 0.06), CFrame.new(0, s.Y * 0.08, -s.Z * 0.56), glow, Enum.Material.Neon)
+	piece(m, hd, "VisorGlow", Vector3.new(s.X * 0.7, s.Y * 0.08, 0.06), CFrame.new(0, s.Y * 0.08, -s.Z * 0.56), glow, Enum.Material.Glass)
 	for _, x in { -1, 1 } do -- ear pods
 		piece(m, hd, "VisorPod", Vector3.new(0.12, s.Y * 0.34, s.Z * 0.34), CFrame.new(x * s.X * 0.56, 0, 0), frame)
 	end
@@ -94,11 +94,12 @@ function P.Hair(m, color, style)
 	end
 end
 -- Chest emblem drawn as a glyph on a colored plate (bat oval, S shield, X, star, spider, triangle...)
-function P.Emblem(m, text, color, plate)
+function P.Emblem(m, text, color, plate, oval)
 	local t = chestOf(m); if not t then return end
 	local s = t.Size
 	local p = piece(m, t, "Emblem", Vector3.new(s.X * 0.62, s.Y * 0.42, 0.08), CFrame.new(0, s.Y * 0.12, -s.Z / 2 - 0.05), plate or color, plate and Enum.Material.SmoothPlastic or Enum.Material.Neon)
 	if not plate then p.Transparency = 1 end
+	if plate and oval then local sm = Instance.new("SpecialMesh"); sm.MeshType = Enum.MeshType.Sphere; sm.Scale = Vector3.new(1, 1, 0.4); sm.Parent = p end
 	glyph(p, Enum.NormalId.Front, text, color)
 end
 -- Iron Man arc reactor (triangle for Mark VI, circle otherwise)
@@ -192,12 +193,13 @@ end
 -- Realistic hellfire: layered particle flames (white-hot core -> flame color -> red -> smoke) + sparks.
 -- Uses Roblox's built-in fire/smoke particle textures instead of the cartoony Fire object.
 local FIRE_TEX, SMOKE_TEX, SPARK_TEX = "rbxasset://textures/particles/fire_main.dds", "rbxasset://textures/particles/smoke_main.dds", "rbxasset://textures/particles/sparkles_main.dds"
-local function hellfire(parent, flame, flame2, scale, rate)
+local function hellfire(parent, flame, flame2, scale, rate, zoff)
 	scale, rate = scale or 1, rate or 1
 	local function emitter(name, tex, props)
 		local pe = Instance.new("ParticleEmitter"); pe.Name = name; pe.Texture = tex
 		pe.EmissionDirection = Enum.NormalId.Top; pe.LockedToPart = false
 		for k, v in props do pe[k] = v end
+		pe.ZOffset = zoff or 0
 		pe.Parent = parent; return pe
 	end
 	emitter("FlameCore", FIRE_TEX, { LightEmission = 1, LightInfluence = 0, Rate = 60 * rate,
@@ -206,7 +208,7 @@ local function hellfire(parent, flame, flame2, scale, rate)
 		Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.2), NumberSequenceKeypoint.new(0.7, 0.4), NumberSequenceKeypoint.new(1, 1) }),
 		Lifetime = NumberRange.new(0.35, 0.6), Speed = NumberRange.new(3 * scale, 5 * scale), SpreadAngle = Vector2.new(18, 18),
 		Rotation = NumberRange.new(-30, 30), RotSpeed = NumberRange.new(-90, 90), Acceleration = Vector3.new(0, 4, 0) })
-	emitter("FlameOuter", FIRE_TEX, { LightEmission = 0.8, LightInfluence = 0, Rate = 45 * rate,
+	emitter("FlameOuter", FIRE_TEX, { LightEmission = 0.5, LightInfluence = 0, Rate = 45 * rate,
 		Color = ColorSequence.new({ ColorSequenceKeypoint.new(0, flame), ColorSequenceKeypoint.new(0.7, flame:Lerp(Color3.new(0.6, 0.05, 0), 0.6)), ColorSequenceKeypoint.new(1, Color3.new(0.2, 0.02, 0)) }),
 		Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1.4 * scale), NumberSequenceKeypoint.new(1, 0.3 * scale) }),
 		Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.35), NumberSequenceKeypoint.new(1, 1) }),
@@ -238,7 +240,7 @@ function P.FlamingSkull(m, flame, flame2)
 		-- deep socket + ember pupil
 		local sock = piece(m, hd, "Socket", Vector3.new(s.X * 0.27, s.Y * 0.24, 0.12), CFrame.new(x * s.X * 0.2, s.Y * 0.03, -s.Z * 0.47) * CFrame.Angles(0, 0, math.rad(-x * 10)), DARK)
 		mesh(sock, Enum.MeshType.Sphere)
-		piece(m, hd, "Pupil", Vector3.new(0.07, 0.07, 0.04), CFrame.new(x * s.X * 0.2, s.Y * 0.02, -s.Z * 0.53), flame2, Enum.Material.Neon)
+		piece(m, hd, "Pupil", Vector3.new(0.07, 0.07, 0.04), CFrame.new(x * s.X * 0.2, s.Y * 0.02, -s.Z * 0.53), flame2, Enum.Material.SmoothPlastic)
 	end
 	for _, x in { -1, 1 } do -- inverted-heart nasal cavity (two angled slots)
 		piece(m, hd, "Nasal", Vector3.new(s.X * 0.07, s.Y * 0.16, 0.08), CFrame.new(x * s.X * 0.035, -s.Y * 0.14, -s.Z * 0.5) * CFrame.Angles(0, 0, math.rad(x * 18)), DARK)
@@ -253,16 +255,16 @@ function P.FlamingSkull(m, flame, flame2)
 	end
 	piece(m, hd, "Bite", Vector3.new(s.X * 0.54, 0.02, 0.08), CFrame.new(0, -s.Y * 0.37, -s.Z * 0.5), DARK)
 	-- flames: big crown off the cranium + collar flames creeping up around the neck
-	local crown = piece(m, hd, "FlameCrown", Vector3.new(s.X * 0.8, 0.1, s.Z * 0.8), CFrame.new(0, s.Y * 0.45, 0.08), flame, Enum.Material.Neon)
+	local crown = piece(m, hd, "FlameCrown", Vector3.new(s.X * 0.75, 0.1, s.Z * 0.6), CFrame.new(0, s.Y * 0.5, s.Z * 0.18), flame, Enum.Material.SmoothPlastic)
 	crown.Transparency = 1
-	hellfire(crown, flame, flame2, s.Y * 1.1, 1.3)
+	hellfire(crown, flame, flame2, s.Y * 0.75, 1.2, -1.5) -- negative ZOffset: flames draw behind the skull, face stays readable
 	local collar = chestOf(m)
 	if collar then
-		local ring = piece(m, collar, "CollarFire", Vector3.new(collar.Size.X * 0.45, 0.1, collar.Size.Z * 0.7), CFrame.new(0, collar.Size.Y / 2, 0), flame, Enum.Material.Neon)
+		local ring = piece(m, collar, "CollarFire", Vector3.new(collar.Size.X * 0.4, 0.1, collar.Size.Z * 0.4), CFrame.new(0, collar.Size.Y / 2, collar.Size.Z * 0.25), flame, Enum.Material.SmoothPlastic)
 		ring.Transparency = 1
-		hellfire(ring, flame, flame2, 0.55, 0.6)
+		hellfire(ring, flame, flame2, 0.4, 0.5, -1.5)
 	end
-	local l = Instance.new("PointLight"); l.Color = flame; l.Range = 16; l.Brightness = 2.5; l.Shadows = true; l.Parent = cranium
+	local l = Instance.new("PointLight"); l.Color = flame; l.Range = 12; l.Brightness = 1.2; l.Parent = crown -- light from above the skull, not inside it
 	game:GetService("CollectionService"):AddTag(l, "HellfireFlicker")
 end
 -- Biker jacket: collar lapels, diagonal zipper, zip pockets
@@ -453,7 +455,7 @@ function P.Beard(m, color)
 end
 -- Torn shorts hem (Hulk): jagged strips around the thighs
 function P.TornHem(m, color)
-	for _, n in { "LeftUpperLeg", "RightUpperLeg", "LeftLeg", "RightLeg" } do
+	for _, n in { "LeftLowerLeg", "RightLowerLeg", "LeftLeg", "RightLeg" } do
 		local a = m:FindFirstChild(n)
 		if a then
 			local s = a.Size
@@ -588,7 +590,7 @@ function P.HalfMask(m, a, b, eye)
 	local s = hd.Size
 	piece(m, hd, "MaskL", Vector3.new(s.X * 0.54, s.Y * 1.06, s.Z * 1.06), CFrame.new(-s.X * 0.26, 0, 0), a)
 	piece(m, hd, "MaskR", Vector3.new(s.X * 0.54, s.Y * 1.06, s.Z * 1.06), CFrame.new(s.X * 0.26, 0, 0), b)
-	piece(m, hd, "EyeSlit", Vector3.new(s.X * 0.26, s.Y * 0.1, 0.05), CFrame.new(-s.X * 0.22, s.Y * 0.08, -s.Z * 0.55), eye)
+	piece(m, hd, "EyeSlit", Vector3.new(s.X * 0.26, s.Y * 0.1, 0.05), CFrame.new(-s.X * 0.22, s.Y * 0.08, -s.Z * 0.55), eye) -- left eye only; right side is solid
 	piece(m, hd, "MaskSeam", Vector3.new(0.04, s.Y * 1.08, s.Z * 1.08), CFrame.new(0, 0, 0), C(20, 20, 20))
 end
 -- Darkseid: craggy stone ridges on the face
@@ -646,6 +648,116 @@ function P.IronFace(m, plate)
 	piece(m, hd, "MouthSlit", Vector3.new(s.X * 0.3, 0.03, 0.03), CFrame.new(0, -s.Y * 0.3, -s.Z * 0.58), C(20, 20, 20))
 	piece(m, hd, "Chin", Vector3.new(s.X * 0.45, s.Y * 0.18, 0.06), CFrame.new(0, -s.Y * 0.42, -s.Z * 0.56), plate)
 end
+-- ===== Detailed faces =====
+-- Unmasked comic face: brows, eyes (white + iris + pupil + lid line), nose, mouth, ears. style: "neutral"|"angry"|"smirk"|"grin"
+function P.Face(m, iris, brow, style, lip)
+	local hd = find(m, "Head"); if not hd then return end
+	local s = hd.Size
+	local skin = hd.Color
+	local dark = skin:Lerp(C(0, 0, 0), 0.55)
+	style = style or "neutral"
+	local fz = -s.Z * 0.505
+	for _, x in { -1, 1 } do
+		local ex = x * s.X * 0.19
+		piece(m, hd, "Sclera", Vector3.new(s.X * 0.17, s.Y * 0.09, 0.03), CFrame.new(ex, s.Y * 0.06, fz), C(250, 250, 250))
+		piece(m, hd, "Iris", Vector3.new(s.X * 0.07, s.Y * 0.08, 0.035), CFrame.new(ex + x * -0.01, s.Y * 0.055, fz - 0.005), iris or C(70, 110, 170))
+		piece(m, hd, "Pupil", Vector3.new(s.X * 0.03, s.Y * 0.04, 0.04), CFrame.new(ex + x * -0.01, s.Y * 0.055, fz - 0.01), C(10, 10, 12))
+		piece(m, hd, "Lid", Vector3.new(s.X * 0.19, 0.03, 0.04), CFrame.new(ex, s.Y * 0.11, fz - 0.005), dark)
+		local tilt = (style == "angry" and 18 or style == "smirk" and (x > 0 and -10 or 6) or 4) * x
+		piece(m, hd, "Brow", Vector3.new(s.X * 0.22, s.Y * 0.05, 0.05), CFrame.new(ex, s.Y * 0.17, fz - 0.01) * CFrame.Angles(0, 0, math.rad(-tilt)), brow or C(40, 30, 25))
+		piece(m, hd, "Ear", Vector3.new(0.08, s.Y * 0.26, s.Z * 0.2), CFrame.new(x * s.X * 0.52, s.Y * 0.02, 0.02), skin)
+	end
+	local nose = piece(m, hd, "Nose", Vector3.new(s.X * 0.11, s.Y * 0.16, 0.08), CFrame.new(0, -s.Y * 0.06, fz - 0.03), skin:Lerp(C(0, 0, 0), 0.08))
+	Instance.new("SpecialMesh", nose).MeshType = Enum.MeshType.Wedge
+	piece(m, hd, "NoseShadow", Vector3.new(s.X * 0.12, 0.025, 0.03), CFrame.new(0, -s.Y * 0.145, fz), dark)
+	local mouthW = style == "grin" and 0.42 or 0.26
+	piece(m, hd, "Mouth", Vector3.new(s.X * mouthW, s.Y * (style == "grin" and 0.07 or 0.035), 0.04), CFrame.new(0, -s.Y * 0.27, fz) * CFrame.Angles(0, 0, math.rad(style == "smirk" and 6 or 0)), lip or dark)
+	if style == "grin" then
+		piece(m, hd, "Teeth", Vector3.new(s.X * 0.36, s.Y * 0.035, 0.045), CFrame.new(0, -s.Y * 0.26, fz - 0.005), C(250, 250, 245))
+	end
+	piece(m, hd, "Chin", Vector3.new(s.X * 0.14, 0.025, 0.03), CFrame.new(0, -s.Y * 0.38, fz), dark)
+end
+-- Lower face under a cowl / helmet (Batman, Cap, Flash, Nova, Cyclops): nose, mouth, chin cleft
+function P.LowerFace(m, style)
+	local hd = find(m, "Head"); if not hd then return end
+	local s = hd.Size
+	local skin = Costume.SKIN
+	local dark = skin:Lerp(C(0, 0, 0), 0.55)
+	local fz = -s.Z * 0.56
+	local nose = piece(m, hd, "Nose", Vector3.new(s.X * 0.1, s.Y * 0.12, 0.08), CFrame.new(0, -s.Y * 0.1, fz - 0.03), skin)
+	Instance.new("SpecialMesh", nose).MeshType = Enum.MeshType.Wedge
+	piece(m, hd, "Mouth", Vector3.new(s.X * 0.26, s.Y * 0.035, 0.04), CFrame.new(0, -s.Y * 0.28, fz) * CFrame.Angles(0, 0, math.rad(style == "smirk" and 6 or 0)), dark)
+	piece(m, hd, "Cleft", Vector3.new(0.025, s.Y * 0.06, 0.03), CFrame.new(0, -s.Y * 0.4, fz), dark)
+	piece(m, hd, "Jawline", Vector3.new(s.X * 0.6, 0.025, 0.03), CFrame.new(0, -s.Y * 0.45, fz + 0.02), dark)
+end
+-- Thor (Kirby): silver winged helmet
+function P.WingedHelmet(m, metal)
+	local hd = find(m, "Head"); if not hd then return end
+	local s = hd.Size
+	piece(m, hd, "Helm", Vector3.new(s.X * 1.06, s.Y * 0.42, s.Z * 1.06), CFrame.new(0, s.Y * 0.32, 0), metal, Enum.Material.Metal)
+	piece(m, hd, "Nasal", Vector3.new(s.X * 0.1, s.Y * 0.28, 0.06), CFrame.new(0, s.Y * 0.14, -s.Z * 0.55), metal, Enum.Material.Metal)
+	for _, x in { -1, 1 } do
+		for k = 0, 2 do
+			local w = piece(m, hd, "Wing", Vector3.new(0.06, s.Y * (0.5 - k * 0.1), s.Z * 0.3), CFrame.new(x * s.X * 0.56, s.Y * (0.45 + k * 0.08), s.Z * (0.05 + k * 0.14)) * CFrame.Angles(math.rad(-20 - k * 15), 0, math.rad(-x * 20)), metal, Enum.Material.Metal)
+			Instance.new("SpecialMesh", w).MeshType = Enum.MeshType.Wedge
+		end
+	end
+end
+-- Thor's high strapped boots: cross straps up the lower legs
+function P.StrappedBoots(m, strap)
+	for _, n in { "LeftLowerLeg", "RightLowerLeg", "LeftLeg", "RightLeg" } do
+		local a = m:FindFirstChild(n)
+		if a then
+			local s = a.Size
+			for k = 0, 3 do
+				for _, d in { -1, 1 } do
+					piece(m, a, "Strap", Vector3.new(s.X * 1.05, 0.05, 0.04), CFrame.new(0, s.Y * (0.35 - k * 0.22), -s.Z / 2 - 0.03) * CFrame.Angles(0, 0, math.rad(d * 25)), strap)
+				end
+			end
+		end
+	end
+end
+-- Back-of-cape emblem (Superman's yellow S on the cape)
+function P.CapeEmblem(m, text, color)
+	local cape = m:FindFirstChild("Costume_Cape"); if not cape then return end
+	local g = Instance.new("SurfaceGui"); g.Face = Enum.NormalId.Back; g.LightInfluence = 1; g.Parent = cape
+	local t = Instance.new("TextLabel"); t.Size = UDim2.fromScale(1, 0.35); t.Position = UDim2.fromScale(0, 0.12); t.BackgroundTransparency = 1
+	t.TextScaled = true; t.Font = Enum.Font.GothamBlack; t.Text = text; t.TextColor3 = color; t.Parent = g
+end
+-- Wonder Woman details: white boot stripes + white stars on the blue briefs
+function P.WWDetails(m)
+	for _, n in { "LeftLowerLeg", "RightLowerLeg" } do
+		local a = m:FindFirstChild(n)
+		if a then piece(m, a, "BootStripe", Vector3.new(a.Size.X * 0.12, a.Size.Y * 1.0, 0.04), CFrame.new(0, 0, -a.Size.Z / 2 - 0.02), C(245, 245, 245)) end
+	end
+	local w = waistOf(m)
+	if w then for i = -1, 1 do
+		local st = piece(m, w, "Star", Vector3.new(0.25, 0.25, 0.02), CFrame.new(i * w.Size.X * 0.28, 0, -w.Size.Z / 2 - 0.02), C(240, 240, 240)); st.Transparency = 1
+		glyph(st, Enum.NormalId.Front, "★", C(245, 245, 245))
+	end end
+end
+-- Darkseid: armored helmet ridge + chest plate + Omega buckle
+function P.DarkseidArmor(m, blue, metal)
+	local hd = find(m, "Head")
+	if hd then piece(m, hd, "Helm", Vector3.new(hd.Size.X * 1.1, hd.Size.Y * 0.42, hd.Size.Z * 1.1), CFrame.new(0, hd.Size.Y * 0.35, 0.03), blue, Enum.Material.Metal) end
+	local t = chestOf(m)
+	if t then piece(m, t, "ChestPlate", Vector3.new(t.Size.X * 0.8, t.Size.Y * 0.55, 0.08), CFrame.new(0, t.Size.Y * 0.18, -t.Size.Z / 2 - 0.04), metal, Enum.Material.Metal) end
+	P.Belt(m, metal, { color = C(150, 20, 20), text = "Ω", textColor = C(255, 220, 120) })
+end
+-- Deathstroke: twin sword hilts over the shoulders
+function P.Scabbards(m, color)
+	local t = chestOf(m); if not t then return end
+	local s = t.Size
+	for _, x in { -1, 1 } do
+		piece(m, t, "Scabbard", Vector3.new(0.18, s.Y * 1.4, 0.18), CFrame.new(x * s.X * 0.2, 0, s.Z / 2 + 0.12) * CFrame.Angles(0, 0, math.rad(x * 20)), color)
+		piece(m, t, "Hilt", Vector3.new(0.12, 0.6, 0.12), CFrame.new(x * s.X * 0.38, s.Y * 0.75, s.Z / 2 + 0.12) * CFrame.Angles(0, 0, math.rad(x * 20)), C(25, 25, 25))
+	end
+end
+-- Joker's lapel flower
+function P.Flower(m)
+	local t = chestOf(m); if not t then return end
+	piece(m, t, "Flower", Vector3.new(0.2, 0.2, 0.08), CFrame.new(-t.Size.X * 0.3, t.Size.Y * 0.25, -t.Size.Z / 2 - 0.08), C(240, 240, 240), Enum.Material.SmoothPlastic, Enum.PartType.Ball)
+end
 Costume.Pieces = P
 Costume.SKIN = Color3.fromRGB(234, 184, 146)
 
@@ -662,61 +774,68 @@ Costume.Heroes = {
 		pieces = { { "Material", Enum.Material.Metal }, { "Helmet", s.Primary, s.Secondary }, { "Eyes", WHITE }, { "IronFace", s.Secondary }, { "Reactor", true },
 			{ "Shoulders", s.Primary }, { "PalmGlow", C(190, 240, 255) } } } end,
 	-- Thor: dark armor with six silver discs, red cape, bare arms, silver bracers, long blond hair + beard
-	Thor = function(s) return { colors = { Head = SKIN, Chest = s.Primary, UpperArms = SKIN, LowerArms = C(170, 170, 180), Hands = SKIN, Legs = C(40, 40, 50), Feet = C(60, 50, 45) },
-		pieces = { { "Cape", s.Secondary }, { "Hair", C(220, 180, 90), "Long" }, { "Beard", C(200, 160, 80) }, { "ChestDiscs", C(200, 200, 210) }, { "Belt", C(60, 50, 45) } } } end,
+	Thor = function(s) return { colors = { Head = SKIN, Chest = s.Primary, Waist = s.Primary, UpperArms = SKIN, LowerArms = C(190, 190, 200), Hands = SKIN, Legs = C(40, 40, 50), Boots = C(230, 190, 60) },
+		pieces = { { "Cape", s.Secondary }, { "Hair", C(220, 180, 90), "Long" }, { "Face", C(60, 120, 200), C(190, 150, 70), "angry" }, { "WingedHelmet", C(200, 202, 212) },
+			{ "ChestDiscs", C(205, 205, 215) }, { "Belt", C(230, 190, 60) }, { "StrappedBoots", C(150, 110, 40) } } } end,
 	-- Captain America: blue suit, white star, red/white midsection stripes, A-helmet with wings, red gloves/boots, brown belt
 	CaptainAmerica = function(s) return { colors = { Head = SKIN, Chest = s.Primary, Waist = s.Primary, Arms = s.Primary, Gloves = s.Secondary, Legs = s.Primary, Boots = s.Secondary },
-		pieces = { { "CapHelmet", s.Primary, WHITE }, { "Emblem", "★", WHITE }, { "Stripes", s.Secondary, WHITE }, { "Belt", C(110, 80, 50), { color = C(200, 200, 210) } } } } end,
+		pieces = { { "CapHelmet", s.Primary, WHITE }, { "Eyes", WHITE }, { "LowerFace" }, { "Emblem", "★", WHITE }, { "Stripes", s.Secondary, WHITE }, { "Belt", C(110, 80, 50), { color = C(200, 200, 210) } },
+			{ "Cuffs", s.Secondary }, { "Pouches", C(110, 80, 50), 4 } } } end,
 	-- Loki: green/black leather, gold horned helmet + shoulders, long green cape, black hair
 	Loki = function(s) return { colors = { Head = SKIN, Chest = C(25, 25, 30), Waist = C(25, 25, 30), Arms = s.Primary, Gloves = C(25, 25, 30), Legs = C(25, 25, 30), Feet = C(25, 25, 30) },
-		pieces = { { "Material", Enum.Material.Leather }, { "Cape", s.Primary, C(20, 20, 25) }, { "Hair", C(15, 15, 15), "Long" }, { "Horns", s.Secondary }, { "Shoulders", s.Secondary },
+		pieces = { { "Material", Enum.Material.Leather }, { "Cape", s.Primary, C(20, 20, 25) }, { "Hair", C(15, 15, 15), "Long" }, { "Face", C(60, 140, 90), C(20, 20, 20), "smirk" }, { "Horns", s.Secondary }, { "Shoulders", s.Secondary },
 			{ "Harness", s.Secondary, "X" } } } end,
 	-- Thanos: purple skin with chin ridges, gold helmet, blue armor, gold shoulders/belt/boots
 	Thanos = function(s) return { colors = { Head = C(130, 90, 160), Chest = s.Primary, Waist = s.Primary, Arms = C(130, 90, 160), Gloves = s.Secondary, Legs = s.Primary, Boots = s.Secondary },
-		pieces = { { "Helmet", s.Secondary }, { "JawOpening", C(130, 90, 160) }, { "ChinRidges", C(100, 65, 130) }, { "Shoulders", s.Secondary }, { "Belt", s.Secondary }, { "Harness", s.Secondary, "X" } } } end,
+		pieces = { { "Face", C(90, 60, 120), C(90, 60, 120), "grin", C(80, 40, 90) }, { "Helmet", s.Secondary }, { "JawOpening", C(130, 90, 160) }, { "ChinRidges", C(100, 65, 130) }, { "Shoulders", s.Secondary }, { "Belt", s.Secondary }, { "Harness", s.Secondary, "X" } } } end,
 	-- Hulk: green skin, torn purple shorts, bare feet, black hair
-	Hulk = function(s) return { colors = { Head = s.Primary, Chest = s.Primary, Arms = s.Primary, Hands = s.Primary, Waist = s.Secondary, UpperLegs = s.Secondary, LowerLegs = s.Primary, Feet = s.Primary },
-		pieces = { { "Hair", C(20, 20, 20), "Spiky" }, { "TornHem", s.Secondary }, { "Beard", s.Primary:Lerp(C(0, 0, 0), 0.15) } } } end,
+	Hulk = function(s) return { colors = { Head = s.Primary, Chest = s.Primary, Arms = s.Primary, Hands = s.Primary, Waist = s.Secondary, UpperLegs = s.Secondary, LowerLegs = s.Secondary, Feet = s.Primary },
+		pieces = { { "Hair", C(20, 20, 20), "Spiky" }, { "Face", C(60, 110, 40), C(20, 20, 20), "angry" }, { "TornHem", s.Secondary }, { "Belt", C(120, 70, 40) } } } end,
 	-- Venom: black symbiote, huge white lenses, giant white spider, fanged grin + tongue
 	Venom = function(s) return { colors = { Head = s.Primary, Chest = s.Primary, Waist = s.Primary, Arms = s.Primary, Hands = s.Primary, Legs = s.Primary, Feet = s.Primary },
 		pieces = { { "Lenses", s.Primary, s.Secondary, 1.35 }, { "Fangs", C(120, 20, 30), WHITE, C(200, 60, 90) }, { "Emblem", "✱", s.Secondary } } } end,
 	-- Green Goblin: green skin, purple tunic/hat/gloves/boots, pointed ears, yellow eyes, satchel
 	GreenGoblin = function(s) return { colors = { Head = s.Primary, Chest = s.Secondary, Waist = s.Secondary, Arms = s.Primary, Gloves = s.Secondary, Legs = s.Primary, Boots = s.Secondary },
-		pieces = { { "GoblinHat", s.Secondary }, { "Eyes", C(255, 230, 60) }, { "Smile", C(30, 20, 20) }, { "Satchel", C(120, 70, 40) }, { "Belt", s.Secondary } } } end,
+		pieces = { { "GoblinHat", s.Secondary }, { "Face", C(255, 220, 40), C(30, 50, 20), "grin", C(40, 20, 20) }, { "Satchel", C(120, 70, 40) }, { "Belt", s.Secondary } } } end,
 	-- Batman (TAS): gray suit, dark cowl/cape/gloves/boots/trunks, yellow oval + belt, glove fins
 	Batman = function(s) return { colors = { Head = SKIN, Chest = s.Primary, Waist = s.Secondary, Arms = s.Primary, Gloves = s.Secondary, Legs = s.Primary, Boots = s.Secondary },
-		pieces = { { "Cowl", s.Secondary, 0.6, SKIN }, { "Eyes", WHITE }, { "Cape", s.Secondary }, { "Emblem", "🦇", C(0, 0, 0), C(255, 215, 60) },
+		pieces = { { "Cowl", s.Secondary, 0.6, SKIN }, { "Eyes", WHITE }, { "LowerFace" }, { "Cape", s.Secondary }, { "Emblem", "🦇", C(0, 0, 0), C(255, 215, 60), true },
 			{ "Belt", C(255, 205, 60), { color = C(255, 215, 80) } }, { "Pouches", C(240, 195, 55), 6 }, { "Cuffs", s.Secondary, true } } } end,
 	-- Superman: blue suit, red cape/trunks/boots, yellow belt, diamond S-shield, black hair
 	Superman = function(s) return { colors = { Head = SKIN, Chest = s.Primary, Waist = s.Secondary, Arms = s.Primary, Hands = s.Primary, Legs = s.Primary, Boots = s.Secondary },
-		pieces = { { "Cape", s.Secondary }, { "Hair", C(15, 15, 20) }, { "Shield", s.Secondary, C(255, 215, 40), s.Secondary }, { "Belt", C(255, 215, 40) } } } end,
+		pieces = { { "Cape", s.Secondary }, { "CapeEmblem", "S", C(255, 215, 40) }, { "Hair", C(15, 15, 20) }, { "Face", C(60, 120, 210), C(20, 20, 25), "neutral" }, { "Shield", s.Secondary, C(255, 215, 40), s.Secondary },
+			{ "Belt", C(255, 215, 40), { color = C(255, 215, 40) } } } } end,
 	-- Flash: all red, open jaw, yellow ear wings, lightning emblem in a white circle, yellow belt + boots
 	Flash = function(s) return { colors = { Head = s.Primary, Chest = s.Primary, Waist = s.Primary, Arms = s.Primary, Hands = s.Primary, Legs = s.Primary, Boots = s.Secondary },
-		pieces = { { "JawOpening", SKIN }, { "EarWings", s.Secondary }, { "Emblem", "ϟ", s.Secondary, WHITE }, { "Belt", s.Secondary }, { "Eyes", WHITE } } } end,
+		pieces = { { "JawOpening", SKIN }, { "LowerFace", "smirk" }, { "EarWings", s.Secondary }, { "Emblem", "ϟ", s.Secondary, WHITE, true }, { "Belt", s.Secondary }, { "Eyes", WHITE } } } end,
 	-- Wonder Woman: red top w/ gold eagle, blue star briefs, silver bracers, tiara, red boots, lasso
 	WonderWoman = function(s) return { colors = { Head = SKIN, Chest = s.Primary, Waist = s.Secondary, Arms = SKIN, LowerArms = C(200, 200, 210), Hands = SKIN, UpperLegs = SKIN, Boots = s.Primary },
-		pieces = { { "Hair", C(20, 15, 15), "Long" }, { "Tiara", GOLD, C(220, 30, 40) }, { "Emblem", "W", GOLD }, { "Belt", GOLD }, { "Lasso", C(255, 210, 80) } } } end,
+		pieces = { { "Hair", C(20, 15, 15), "Long" }, { "Face", C(60, 110, 190), C(30, 20, 20), "neutral", C(190, 40, 50) }, { "Tiara", GOLD, C(220, 30, 40) }, { "Emblem", "W", GOLD }, { "Belt", GOLD },
+			{ "Lasso", C(255, 210, 80) }, { "WWDetails" } } } end,
 	-- Harley Quinn (classic): red/black harlequin split, jester cowl with white poms, white face, domino mask
 	HarleyQuinn = function(s) return { colors = { Head = WHITE },
-		pieces = { { "Harlequin", s.Primary, s.Secondary }, { "JesterCowl", s.Primary, s.Secondary, WHITE }, { "Smile", C(200, 20, 30) } } } end,
+		pieces = { { "Harlequin", s.Primary, s.Secondary }, { "Face", C(70, 130, 220), C(20, 20, 20), "grin", C(200, 20, 30) }, { "JesterCowl", s.Primary, s.Secondary, WHITE } } } end,
 	-- Joker: white face, green hair, red grin, purple suit, orange vest, green shirt, bow tie
 	Joker = function(s) return { colors = { Head = WHITE, Chest = s.Primary, Waist = s.Primary, Arms = s.Primary, Hands = C(240, 240, 240), Legs = s.Primary, Feet = C(25, 25, 30) },
-		pieces = { { "Hair", s.Secondary, "Spiky" }, { "Smile", C(200, 20, 30) }, { "SuitFront", C(230, 120, 30), s.Secondary, s.Secondary, s.Primary:Lerp(C(0, 0, 0), 0.3) } } } end,
+		pieces = { { "Hair", s.Secondary, "Spiky" }, { "Face", C(60, 150, 60), C(40, 90, 40), "grin", C(200, 20, 30) }, { "Smile", C(200, 20, 30) }, { "SuitFront", C(230, 120, 30), s.Secondary, s.Secondary, s.Primary:Lerp(C(0, 0, 0), 0.3) },
+			{ "Flower" } } } end,
 	-- Deathstroke: orange/black split mask (one eye), dark blue armor, orange gloves/boots, katana + staff
 	Deathstroke = function(s) return { colors = { Chest = s.Secondary, Waist = s.Secondary, Arms = s.Secondary, Gloves = s.Primary, Legs = s.Secondary, Boots = s.Primary },
-		pieces = { { "HalfMask", C(20, 20, 25), s.Primary, C(10, 10, 10) }, { "Belt", C(60, 50, 40) }, { "Pouches", C(50, 45, 40), 4 }, { "Shoulders", s.Primary }, { "Harness", C(40, 40, 45), "X" } } } end,
+		pieces = { { "HalfMask", s.Primary, C(20, 20, 25), C(10, 10, 10) }, { "Belt", C(60, 50, 40) }, { "Pouches", C(50, 45, 40), 4 }, { "Shoulders", s.Primary }, { "Harness", C(40, 40, 45), "X" },
+			{ "Scabbards", C(30, 30, 35) }, { "Cuffs", s.Primary } } } end,
 	-- Black Adam: black suit, gold lightning bolt, gold belt + bracers + boots, short white cape, widow's peak
 	BlackAdam = function(s) return { colors = { Head = SKIN, Chest = s.Primary, Waist = s.Primary, Arms = s.Primary, Gloves = s.Secondary, Legs = s.Primary, Boots = s.Secondary },
-		pieces = { { "Cape", C(240, 240, 245) }, { "Hair", C(15, 15, 15) }, { "Emblem", "ϟ", s.Secondary }, { "Belt", s.Secondary } } } end,
+		pieces = { { "Cape", C(190, 160, 120) }, { "Hair", C(15, 15, 15) }, { "Face", C(40, 30, 25), C(15, 15, 15), "angry" }, { "Emblem", "ϟ", s.Secondary }, { "Belt", s.Secondary, { color = s.Secondary, text = "▲", textColor = C(120, 90, 20) } },
+			{ "Cuffs", s.Secondary } } } end,
 	-- Darkseid: gray craggy stone face, blue hood + tunic, red Omega eyes, black legs
 	Darkseid = function(s) return { colors = { Head = s.Primary, Chest = s.Secondary, Waist = s.Secondary, Arms = s.Secondary, Gloves = s.Primary, Legs = C(30, 30, 40), Feet = s.Secondary },
-		pieces = { { "Craggy", s.Primary:Lerp(C(0, 0, 0), 0.35) }, { "Eyes", C(255, 40, 40) }, { "Shoulders", s.Secondary }, { "Belt", s.Secondary } } } end,
+		pieces = { { "Craggy", s.Primary:Lerp(C(0, 0, 0), 0.35) }, { "Eyes", C(255, 40, 40) }, { "DarkseidArmor", s.Secondary, C(90, 95, 110) }, { "Shoulders", C(90, 95, 110) } } } end,
 	-- Nova: gold helmet with red crest, blue/black suit, gold orbs and armor
 	Nova = function(s) return { colors = { Head = s.Secondary, Chest = s.Primary, Arms = s.Primary, Gloves = s.Secondary, Legs = s.Primary, Boots = s.Secondary },
-		pieces = { { "Helmet", s.Secondary, nil, C(220, 30, 40) }, { "JawOpening", SKIN }, { "Eyes", WHITE }, { "NovaOrbs", s.Secondary }, { "Belt", s.Secondary }, { "Shoulders", s.Secondary, true, s.Secondary } } } end,
+		pieces = { { "Helmet", s.Secondary, nil, C(220, 30, 40) }, { "JawOpening", SKIN }, { "LowerFace" }, { "Eyes", WHITE }, { "NovaOrbs", s.Secondary }, { "Belt", s.Secondary }, { "Shoulders", s.Secondary, true, s.Secondary } } } end,
 	-- Cyclops (X-Men '97): blue suit, yellow X-harness, bands, gloves, boots, visor with pods, red X buckle, pouches
 	Cyclops = function(s) return { colors = { Head = SKIN, Chest = s.Primary, Waist = s.Primary, Arms = s.Primary, Legs = s.Primary, Hands = s.Secondary, Boots = s.Secondary },
-		pieces = { { "Hair", C(130, 60, 30), "Spiky" }, { "Visor", s.Secondary, C(255, 30, 30) }, { "Harness", s.Secondary, "X" }, { "Bands", s.Secondary },
+		pieces = { { "Hair", C(130, 60, 30), "Spiky" }, { "LowerFace" }, { "Visor", s.Secondary, C(255, 30, 30) }, { "Harness", s.Secondary, "X" }, { "Bands", s.Secondary },
 			{ "Belt", s.Secondary, { color = C(190, 20, 20), text = "X", textColor = C(110, 10, 10) } }, { "Pouches", s.Secondary, 6 }, { "Shoulders", s.Primary } } } end,
 	-- Ghost Rider: leather jacket, flaming skull, spikes, chains, knee pads
 	GhostRider = function(s) return { colors = { Head = C(235, 228, 210), Chest = s.Primary, Waist = s.Primary, Arms = s.Primary, Hands = s.Primary, Legs = s.Primary, Feet = C(20, 20, 22) },

@@ -18,14 +18,14 @@ end
 local function solid(parent, props) local p = part(parent, props); p.CanCollide = true; return p end
 
 local function lighting()
-	Lighting.ClockTime = 0; Lighting.Brightness = 1.2; Lighting.GlobalShadows = true
-	Lighting.Ambient = C(60, 50, 110); Lighting.OutdoorAmbient = C(80, 70, 150)
+	Lighting.ClockTime = 0; Lighting.Brightness = 2; Lighting.GlobalShadows = true; Lighting.ExposureCompensation = 0.25
+	Lighting.Ambient = C(105, 100, 140); Lighting.OutdoorAmbient = C(125, 120, 170) -- bright enough to read characters at night
 	Lighting.FogColor = C(40, 30, 90); Lighting.FogStart = 120; Lighting.FogEnd = 900
 	for _, x in Lighting:GetChildren() do if x:IsA("PostEffect") or x:IsA("Atmosphere") or x:IsA("Sky") then x:Destroy() end end
-	local atm = Instance.new("Atmosphere"); atm.Density = 0.38; atm.Offset = 0.1
-	atm.Color = C(90, 70, 170); atm.Decay = C(200, 40, 60); atm.Glare = 0.4; atm.Haze = 1.6; atm.Parent = Lighting -- red horizon glow
+	local atm = Instance.new("Atmosphere"); atm.Density = 0.3; atm.Offset = 0.1
+	atm.Color = C(90, 70, 170); atm.Decay = C(200, 40, 60); atm.Glare = 0; atm.Haze = 1.6; atm.Parent = Lighting -- red horizon glow
 	local cc = Instance.new("ColorCorrectionEffect"); cc.TintColor = C(200, 190, 255); cc.Saturation = 0.25; cc.Contrast = 0.15; cc.Parent = Lighting
-	local bloom = Instance.new("BloomEffect"); bloom.Intensity = 1.2; bloom.Size = 30; bloom.Threshold = 0.85; bloom.Parent = Lighting
+	local bloom = Instance.new("BloomEffect"); bloom.Intensity = 0.4; bloom.Size = 18; bloom.Threshold = 2.2; -- only true light sources glow, never faces/skin bloom.Parent = Lighting
 	local sky = Instance.new("Sky"); sky.StarCount = 1500; sky.MoonAngularSize = 14; sky.CelestialBodiesShown = true; sky.Parent = Lighting
 end
 
