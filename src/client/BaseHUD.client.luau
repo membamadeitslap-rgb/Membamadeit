@@ -76,6 +76,11 @@ RunService.RenderStepped:Connect(function()
 	if c then carry.Text = "STEALING " .. c:upper() .. " — RUN HOME!" end
 	-- Secret rarity rainbow
 	local hue = Color3.fromHSV((os.clock() * 0.3) % 1, 0.8, 1)
+	for _, x in CollectionService:GetTagged("HellfireFlicker") do -- animated hellfire glow
+		local n = math.noise(os.clock() * 6, x:GetAttribute("Seed") or (#x:GetFullName() % 17))
+		if x:IsA("PointLight") then x.Brightness = 1.6 + n * 1.6; x.Range = 14 + n * 4
+		elseif x:IsA("BasePart") then x.Transparency = 0.15 + math.abs(n) * 0.5 end
+	end
 	for _, h in CollectionService:GetTagged("Rainbow") do
 		if h:IsA("Highlight") then h.OutlineColor = hue elseif h:IsA("TextLabel") then h.TextColor3 = hue end
 	end

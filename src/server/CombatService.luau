@@ -8,6 +8,7 @@ local Heroes = require(RS.Shared.Heroes)
 local Net = require(RS.Shared.Net)
 local Weapons = require(RS.Shared.Weapons)
 local Skins = require(RS.Shared.Skins)
+local HellCycle = require(RS.Shared.HellCycle)
 
 local Combat = {}
 local state = {} -- [player] = { combo, lastM1, cds = {}, counterUntil }
@@ -27,6 +28,7 @@ end
 function Combat.SetupCharacter(player, heroId, rarity)
 	local char = player.Character
 	char:SetAttribute("Hero", heroId)
+	char:SetAttribute("Rarity", rarity)
 	if heroId then Skins.Apply(char, heroId, rarity or "Common") end
 	char:SetAttribute("Stamina", Config.MaxStamina)
 	char:SetAttribute("Ult", 0)
@@ -133,8 +135,21 @@ local function projectile(attacker, info)
 	end
 end
 
+-- Legendary+ Ghost Rider mounts the Hell Cycle for the charge (visual; physics stays on the rider)
+local function mountBike(char, duration)
+	local skin = Skins.Get(char:GetAttribute("Hero") or "", char:GetAttribute("Rarity") or "Common")
+	local hrp = hrpOf(char)
+	if not (skin and skin.HellCycle and hrp) then return end
+	local bike = HellCycle.Build(skin.Flame, skin.Flame2)
+	bike:PivotTo(hrp.CFrame * CFrame.new(0, -0.9, 0.4)) -- seat at hip height, wheels on the ground
+	local w = Instance.new("WeldConstraint"); w.Part0 = hrp; w.Part1 = bike.PrimaryPart; w.Parent = bike.PrimaryPart
+	bike.Parent = char
+	Debris:AddItem(bike, duration)
+end
+
 local function leap(attacker, info)
 	local hrp = hrpOf(attacker.Character)
+	if info.Name == "Hellcycle Charge" then mountBike(attacker.Character, 1.2) end
 	knockback(attacker.Character, hrp.Position - hrp.CFrame.LookVector, info.Distance * 2.2, 15)
 	task.wait(0.25)
 	boxHit(attacker, { Damage = info.Damage, Knockback = info.Knockback, Range = Vector3.new(7, 6, 7), Offset = 2 })

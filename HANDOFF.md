@@ -25,6 +25,7 @@ A Roblox game that mixes Steal a Brainrot with Dueling Grounds, using Marvel and
 - `src/shared/Skins.luau`: 18 heroes x 6 rarity variants (name + colors), `Skins.Apply(model, hero, rarity)`
 - `src/shared/Costume.luau`: costume pieces (Cape, Cowl, Helmet, Eyes, Visor, Hair, Emblem, Reactor, NovaOrbs, Belt, Harness, Shoulders, Spikes, Cuffs) plus a per-hero default look. Variants in Skins can pass `Colors` / `Extra` / `Pieces`.
   Policy: do NOT download or upload official Marvel/DC art (copyright, and Roblox moderation would take the game down). Recreate details from the user's references with parts.
+- `src/shared/HellCycle.luau`: Ghost Rider bike (skins with `HellCycle = true` park it beside display models; ridden during "Hellcycle Charge"). Tag `HellfireFlicker` animates glow client-side.
 - `src/shared/Mannequin.luau`: blocky figure for ViewportFrame portraits
 - `src/client/BaseHUD.client.luau`: cash, $/s, slots, FIGHT button, alerts, carry banner, Secret rainbow
 - `src/client/SelectScreen.client.luau`: MK vs DC style fighter select
@@ -66,7 +67,7 @@ State lives as Character attributes: Hero, Stamina, Ult, Blocking, StunUntil, IF
 7. Custom meshes: the user REJECTED the generated-mesh attempts ("goofy"). Do not build meshes; stick to the part-built Roblox style (see the user's Ghost Rider reference: blocky body, detailed accessories).
 
 ## Publishing
-Live at place 95876647985129 (universe 10772668310). Run `ROBLOX_API_KEY=<key> ./scripts/publish.sh` (needs rojo; the environment must allow apis.roblox.com). Ask the user for the key; never commit it. Last published: version 10 (Ghost Rider).
+Live at place 95876647985129 (universe 10772668310). Run `ROBLOX_API_KEY=<key> ./scripts/publish.sh` (needs rojo; the environment must allow apis.roblox.com). Ask the user for the key; never commit it. Last published: version 11 (Ghost Rider Legendary+: burning body + Hell Cycle).
 
 ## Rules for whoever picks this up
 - Keep the server authoritative for damage and cooldowns; the client only does visuals and its own dash velocity.

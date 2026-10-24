@@ -224,6 +224,29 @@ function P.Chains(m, metal)
 		run(w, Vector3.new(s.X * 0.58, y, -0.1), Vector3.new(s.X * 0.62, y - 1.6, 0), 6)
 	end
 end
+-- Legendary+ Ghost Rider: hands, forearms and boots on fire, embers off the shoulders, flickering glow
+function P.HellfireBody(m, flame, flame2)
+	flame, flame2 = flame or C(255, 120, 20), flame2 or C(255, 220, 60)
+	local CS = game:GetService("CollectionService")
+	for _, n in { "LeftHand", "RightHand", "LeftLowerArm", "RightLowerArm", "LeftFoot", "RightFoot", "LeftArm", "RightArm", "LeftLeg", "RightLeg" } do
+		local a = m:FindFirstChild(n)
+		if a then
+			local f = Instance.new("Fire"); f.Color = flame; f.SecondaryColor = flame2
+			f.Size = n:find("Hand") and 3 or 2; f.Heat = n:find("Foot") and 3 or 6; f.Parent = a
+		end
+	end
+	for _, n in { "UpperTorso", "Torso" } do
+		local t = m:FindFirstChild(n)
+		if t then
+			local pe = Instance.new("ParticleEmitter"); pe.Name = "HellEmbers"; pe.LightEmission = 1
+			pe.Color = ColorSequence.new(flame, flame2); pe.Size = NumberSequence.new(0.35, 0)
+			pe.Lifetime = NumberRange.new(0.6, 1.2); pe.Rate = 25; pe.Speed = NumberRange.new(1, 3)
+			pe.Acceleration = Vector3.new(0, 6, 0); pe.SpreadAngle = Vector2.new(60, 60); pe.Parent = t
+			local l = Instance.new("PointLight"); l.Name = "HellGlow"; l.Color = flame; l.Range = 16; l.Brightness = 2; l.Parent = t
+			CS:AddTag(l, "HellfireFlicker")
+		end
+	end
+end
 Costume.Pieces = P
 Costume.SKIN = Color3.fromRGB(234, 184, 146)
 

@@ -5,6 +5,7 @@ local Heroes = require(RS.Shared.Heroes)
 local Skins = require(RS.Shared.Skins)
 local Weapons = require(RS.Shared.Weapons)
 local Rarity = require(RS.Shared.Rarity)
+local HellCycle = require(RS.Shared.HellCycle)
 
 local M = {}
 local template
@@ -25,6 +26,14 @@ function M.Build(heroId, rarity, extra)
 	for hand, id in (Heroes[heroId].Weapons or {}) do Weapons.Attach(m, id, hand) end
 	for _, p in m:GetDescendants() do if p:IsA("BasePart") then p.CanCollide = false end end
 	m.HumanoidRootPart.Anchored = true
+	local skin = Skins.Get(heroId, rarity)
+	if skin.HellCycle then -- parked beside the rider, angled toward the viewer
+		local bike = HellCycle.Build(skin.Flame, skin.Flame2)
+		local floor = m.HumanoidRootPart.CFrame * CFrame.new(0, -3, 0)
+		bike:PivotTo(floor * CFrame.new(3.4, 2.3, 0.4) * CFrame.Angles(0, math.rad(-25), 0)) -- pivot is the seat (2.3 above ground)
+		local w = Instance.new("WeldConstraint"); w.Part0 = m.HumanoidRootPart; w.Part1 = bike.PrimaryPart; w.Parent = bike.PrimaryPart
+		bike.Parent = m
+	end
 	m:SetAttribute("Hero", heroId); m:SetAttribute("Rarity", rarity)
 
 	local tier = Rarity.Tiers[rarity]
