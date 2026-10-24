@@ -36,6 +36,16 @@ local function buildTruck(rarity)
 			w.Shape = Enum.PartType.Cylinder; w.CFrame = CFrame.new(Vector3.new(x, 1.5, z)) * CFrame.Angles(0, math.rad(90), 0)
 		end
 	end
+	-- Yellow headlights + red tail-light streaks (TAS-style motion lines)
+	for _, z in { -2.8, 2.8 } do
+		local hl = p("Headlight", Vector3.new(0.3, 0.9, 0.9), Vector3.new(12.2, 3.2, z), Color3.fromRGB(255, 230, 120), Enum.Material.Neon)
+		local sl = Instance.new("SpotLight"); sl.Face = Enum.NormalId.Right; sl.Color = hl.Color; sl.Range = 40; sl.Angle = 50; sl.Brightness = 3; sl.Parent = hl
+		local tl = p("TailLight", Vector3.new(0.3, 0.6, 0.9), Vector3.new(-7.1, 2.8, z), Color3.fromRGB(255, 30, 50), Enum.Material.Neon)
+		local a0 = Instance.new("Attachment"); a0.Position = Vector3.new(0, 0.25, 0); a0.Parent = tl
+		local a1 = Instance.new("Attachment"); a1.Position = Vector3.new(0, -0.25, 0); a1.Parent = tl
+		local tr = Instance.new("Trail"); tr.Attachment0 = a0; tr.Attachment1 = a1; tr.Lifetime = 0.8; tr.LightEmission = 1
+		tr.Color = ColorSequence.new(Color3.fromRGB(255, 30, 60)); tr.Transparency = NumberSequence.new(0.1, 1); tr.FaceCamera = true; tr.Parent = tl
+	end
 	m.PrimaryPart = bed
 	return m
 end

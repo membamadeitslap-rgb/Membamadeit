@@ -88,8 +88,8 @@ end
 function A.Build()
 	local root = Instance.new("Folder"); root.Name = "Map"; root.Parent = workspace
 	-- Ground + convoy road running along X
-	part({ Name = "Ground", Size = Vector3.new(560, 2, 260), Position = Vector3.new(0, -1, 0), Color = C(70, 120, 60), Material = Enum.Material.Grass, Parent = root })
-	part({ Name = "Road", Size = Vector3.new(560, 0.2, 26), Position = Vector3.new(0, 0.1, 0), Color = C(40, 40, 45), Material = Enum.Material.Asphalt, Parent = root })
+	part({ Name = "Ground", Size = Vector3.new(560, 2, 260), Position = Vector3.new(0, -1, 0), Color = C(30, 35, 60), Material = Enum.Material.Pavement, Parent = root })
+	part({ Name = "Road", Size = Vector3.new(560, 0.2, 26), Position = Vector3.new(0, 0.1, 0), Color = C(22, 22, 40), Material = Enum.Material.Glass, Reflectance = 0.2, Parent = root })
 	for x = -270, 270, 20 do
 		part({ Size = Vector3.new(8, 0.25, 0.8), Position = Vector3.new(x, 0.15, 0), Color = C(240, 200, 40), Material = Enum.Material.SmoothPlastic, Parent = root })
 	end

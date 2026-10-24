@@ -26,6 +26,7 @@ A Roblox game that mixes Steal a Brainrot with Dueling Grounds, using Marvel and
 - `src/shared/Mannequin.luau`: blocky figure for ViewportFrame portraits
 - `src/client/BaseHUD.client.luau`: cash, $/s, slots, FIGHT button, alerts, carry banner, Secret rainbow
 - `src/client/SelectScreen.client.luau`: MK vs DC style fighter select
+- `src/server/GothamTheme.luau`: Halloween 90s-animated-Batman art deco night: lighting, deco skyline, convoy gateway, searchlights, Bat-Signal, bats, pumpkins, fog
 - `src/server/ArenaBuilder.luau`: base world (road, 8 plots) and 5 floating duel arenas
 - `src/server/Main.server.luau`: bootstrap (Base.Start must run before Data.Start)
 - `src/client/Input.client.luau`: LMB M1, hold F block, Q dash, 1-4 abilities, G ult
@@ -63,7 +64,7 @@ State lives as Character attributes: Hero, Stamina, Ult, Blocking, StunUntil, IF
 7. Real MeshPart heroes and weapons later; for now skins only recolor the default R15 body.
 
 ## Publishing
-Live at place 95876647985129 (universe 10772668310). Run `ROBLOX_API_KEY=<key> ./scripts/publish.sh` (needs rojo; the environment must allow apis.roblox.com). Ask the user for the key; never commit it. Last published: version 4.
+Live at place 95876647985129 (universe 10772668310). Run `ROBLOX_API_KEY=<key> ./scripts/publish.sh` (needs rojo; the environment must allow apis.roblox.com). Ask the user for the key; never commit it. Last published: version 5 (Gotham theme).
 
 ## Rules for whoever picks this up
 - Keep the server authoritative for damage and cooldowns; the client only does visuals and its own dash velocity.

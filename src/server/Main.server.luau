@@ -1,4 +1,5 @@
 local map = require(script.Parent.ArenaBuilder).Build()
+require(script.Parent.GothamTheme).Build(map)
 local Data = require(script.Parent.DataService)
 local Base = require(script.Parent.BaseService)
 local Duel = require(script.Parent.DuelService)
