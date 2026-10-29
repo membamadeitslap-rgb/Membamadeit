@@ -54,14 +54,15 @@ HEAD = ("M200 34 C292 34 352 104 352 206 C352 296 318 372 276 426 C254 454 228 4
         "C172 470 146 454 124 426 C82 372 48 296 48 206 C48 104 108 34 200 34 Z")
 
 
-def lens(side):
-    # teardrop lens sweeping up and out from the bridge of the nose
+def lens(side, k=0.78):
+    # teardrop lens sweeping up and out from the bridge of the nose (k scales it around the lens center)
     s = 1 if side > 0 else -1
-    def X(x): return 200 + s * x
-    path = (f"M{X(18)} 300 C{X(14)} 262 {X(40)} 214 {X(88)} 192 C{X(120)} 178 {X(150)} 186 {X(146)} 214 "
-            f"C{X(140)} 256 {X(104)} 300 {X(62)} 318 C{X(40)} 326 {X(20)} 318 {X(18)} 300 Z")
-    hi = (f"M{X(60)} 236 C{X(78)} 214 {X(104)} 204 {X(122)} 206")
-    return (f'<path d="{path}" fill="{INK}" stroke="{INK}" stroke-width="30" stroke-linejoin="round"/>'
+    def X(x): return 200 + s * (82 + (x - 82) * k)
+    def Y(y): return 255 + (y - 255) * k
+    path = (f"M{X(18)} {Y(300)} C{X(14)} {Y(262)} {X(40)} {Y(214)} {X(88)} {Y(192)} C{X(120)} {Y(178)} {X(150)} {Y(186)} {X(146)} {Y(214)} "
+            f"C{X(140)} {Y(256)} {X(104)} {Y(300)} {X(62)} {Y(318)} C{X(40)} {Y(326)} {X(20)} {Y(318)} {X(18)} {Y(300)} Z")
+    hi = (f"M{X(60)} {Y(236)} C{X(78)} {Y(214)} {X(104)} {Y(204)} {X(122)} {Y(206)}")
+    return (f'<path d="{path}" fill="{INK}" stroke="{INK}" stroke-width="22" stroke-linejoin="round"/>'
             f'<path d="{path}" fill="url(#gLens)" stroke="{INK}" stroke-width="6" stroke-linejoin="round"/>'
             f'<path d="{hi}" fill="none" stroke="#ffffff" stroke-width="7" stroke-linecap="round" opacity="0.9"/>')
 
@@ -91,6 +92,25 @@ CHEST = ("M66 46 C124 28 276 28 334 46 C350 56 350 88 340 118 C318 170 276 206 2
 BELT = "M108 360 C170 352 230 352 292 360 L296 430 C230 440 170 440 104 430 Z"
 
 
+def narrow(path, k=0.8, cx=200):
+    """Scale a path's x coordinates toward cx (keeps stroke widths even, unlike an SVG transform)."""
+    import re
+    toks = re.findall(r"[A-Za-z]|-?\d+\.?\d*", path)
+    out, i, cmd = [], 0, None
+    nums = []
+    for t in toks:
+        if t.isalpha():
+            cmd = t; out.append(t); nums = []
+        else:
+            nums.append(float(t))
+            if len(nums) % 2 == 1: out.append(f"{cx + (float(t) - cx) * k:.1f}")
+            else: out.append(t)
+    return " ".join(out)
+
+
+TORSO, CHEST, BELT = narrow(TORSO), narrow(CHEST), narrow(BELT)
+
+
 def spider(cx, cy, s):
     legs = [
         [(8, -30), (60, -70), (128, -96)], [(10, -18), (78, -34), (150, -30)],
@@ -109,32 +129,30 @@ def spider(cx, cy, s):
 
 
 def torso(front):
-    defs = (f'<clipPath id="cc"><path d="{CHEST}"/></clipPath><clipPath id="bc"><path d="{BELT}"/></clipPath>')
+    defs = (f'<clipPath id="cc"><path d="{CHEST}"/></clipPath><clipPath id="bc"><path d="{BELT}"/></clipPath><clipPath id="tc"><path d="{TORSO}"/></clipPath>')
     cy = 118 if front else 130
     w = web(200, cy, 14, [34, 68, 104, 142, 182, 224], 300, bend=0.05, a0=-math.pi / 2, width=2.2, squash=1.0)
-    belt_web = "".join(f'<path d="M{110 + i * 23} 352 L{108 + i * 23.5} 440" stroke="{INK}" stroke-width="2.2"/>' for i in range(9)) + \
+    belt_web = "".join(f'<path d="M{200 + (110 + i * 23 - 200) * 0.8:.1f} 352 L{200 + (108 + i * 23.5 - 200) * 0.8:.1f} 440" stroke="{INK}" stroke-width="2.2"/>' for i in range(9)) + \
         f'<path d="M100 396 C170 404 230 404 300 396" fill="none" stroke="{INK}" stroke-width="2.2"/>'
-    shading = (f'<path d="M300 60 C350 90 340 200 300 290 C290 330 290 380 296 430 L262 446 C270 380 272 320 286 270 C318 190 326 110 300 60 Z" fill="{BLUE_D}" opacity="0.55"/>'
-               f'<path d="M84 70 C64 110 74 170 96 220" fill="none" stroke="{BLUE_L}" stroke-width="8" stroke-linecap="round" opacity="0.7"/>')
+    shading = (f'<path d="{narrow("M300 60 C350 90 340 200 300 290 C290 330 290 380 296 430 L262 446 C270 380 272 320 286 270 C318 190 326 110 300 60 Z")}" fill="{BLUE_D}" opacity="0.55"/>'
+               f'<path d="{narrow("M84 70 C64 110 74 170 96 220")}" fill="none" stroke="{BLUE_L}" stroke-width="8" stroke-linecap="round" opacity="0.7"/>')
     muscles = "" if not front else (
         f'<path d="M200 150 L200 300" stroke="{INK}" stroke-width="3" opacity="0.5"/>'
         f'<path d="M130 120 C160 150 180 156 200 150 C220 156 240 150 270 120" fill="none" stroke="{INK}" stroke-width="3" opacity="0.45"/>')
     body = cutout(TORSO, "url(#gBlue)", ink=10, extra=
                   shading +
                   f'<path d="{CHEST}" fill="url(#gRed)" stroke="{INK}" stroke-width="5"/>'
-                  f'<g clip-path="url(#cc)">{w}<path d="M290 60 C320 120 280 200 240 260 L232 312 L250 312 C262 240 330 150 300 60 Z" fill="{RED_D}" opacity="0.4"/></g>'
+                  f'<g clip-path="url(#cc)">{w}<path d="{narrow("M290 60 C320 120 280 200 240 260 L232 312 L250 312 C262 240 330 150 300 60 Z")}" fill="{RED_D}" opacity="0.4"/></g>'
                   f'<path d="{BELT}" fill="url(#gRed)" stroke="{INK}" stroke-width="5"/><g clip-path="url(#bc)">{belt_web}</g>'
-                  + muscles + spider(200, 150 if front else 168, 0.85 if front else 1.25) +
+                  + muscles + '<g clip-path="url(#tc)">' + spider(200, 150 if front else 168, 0.85 if front else 1.25) + '</g>' +
                   f'<path d="{TORSO}" fill="none" stroke="{INK}" stroke-width="10" stroke-linejoin="round"/>')
     return svg(400, 480, body, defs)
 
 
-# ---------------- ARM (shoulder to fist) / LEG (hip to boot) ----------------
-ARM = ("M40 40 C40 14 140 14 140 40 L138 200 C144 230 140 260 132 300 L124 400 C150 410 156 470 128 486 "
-       "C100 500 50 500 30 482 C8 460 22 412 48 400 L42 300 C34 260 30 230 40 200 Z")
-FORE = "M40 196 C60 186 120 186 138 196 C144 230 140 260 132 300 L124 400 C110 406 64 406 48 400 L42 300 C34 260 30 230 40 196 Z"
-FIST = "M48 400 C64 392 112 392 124 400 C150 410 156 470 128 486 C100 500 50 500 30 482 C8 460 22 412 48 400 Z"
-CAP = "M40 40 C40 14 140 14 140 40 L140 92 C110 104 70 104 40 92 Z"
+# ---------------- ARM (shoulder to gloved fist) / LEG (hip to boot) ----------------
+ARM = ("M44 60 C42 22 120 18 124 58 C130 110 128 160 120 210 C118 230 116 246 118 262 C126 320 120 400 110 462 "
+       "C126 470 132 500 128 530 C126 556 104 570 80 570 C54 570 34 558 32 532 C30 504 38 474 52 462 "
+       "C44 400 38 330 42 262 C44 246 42 230 40 210 C36 160 38 110 44 60 Z")
 
 
 def grid_lines(x0, x1, y0, y1, cols, rows, curve=8):
@@ -145,35 +163,52 @@ def grid_lines(x0, x1, y0, y1, cols, rows, curve=8):
     for j in range(1, rows):
         y = y0 + (y1 - y0) * j / rows
         d.append(f"M{x0} {y:.1f}Q{(x0 + x1) / 2:.1f} {y + curve:.1f} {x1} {y:.1f}")
-    return f'<path d="{"".join(d)}" fill="none" stroke="{INK}" stroke-width="2.4"/>'
+    return f'<path d="{"".join(d)}" fill="none" stroke="{INK}" stroke-width="2.2"/>'
 
 
 def arm():
-    defs = f'<clipPath id="fc"><path d="{FORE}"/><path d="{FIST}"/></clipPath>'
-    body = cutout(ARM, "url(#gBlue)", ink=9, extra=
-                  f'<path d="M110 40 C130 80 132 150 124 196 L96 196 C112 150 112 90 110 40 Z" fill="{BLUE_D}" opacity="0.5"/>'
-                  f'<path d="{CAP}" fill="url(#gRed)" stroke="{INK}" stroke-width="5"/>'
-                  f'<path d="{FORE}" fill="url(#gRed)" stroke="{INK}" stroke-width="5"/><path d="{FIST}" fill="url(#gRed)" stroke="{INK}" stroke-width="5"/>'
-                  f'<g clip-path="url(#fc)">{grid_lines(20, 150, 190, 500, 4, 10)}<path d="M104 200 C120 260 116 340 108 400 L124 400 C134 330 140 260 130 200 Z" fill="{RED_D}" opacity="0.45"/></g>'
-                  f'<path d="M58 430 C70 420 92 420 104 432" fill="none" stroke="{INK}" stroke-width="3"/>'
-                  f'<path d="{ARM}" fill="none" stroke="{INK}" stroke-width="9" stroke-linejoin="round"/>')
-    return svg(180, 520, body, defs)
+    defs = (f'<clipPath id="ac"><path d="{ARM}"/></clipPath>')
+    red_low = f'<rect x="0" y="256" width="160" height="330" fill="url(#gRed)"/>'
+    cap = f'<path d="M0 0 H160 V96 C120 108 40 108 0 96 Z" fill="url(#gRed)"/>'
+    body = cutout(ARM, "url(#gBlue)", ink=8, extra=
+                  f'<g clip-path="url(#ac)">'
+                  f'<path d="M100 60 C122 110 122 170 112 214 L96 214 C106 170 108 110 100 60 Z" fill="{BLUE_D}" opacity="0.5"/>'
+                  f'{cap}<path d="M0 96 C40 108 120 108 160 96" fill="none" stroke="{INK}" stroke-width="5"/>'
+                  f'{red_low}<path d="M0 256 C40 266 120 266 160 256" fill="none" stroke="{INK}" stroke-width="5"/>'
+                  f'{grid_lines(30, 134, 260, 470, 4, 8, 6)}{grid_lines(30, 134, 10, 100, 4, 3, 6)}'
+                  f'<path d="M98 270 C112 330 108 400 100 462 L116 462 C124 400 126 330 116 270 Z" fill="{RED_D}" opacity="0.45"/>'
+                  f'<path d="M96 476 C112 490 116 520 108 552 L124 540 C132 510 126 486 110 470 Z" fill="{RED_D}" opacity="0.5"/>'
+                  f'</g>'
+                  # gloved fist: knuckle ridge, finger creases, thumb wrapped over the front
+                  f'<path d="M40 500 C60 490 104 490 124 500" fill="none" stroke="{INK}" stroke-width="4" stroke-linecap="round"/>'
+                  f'<path d="M62 498 L60 540 M82 496 L82 544 M102 498 L104 538" fill="none" stroke="{INK}" stroke-width="2.6" stroke-linecap="round" opacity="0.8"/>'
+                  f'<path d="M40 520 C56 512 78 516 86 530 C82 546 60 552 42 546" fill="#d72b38" stroke="{INK}" stroke-width="4" stroke-linejoin="round"/>'
+                  f'<path d="M36 466 C64 474 100 474 124 466" fill="none" stroke="{INK}" stroke-width="4"/>'
+                  f'<path d="{ARM}" fill="none" stroke="{INK}" stroke-width="8" stroke-linejoin="round"/>')
+    return svg(160, 600, body, defs)
 
 
-LEG = ("M24 30 C24 10 156 10 156 30 L150 250 C150 290 140 340 136 400 L138 500 C170 506 178 548 150 556 "
-       "L30 556 C14 548 18 506 40 500 L44 400 C40 340 30 290 30 250 Z")
-SHIN = "M30 250 C60 262 120 262 150 250 C150 290 140 340 136 400 L138 500 C170 506 178 548 150 556 L30 556 C14 548 18 506 40 500 L44 400 C40 340 30 290 30 250 Z"
+LEG = ("M26 30 C24 8 158 8 156 30 C160 120 150 210 140 290 C138 304 138 316 142 330 C156 390 148 450 132 520 "
+       "C140 540 154 560 156 584 C158 600 150 608 138 608 L42 608 C30 608 22 600 24 584 C26 560 40 540 48 520 "
+       "C32 450 26 390 40 330 C44 316 44 304 40 290 C30 210 22 120 26 30 Z")
 
 
 def leg():
-    defs = f'<clipPath id="sc"><path d="{SHIN}"/></clipPath>'
-    body = cutout(LEG, "url(#gBlue)", ink=9, extra=
-                  f'<path d="M120 30 C146 90 146 190 138 250 L110 256 C124 190 126 90 120 30 Z" fill="{BLUE_D}" opacity="0.5"/>'
-                  f'<path d="{SHIN}" fill="url(#gRed)" stroke="{INK}" stroke-width="5"/>'
-                  f'<g clip-path="url(#sc)">{grid_lines(14, 170, 252, 556, 4, 10)}<path d="M112 262 C128 330 122 420 118 500 L140 500 C140 420 150 330 146 262 Z" fill="{RED_D}" opacity="0.45"/></g>'
-                  f'<path d="M24 546 L156 546 L152 558 L28 558 Z" fill="{BLUE}" stroke="{INK}" stroke-width="4"/>'
-                  f'<path d="{LEG}" fill="none" stroke="{INK}" stroke-width="9" stroke-linejoin="round"/>')
-    return svg(180, 580, body, defs)
+    defs = f'<clipPath id="lc"><path d="{LEG}"/></clipPath>'
+    body = cutout(LEG, "url(#gBlue)", ink=8, extra=
+                  f'<g clip-path="url(#lc)">'
+                  f'<path d="M118 30 C146 100 146 200 134 290 L112 292 C124 200 126 100 118 30 Z" fill="{BLUE_D}" opacity="0.5"/>'
+                  f'<rect x="0" y="300" width="180" height="320" fill="url(#gRed)"/>'
+                  f'<path d="M0 300 C50 312 130 312 180 300" fill="none" stroke="{INK}" stroke-width="5"/>'
+                  f'{grid_lines(26, 156, 304, 560, 4, 9, 7)}'
+                  f'<path d="M112 330 C134 400 128 470 116 520 L132 520 C148 460 152 400 134 330 Z" fill="{RED_D}" opacity="0.45"/>'
+                  f'<path d="M20 586 L160 586 L160 620 L20 620 Z" fill="{BLUE}"/><path d="M20 586 L160 586" stroke="{INK}" stroke-width="4"/>'
+                  f'</g>'
+                  # boot: ankle crease and a rounded toe cap
+                  f'<path d="M48 520 C76 530 106 530 132 520" fill="none" stroke="{INK}" stroke-width="4"/>'
+                  f'<path d="M44 562 C70 548 112 548 138 562" fill="none" stroke="{INK}" stroke-width="3.5"/>'
+                  f'<path d="{LEG}" fill="none" stroke="{INK}" stroke-width="8" stroke-linejoin="round"/>')
+    return svg(180, 630, body, defs)
 
 
 files = {"Head_Front": head(True), "Head_Back": head(False), "Torso_Front": torso(True), "Torso_Back": torso(False), "Arm": arm(), "Leg": leg()}
