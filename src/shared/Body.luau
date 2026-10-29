@@ -31,6 +31,11 @@ function Body.Profile(heroId)
 	local entry = h and h.Build or { "Hero" }
 	local prof = table.clone(B[entry[1]])
 	for k, v in entry[2] or {} do prof[k] = v end
+	if not prof.round and not prof.chibi and not prof.boxy then
+		-- blocky Roblox look: limbs stay chunky and legs touch; builds differ by size, not by skinny limbs
+		prof.arm = { 1 + (prof.arm[1] - 0.78) * 0.6, prof.arm[2] }
+		prof.leg = { 1 + (prof.leg[1] - 0.82) * 0.6, prof.leg[2] }
+	end
 	return prof
 end
 
@@ -205,7 +210,10 @@ local LIMBS = {
 	{ "LeftUpperArm", false, false }, { "RightUpperArm", false, false }, { "LeftLowerArm", true, false }, { "RightLowerArm", true, false },
 	{ "LeftUpperLeg", false, true }, { "RightUpperLeg", false, true }, { "LeftLowerLeg", true, true }, { "RightLowerLeg", true, true },
 }
+-- Art direction (user references): classic blocky Roblox bodies with printed-suit detail, so rounded sculpting is off.
+-- A hero can still opt in with Build overrides { round = true }.
 function Body.Sculpt(model, heroId)
+	if not Body.Profile(heroId).round then return end
 	if model:GetAttribute("BodySculpted") or not model:FindFirstChild("UpperTorso") then return end
 	model:SetAttribute("BodySculpted", true)
 	local prof = Body.Profile(heroId)

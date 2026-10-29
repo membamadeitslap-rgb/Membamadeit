@@ -25,7 +25,7 @@ end
 local function stateOf(char)
 	local st = states[char]
 	if st then return st end
-	st = { motors = {}, base = {}, cur = {}, token = 0, freezeUntil = 0 }
+	st = { motors = {}, base = {}, cur = {}, idle = {}, token = 0, freezeUntil = 0 }
 	for k, j in JOINTS do
 		local part = char:FindFirstChild(j[1])
 		local m = part and part:FindFirstChild(j[2])
@@ -37,7 +37,7 @@ local function stateOf(char)
 end
 
 local function apply(st)
-	for k, m in st.motors do if m.Parent then m.C0 = st.base[k] * st.cur[k] end end
+	for k, m in st.motors do if m.Parent then m.C0 = st.base[k] * (st.idle[k] or IDENT) * st.cur[k] end end
 end
 
 local function ease(a, style)
@@ -82,6 +82,13 @@ end
 -- Hit-stop: freeze this character's current animation for a moment (sells heavy impacts).
 function Anim.HitStop(char, dur)
 	local st = char and states[char]; if st then st.freezeUntil = os.clock() + dur end
+end
+
+-- Idle layer (breathing / fighting stance sway) under whatever move is playing. pose = Pose table or nil.
+function Anim.Idle(char, pose)
+	local st = char and stateOf(char); if not st then return end
+	for k in st.motors do st.idle[k] = pose and toCF(pose[k]) or nil end
+	apply(st)
 end
 
 -- ===== Pose library =====
@@ -184,6 +191,14 @@ end
 -- Critical Edge (ultimate) charge: crouched, arms drawn back, then the strike pose is picked by kind
 P.Charge = { F(0.25, { Root = { 0, 0, 0, 0, -0.8 }, Waist = { 20, -30 }, RS = { -50, 0, 40 }, RE = { 60 }, LS = { -50, 0, -40 }, LE = { 60 }, RK = { -45 }, LK = { -45 }, Neck = { -10 } }, "Out"),
 	F(0.35, { Root = { 0, 0, 0, 0, -0.9 }, Waist = { 25, -35 }, RS = { -60, 0, 45 }, RE = { 70 }, LS = { -60, 0, -45 }, LE = { 70 }, RK = { -50 }, LK = { -50 } }, "Linear") }
+
+-- Beams: hand to the visor (eyes), chest thrust (unibeam), palm forward (repulsor / hand beams)
+P.EyeBeam = { F(0.1, { Neck = { -5 }, RS = { 150, 0, -45 }, RE = { 120 }, Waist = { -5 }, Root = { 0, 0, 0, 0, -0.3 }, RK = { -20 }, LK = { -20 } }),
+	F(0.4, { Neck = { -5 }, RS = { 150, 0, -45 }, RE = { 120 }, Waist = { -5 }, Root = { 0, 0, 0, 0, -0.3 }, RK = { -20 }, LK = { -20 } }, "Linear") }
+P.ChestBeam = { F(0.12, { Waist = { 15 }, RS = { -40, 0, 50 }, LS = { -40, 0, -50 }, RE = { 30 }, LE = { 30 }, Neck = { 10 }, Root = { 0, 0, 0, 0, 0, 0.3 } }),
+	F(0.6, { Waist = { 15 }, RS = { -40, 0, 50 }, LS = { -40, 0, -50 }, RE = { 30 }, LE = { 30 }, Neck = { 10 }, Root = { 0, 0, 0, 0, 0, 0.3 } }, "Linear") }
+P.PalmBlast = { F(0.08, { RS = { 92, 0, 0 }, RE = { 0 }, Waist = { 0, 20 }, LS = { 40, 0, -20 }, LE = { 60 } }),
+	F(0.3, { RS = { 92, 0, 0 }, RE = { 0 }, Waist = { 0, 20 }, LS = { 40, 0, -20 }, LE = { 60 } }, "Linear") }
 
 -- Defense / reactions
 P.Block = { F(0.06, { RS = { 95, 0, -45 }, RE = { 100 }, LS = { 95, 0, 45 }, LE = { 100 }, Waist = { -10 }, Root = { 0, 0, 0, 0, -0.3 }, RK = { -20 }, LK = { -20 } }) }

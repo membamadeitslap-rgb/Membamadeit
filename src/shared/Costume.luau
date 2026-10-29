@@ -795,7 +795,9 @@ Costume.SKIN = Color3.fromRGB(234, 184, 146)
 -- colors override body-part groups: Head, Chest, Waist, Arms, Hands, Legs, Feet.
 local SKIN, GOLD, WHITE = C(234, 184, 146), C(215, 170, 50), C(245, 245, 245)
 -- Shared helpers handed to every per-hero costume module (src/shared/Costumes/<HeroId>.luau)
+local Paint = require(script.Parent.Paint)
 Costume.Helpers = {
+	paint = Paint.Face, paintAll = Paint.All, -- printed-suit graphics on part faces (see Paint.luau)
 	C = C, SKIN = SKIN, GOLD = GOLD, WHITE = WHITE, P = P,
 	find = find, chestOf = chestOf, waistOf = waistOf, piece = piece, round = round, band = band, ring = ring, glyph = glyph, front = front,
 	spike = function(...) return spike(...) end, hellfire = hellfire,

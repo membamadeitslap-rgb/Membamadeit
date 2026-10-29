@@ -1,215 +1,126 @@
--- Spider-Man: smooth egg-shaped mask with raised web lines (thin discs whose rims poke out of the head/chest), big angled
--- black-rimmed lenses, red chest with blue sides, blue arms with red shoulder caps, red gloves/boots with webbing, built spider emblems.
--- Variants: Miles (black + red webs, big red spider), Iron Spider (red/gold + waldo legs), Symbiote (black, giant white spider),
--- 2099 (navy + red skull-spider), Cosmic (white/blue classic layout).
+-- Spider-Man in the blocky printed-suit style (user reference): classic Roblox block body, the suit is painted on
+-- with Paint (web grid, blue side panels, black spider front + back, framed white lenses on a block head).
+-- Variants recolor the same layout: Miles (black/red), Iron Spider (red/gold), Symbiote (black, big white spider),
+-- 2099 (navy, red skull-spider), Cosmic (white/blue).
 -- Costume module: return function(s, H, rarity) -> { colors = { group = Color3 }, pieces = { { "Piece", args... } | function(m) end } }
 return function(s, H, rarity)
-	local C, WHITE, piece, round, band, find = H.C, H.WHITE, H.piece, H.round, H.band, H.find
-	local V, CF = Vector3.new, CFrame.new
-	local BLACK = C(15, 15, 20)
-	local MUS = 0.6 -- Lean preset muscle (pec bulge)
+	local C, piece, paint = H.C, H.piece, H.paint
+	local BLACK, WHITE = C(18, 18, 22), C(250, 250, 250)
 	local cfg = ({
-		Common = { body = s.Primary, side = s.Secondary, arm = s.Secondary, leg = s.Secondary, web = BLACK, spider = BLACK, back = BLACK, scale = 1, lens = WHITE, frame = BLACK },
-		Rare = { body = s.Primary, arm = s.Primary, leg = s.Primary, web = s.Secondary, spider = s.Secondary, back = s.Secondary, scale = 1.9, lens = WHITE, frame = BLACK, soles = s.Secondary },
-		Epic = { body = s.Primary, side = s.Secondary, arm = s.Secondary, leg = s.Secondary, legLow = s.Primary, spider = s.Secondary, back = s.Secondary, scale = 1.8, lens = C(255, 225, 140), frame = s.Secondary, metal = true, waldos = true },
-		Legendary = { body = s.Primary, arm = s.Primary, leg = s.Primary, spider = s.Secondary, back = s.Secondary, scale = 2.6, lens = WHITE, frame = s.Primary, lensSize = 1.2 },
-		Mythic = { body = s.Primary, arm = s.Primary, leg = s.Primary, spider = s.Secondary, back = s.Secondary, scale = 2.2, skull = true, lens = C(235, 40, 50), frame = BLACK, stripes = s.Secondary },
-		Secret = { body = s.Primary, side = s.Secondary, arm = s.Secondary, leg = s.Secondary, web = C(20, 30, 90), spider = C(20, 30, 90), back = C(20, 30, 90), scale = 1, lens = C(200, 225, 255), frame = C(20, 30, 90) },
+		Common = { red = s.Primary, blue = s.Secondary, web = BLACK, spider = BLACK, lens = WHITE, frame = BLACK },
+		Rare = { red = s.Primary, blue = s.Primary, web = s.Secondary, spider = s.Secondary, lens = WHITE, frame = BLACK },
+		Epic = { red = s.Primary, blue = s.Secondary, web = s.Secondary, spider = s.Secondary, lens = C(255, 225, 140), frame = s.Secondary },
+		Legendary = { red = s.Primary, blue = s.Primary, web = C(60, 60, 66), spider = s.Secondary, lens = WHITE, frame = s.Primary, big = true },
+		Mythic = { red = s.Primary, blue = s.Primary, web = s.Primary:Lerp(BLACK, 0.4), spider = s.Secondary, lens = C(255, 60, 60), frame = s.Primary, skull = true },
+		Secret = { red = s.Primary, blue = s.Secondary, web = C(150, 170, 255), spider = s.Secondary, lens = C(200, 230, 255), frame = s.Secondary },
 	})[rarity] or {}
-	cfg.body = cfg.body or s.Primary
-	local body = cfg.body
+	local red, blue, web = cfg.red, cfg.blue, cfg.web
+	local function shade(c) return { c:Lerp(WHITE, 0.07), c:Lerp(BLACK, 0.14), 90 } end -- soft top-lit gradient
 
-	-- flat piece on a surface point p with outward normal n: its -Z (front) face looks outward, +Y roughly up
-	local function faceOn(p, n, tilt)
-		local z = -n.Unit
-		local x = V(0, 1, 0):Cross(z).Unit
-		return CFrame.fromMatrix(p, x, z:Cross(x), z) * CFrame.Angles(0, 0, tilt or 0)
-	end
-	-- ellipsoid surface sampler: (x, y) -> point on the front (or back) surface + normal, in anchor space
-	local function ell(c, r)
-		return function(x, y, out, back)
-			local u, v = (x - c.X) / r.X, (y - c.Y) / r.Y
-			local w = math.sqrt(math.max(0.03, 1 - u * u - v * v))
-			local z = c.Z + (back and 1 or -1) * r.Z * w
-			local n = V((x - c.X) / r.X ^ 2, (y - c.Y) / r.Y ^ 2, (z - c.Z) / r.Z ^ 2).Unit
-			return V(x, y, z) + n * (out or 0), n
+	-- Web grid: lines radiating from (cx, cy) plus sagging cross strands between them
+	local function webs(f, cx, cy, spokes, rings, thick)
+		thick = thick or 0.012
+		local ends = {}
+		for i = 0, spokes - 1 do
+			local a = i / spokes * math.pi * 2
+			local ex, ey = cx + math.cos(a) * 1.6, cy + math.sin(a) * 1.6
+			f:Line(cx, cy, ex, ey, thick, web)
+			ends[i] = a
+		end
+		for r = 1, rings do
+			local rr = r / rings * 0.95
+			for i = 0, spokes - 1 do
+				local a0, a1 = ends[i], ends[(i + 1) % spokes] + (i == spokes - 1 and math.pi * 2 or 0)
+				local am = (a0 + a1) / 2
+				local p0 = { cx + math.cos(a0) * rr, cy + math.sin(a0) * rr }
+				local pm = { cx + math.cos(am) * rr * 0.9, cy + math.sin(am) * rr * 0.9 }
+				local p1 = { cx + math.cos(a1) * rr, cy + math.sin(a1) * rr }
+				f:Poly({ p0, pm, p1 }, thick, web)
+			end
 		end
 	end
-	-- straight strip between two surface points
-	local function seg(m, a, name, p0, p1, n, w, t, color, mat)
-		local d = p1 - p0
-		local y = d.Unit
-		local x = y:Cross(-n).Unit
-		local z = x:Cross(y)
-		return piece(m, a, name, V(w, d.Magnitude + w * 0.6, t), CFrame.fromMatrix((p0 + p1) / 2, x, y, z), color, mat)
+	-- Square grid webbing for gloves / boots / limbs
+	local function grid(f, cols, rows, thick)
+		for i = 1, cols - 1 do f:Line(i / cols, 0, i / cols, 1, thick or 0.02, web) end
+		for j = 1, rows - 1 do f:Poly({ { 0, j / rows }, { 0.5, j / rows + 0.04 }, { 1, j / rows } }, thick or 0.02, web) end
 	end
-	-- raised line ring: thin ellipsoid disc slightly larger than the surface cross-section, only its rim shows
-	local function disc(m, a, name, size, cf, color)
-		return round(m, a, name, size, cf, color)
-	end
-
-	-- spider emblem (front or back of the chest): body + thorax + 8 two-segment legs, laid on the chest surface
-	local function spider(m, t, surf, cy, k, color, back, skull)
-		local function at(x, y, o) return surf(x, y + cy, o or 0.03, back) end
-		local pa, na = at(0, -0.1 * k)
-		round(m, t, "SpiderAbdomen", V(0.13 * k, 0.24 * k, 0.07), faceOn(pa, na), color)
-		local pt, nt = at(0, 0.09 * k)
-		round(m, t, "SpiderHead", skull and V(0.2 * k, 0.2 * k, 0.07) or V(0.1 * k, 0.13 * k, 0.07), faceOn(pt, nt), color)
-		local legs = skull and { { 0.04, 0.14, 0.18, 0.32, 0.2, 0.52 }, { 0.06, 0.1, 0.24, 0.2, 0.38, 0.36 }, { 0.06, 0.0, 0.24, -0.04, 0.38, -0.2 }, { 0.04, -0.04, 0.16, -0.16, 0.16, -0.42 } }
-			or { { 0.03, 0.1, 0.13, 0.22, 0.11, 0.42 }, { 0.04, 0.07, 0.2, 0.13, 0.33, 0.3 }, { 0.04, 0.04, 0.2, -0.02, 0.33, -0.2 }, { 0.03, 0.02, 0.13, -0.13, 0.11, -0.4 } }
-		local w = math.clamp(0.04 * k, 0.05, 0.1)
-		for _, sx in { -1, 1 } do
-			for _, l in legs do
-				local p0, n0 = at(sx * l[1] * k, l[2] * k)
-				local p1, n1 = at(sx * l[3] * k, l[4] * k)
-				local p2, n2 = at(sx * l[5] * k, l[6] * k)
-				seg(m, t, "SpiderLeg", p0, p1, (n0 + n1), w, 0.05, color)
-				seg(m, t, "SpiderLeg", p1, p2, (n1 + n2), w * 0.85, 0.05, color)
+	-- Spider emblem: thorax + abdomen + 8 bent legs, centered at (cx, cy), scale = height fraction
+	local function spider(f, cx, cy, sc, color)
+		f:Box(cx, cy - sc * 0.12, sc * 0.16, sc * 0.2, color, { round = 0.5 })
+		f:Box(cx, cy + sc * 0.14, sc * 0.2, sc * 0.36, color, { round = 0.5 })
+		for _, side in { -1, 1 } do
+			for k, leg in { { -0.18, -0.45, -0.32 }, { -0.1, -0.5, -0.05 }, { 0.0, -0.5, 0.2 }, { 0.08, -0.42, 0.42 } } do
+				local y0 = cy + leg[1] * sc
+				local kx, ky = cx + side * sc * 0.28, cy + (leg[1] - 0.12 + k * 0.02) * sc
+				local ex, ey = cx + side * sc * (0.36 + k * 0.03), cy + leg[3] * sc
+				f:Poly({ { cx + side * sc * 0.05, y0 }, { kx, ky }, { ex, ey } }, sc * 0.028, color)
 			end
 		end
 	end
 
 	local pieces = {}
-	local function add(f) table.insert(pieces, f) end
-	if cfg.metal then table.insert(pieces, { "Material", Enum.Material.Metal }) end
-
-	-- ===== head: smooth egg mask, chin, neck, lenses, web lines =====
-	add(function(m)
-		local hd = find(m, "Head"); if not hd then return end
-		local s0 = hd.Size.X
-		hd.Transparency = 1 -- replaced by the sculpted mask below (classic head shape is too boxy)
-		local cy = s0 * 0.04
-		local R = V(s0 * 0.45, s0 * 0.55, s0 * 0.5)
-		round(m, hd, "Mask", R * 2, CF(0, cy, 0), body)
-		band(m, hd, "Neck", s0 * 0.44, s0 * 0.5, CF(0, -s0 * 0.5, 0.02), body)
-		local surf = ell(V(0, cy, 0), R)
-		local ls = cfg.lensSize or 1
-		for _, x in { -1, 1 } do
-			local p, n = surf(x * s0 * 0.2, s0 * 0.07, 0)
-			round(m, hd, "LensFrame", V(s0 * 0.38 * ls, s0 * 0.27 * ls, 0.12), faceOn(p, n, x * math.rad(24)), cfg.frame)
-			round(m, hd, "Lens", V(s0 * 0.3 * ls, s0 * 0.19 * ls, 0.1), faceOn(p + n * 0.03, n, x * math.rad(24)) * CF(x * s0 * 0.01, s0 * 0.01, 0), cfg.lens, Enum.Material.SmoothPlastic)
+	-- Head: block head (like the reference), web mask, framed lenses
+	table.insert(pieces, function(m)
+		local hd = m:FindFirstChild("Head"); if not hd then return end
+		hd.Transparency = 1
+		local s = hd.Size
+		local head = piece(m, hd, "BlockHead", Vector3.new(s.X * 1.12, s.Y * 1.0, s.Z * 1.08), CFrame.new(0, s.Y * 0.02, 0), red)
+		for _, face in { "Front", "Back", "Left", "Right", "Top" } do
+			local f = paint(head, face)
+			f:Fill(red, { grad = shade(red) })
+			if face == "Top" then webs(f, 0.5, 0.5, 8, 3)
+			elseif face == "Front" then webs(f, 0.5, 0.42, 12, 5)
+			else webs(f, face == "Back" and 0.5 or 0.5, 0.0, 9, 4) end
+			if (face == "Left" or face == "Right") and blue ~= red then f:Rect(0, 0.72, 1, 0.28, blue, { z = 2 }) end
 		end
-		if cfg.web then
-			local g = 1.035
-			for i = 0, 5 do -- radial lines converging on the face center (and the back of the head)
-				local a = math.rad(i * 30)
-				local r = 1 / math.sqrt((math.sin(a) / R.X) ^ 2 + (math.cos(a) / R.Y) ^ 2)
-				disc(m, hd, "WebR", V(0.07, r * 2 * g, R.Z * 2 * g), CF(0, cy, 0) * CFrame.Angles(0, 0, a), cfg.web)
-			end
-			for _, z0 in { -0.72, -0.3, 0.2, 0.65 } do -- concentric rings around the face
-				local k = math.sqrt(1 - z0 * z0)
-				disc(m, hd, "WebC", V(R.X * 2 * k * g, R.Y * 2 * k * g, 0.07), CF(0, cy, z0 * R.Z), cfg.web)
-			end
+		local f = paint(head, "Front")
+		for _, x in { -1, 1 } do -- big angled lenses with thick black frames
+			f:Box(0.5 + x * 0.21, 0.42, 0.36, 0.25, cfg.frame, { round = 0.5, rot = x * -20, z = 40 })
+			f:Box(0.5 + x * 0.21, 0.43, 0.27, 0.16, cfg.lens, { round = 0.5, rot = x * -20, z = 41 })
 		end
 	end)
-
-	-- ===== torso: blue sides, emblem, webbing =====
-	add(function(m)
-		local t = find(m, "UpperTorso"); if not t then return end
-		local sz = t.Size
-		local c = V(0, sz.Y * 0.1, 0)
-		local R = V(sz.X * 0.49, sz.Y * 0.475, sz.Z * 0.5)
-		local chest = ell(c, R)
-		-- pec bulge (Body.Sculpt pecs) so emblems sit on top of them
-		local pd = sz.Z * (0.2 + 0.05 * MUS)
-		local function surf(x, y, o, back)
-			local p, n = chest(x, y, 0, back)
-			if not back then
-				local pec = ell(V((x < 0 and -1 or 1) * sz.X * 0.21, sz.Y * 0.24, -sz.Z * 0.5 + pd / 2 - 0.015), V(sz.X * 0.25, sz.Y * 0.13, pd / 2))
-				local pp, pn = pec(x, y, 0)
-				local u, v = (x - (x < 0 and -1 or 1) * sz.X * 0.21) / (sz.X * 0.25), (y - sz.Y * 0.24) / (sz.Y * 0.13)
-				if u * u + v * v < 1 and pp.Z < p.Z then p, n = pp, (pn + n).Unit end
-			end
-			return p + n * o, n
-		end
-		if cfg.side then
-			for _, x in { -1, 1 } do
-				round(m, t, "Side", V(sz.X * 0.3, sz.Y * 0.95, sz.Z * 0.62), CF(x * sz.X * 0.42, -sz.Y * 0.1, 0), cfg.side)
-			end
-		end
-		if cfg.web then
-			local g = 1.06
-			for i = 0, 5 do
-				local a = math.rad(i * 30)
-				local r = 1 / math.sqrt((math.sin(a) / R.X) ^ 2 + (math.cos(a) / R.Y) ^ 2)
-				disc(m, t, "WebR", V(0.07, r * 2 * g, R.Z * 2 * g), CF(c) * CFrame.Angles(0, 0, a), cfg.web)
-			end
-			for _, z0 in { 0.78 } do
-				local k = math.sqrt(1 - z0 * z0)
-				disc(m, t, "WebC", V(R.X * 2 * k * g, R.Y * 2 * k * g, 0.07), CF(c + V(0, 0, z0 * R.Z)), cfg.web)
-			end
-		end
-		local k = sz.Y * 0.5 * (cfg.scale or 1)
-		spider(m, t, surf, sz.Y * 0.13, k, cfg.spider, false, cfg.skull)
-		if cfg.back then spider(m, t, surf, sz.Y * 0.08, k * (cfg.scale > 1.5 and 1 or 1.7), cfg.back, true, cfg.skull) end
-		if cfg.waldos then -- Iron Spider: four golden waldo legs arching out of the back
-			for _, x in { -1, 1 } do
-				for j = 1, 2 do
-					local base = V(x * sz.X * 0.18, sz.Y * (0.25 - j * 0.25), sz.Z * 0.5)
-					local knee = base + V(x * sz.X * (0.3 + j * 0.1), sz.Y * (0.75 - j * 0.15), sz.Z * 0.7)
-					local tip = knee + V(x * sz.X * (0.45 + j * 0.05), -sz.Y * (0.55 + j * 0.15), sz.Z * 0.1)
-					seg(m, t, "Waldo", base, knee, V(0, 0, 1), 0.14, 0.14, cfg.spider, Enum.Material.Metal)
-					seg(m, t, "Waldo", knee, tip, V(0, 0, 1), 0.11, 0.11, cfg.spider, Enum.Material.Metal)
-					round(m, t, "WaldoJoint", V(0.2, 0.2, 0.2), CF(knee), cfg.body, Enum.Material.Metal)
+	-- Torso: red center with web, blue side panels, spider front + back, web belt
+	table.insert(pieces, function(m)
+		local t = m:FindFirstChild("UpperTorso"); if not t then return end
+		for _, face in { "Front", "Back", "Left", "Right" } do
+			local f = paint(t, face)
+			f:Fill(blue, { grad = shade(blue) })
+			if face == "Front" or face == "Back" then
+				f:Rect(0.18, 0, 0.64, 1, red, { z = 2 })
+				f:Box(0.5, 0.9, 1, 0.2, red, { z = 2 }) -- red band across the bottom of the ribs
+				webs(f, 0.5, 0.35, 12, 5)
+				f:Rect(0, 0, 0.1, 1, blue, { z = 30 }); f:Rect(0.9, 0, 0.1, 1, blue, { z = 30 }) -- keep the sides clean blue
+				if cfg.skull then -- 2099 skull-spider
+					f:Box(0.5, 0.42, 0.34, 0.3, cfg.spider, { round = 0.35, z = 50 })
+					for _, x in { -1, 1 } do f:Box(0.5 + x * 0.08, 0.4, 0.08, 0.08, red, { round = 0.5, z = 51 }) end
+					f:Poly({ { 0.33, 0.5 }, { 0.15, 0.85 } }, 0.04, cfg.spider, { z = 50 }); f:Poly({ { 0.67, 0.5 }, { 0.85, 0.85 } }, 0.04, cfg.spider, { z = 50 })
+				else
+					spider(f, 0.5, face == "Front" and 0.42 or 0.45, (cfg.big or face == "Back") and 0.95 or 0.72, cfg.spider)
 				end
 			end
 		end
 	end)
-
-	-- ===== arms: red shoulder caps + outer stripe (classic layout) =====
-	if cfg.arm ~= body then
-		add(function(m)
-			for _, n in { "LeftUpperArm", "RightUpperArm" } do
-				local a = m:FindFirstChild(n)
-				if a then
-					local sz = a.Size; local x = n:find("Left") and -1 or 1
-					round(m, a, "ShoulderCap", V(sz.X * 1.17, sz.Y * 0.66, sz.Z * 1.15), CF(0, sz.Y * 0.42, 0), body)
-					round(m, a, "ArmStripe", V(sz.X * 0.4, sz.Y * 1.25, sz.Z * 0.5), CF(x * sz.X * 0.36, 0, 0), body)
-				end
+	table.insert(pieces, function(m)
+		local w = m:FindFirstChild("LowerTorso"); if not w then return end
+		for _, face in { "Front", "Back", "Left", "Right" } do
+			local f = paint(w, face); f:Fill(red, { grad = shade(red) }); grid(f, 6, 2)
+		end
+	end)
+	-- Limbs: blue upper arms/legs, red webbed forearms, gloves, shins and boots
+	table.insert(pieces, function(m)
+		local function limb(name, color, cols, rows)
+			local p = m:FindFirstChild(name); if not p then return end
+			for _, face in { "Front", "Back", "Left", "Right" } do
+				local f = paint(p, face); f:Fill(color, { grad = shade(color) })
+				if color == red or blue == red then grid(f, cols, rows) end
 			end
-		end)
-	end
-
-	-- ===== gloves / boots webbing (rings + vertical lines hugging the round limbs) =====
-	if cfg.web then
-		add(function(m)
-			for _, n in { "LeftLowerArm", "RightLowerArm", "LeftLowerLeg", "RightLowerLeg" } do
-				local a = m:FindFirstChild(n)
-				if a then
-					local sz = a.Size
-					local leg = n:find("Leg") ~= nil
-					local r = sz.X * (leg and 0.52 or 0.51)
-					for _, y in (leg and { 0.3, -0.05, -0.38 } or { 0.15, -0.25 }) do
-						round(m, a, "WebRing", V(r * 2.03, 0.06, r * 2.03 + (leg and sz.Z * 0.12 or 0)), CF(0, y * sz.Y, leg and sz.Z * 0.05 or 0), cfg.web)
-					end
-					for i = 0, 1 do
-						round(m, a, "WebLine", V(0.05, sz.Y * (leg and 1.05 or 1.15), r * 2.06 + ((leg and i == 0) and sz.Z * 0.12 or 0)), CF(0, -sz.Y * 0.03, leg and sz.Z * 0.05 or 0) * CFrame.Angles(0, math.rad(i * 90), 0), cfg.web)
-					end
-				end
-			end
-		end)
-	end
-	if cfg.stripes then -- 2099: red bands at forearms and calves
-		add(function(m)
-			for _, n in { "LeftLowerArm", "RightLowerArm", "LeftLowerLeg", "RightLowerLeg" } do
-				local a = m:FindFirstChild(n)
-				if a then band(m, a, "Stripe", a.Size.X * 1.08, a.Size.Y * 0.12, CF(0, -a.Size.Y * 0.3, 0), cfg.stripes) end
-			end
-		end)
-	end
-	if cfg.soles then
-		add(function(m)
-			for _, n in { "LeftFoot", "RightFoot" } do
-				local f = m:FindFirstChild(n)
-				if f then piece(m, f, "Sole", V(f.Size.X * 0.9, f.Size.Y * 0.3, f.Size.Z * 1.12), CF(0, -f.Size.Y * 0.42, -f.Size.Z * 0.02), cfg.soles) end
-			end
-		end)
-	end
-
-	local legLow = cfg.legLow or body
-	return {
-		colors = { Head = body, Chest = body, Waist = cfg.leg or body, UpperArms = cfg.arm or body, LowerArms = body, Hands = body,
-			UpperLegs = cfg.leg or body, LowerLegs = legLow, Feet = legLow },
-		pieces = pieces,
-	}
+		end
+		for _, side in { "Left", "Right" } do
+			limb(side .. "UpperArm", blue, 3, 3); limb(side .. "LowerArm", red, 3, 3); limb(side .. "Hand", red, 3, 1)
+			limb(side .. "UpperLeg", blue, 3, 3); limb(side .. "LowerLeg", red, 3, 4); limb(side .. "Foot", red, 3, 1)
+			local foot = m:FindFirstChild(side .. "Foot")
+			if foot and blue ~= red then local f = paint(foot, "Bottom"); f:Fill(blue) end
+		end
+	end)
+	return { colors = { Head = red, Chest = red, Waist = red, UpperArms = blue, LowerArms = red, Hands = red, UpperLegs = blue, LowerLegs = red, Feet = red }, pieces = pieces }
 end

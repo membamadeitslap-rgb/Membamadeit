@@ -26,19 +26,45 @@ function wedgeGeo() {
   g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.computeVertexNormals(); return g;
 }
 const FACE = { Front: [0,0,-1], Back: [0,0,1], Top: [0,1,0], Bottom: [0,-1,0], Right: [1,0,0], Left: [-1,0,0] };
-function textPlane(t, size) {
-  const n = FACE[t.face] || FACE.Front;
-  const w = n[0] ? size[2] : size[0], h = n[1] ? size[2] : size[1];
-  const c = document.createElement('canvas'); c.width = 256; c.height = Math.max(32, Math.round(256 * h / Math.max(w, 1e-3)));
-  const x = c.getContext('2d'); x.fillStyle = `rgb(${t.color.map(v => v * 255).join(',')})`;
-  x.textAlign = 'center'; x.textBaseline = 'middle';
-  let fs = c.height * 0.9; x.font = `900 ${fs}px sans-serif`;
-  while (x.measureText(t.text).width > c.width * 0.95 && fs > 6) { fs *= 0.9; x.font = `900 ${fs}px sans-serif`; }
-  x.fillText(t.text, c.width / 2, c.height / 2);
-  const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(c), transparent: true, side: THREE.DoubleSide }));
-  const d = new THREE.Vector3(...n);
-  m.position.set(d.x * (size[0] / 2 + 0.01), d.y * (size[1] / 2 + 0.01), d.z * (size[2] / 2 + 0.01));
-  m.lookAt(d.clone().multiplyScalar(10).add(m.position));
+// Roblox SurfaceGui face -> plane basis: n = outward normal, u = gui "up"; gui +x = (-n) x u
+const FACEB = { Front: [[0,0,-1],[0,1,0]], Back: [[0,0,1],[0,1,0]], Left: [[-1,0,0],[0,1,0]], Right: [[1,0,0],[0,1,0]], Top: [[0,1,0],[0,0,-1]], Bottom: [[0,-1,0],[0,0,1]] };
+const rgb = (c, a = 1) => `rgba(${Math.round(c[0]*255)},${Math.round(c[1]*255)},${Math.round(c[2]*255)},${a})`;
+function guiPlane(g, size) {
+  const [nn, uu] = FACEB[g.face] || FACEB.Front;
+  const n = new THREE.Vector3(...nn), u = new THREE.Vector3(...uu), r = n.clone().negate().cross(u);
+  const dim = v => Math.abs(v.x) * size[0] + Math.abs(v.y) * size[1] + Math.abs(v.z) * size[2];
+  const fw = dim(r), fh = dim(u);
+  const W = g.pps ? fw * g.pps : 800, H = g.pps ? fh * g.pps : 600; // gui pixel space (FixedSize default canvas 800x600)
+  const k = Math.min(6, 640 / Math.max(W, H));
+  const c = document.createElement('canvas'); c.width = Math.max(4, Math.round(W * k)); c.height = Math.max(4, Math.round(H * k));
+  const x = c.getContext('2d'); x.scale(k, k);
+  const els = [...g.elems].sort((a, b) => a.z - b.z);
+  for (const e of els) {
+    const w = e.size[0] * W + e.size[1], h = e.size[2] * H + e.size[3];
+    const px = e.pos[0] * W + e.pos[1], py = e.pos[2] * H + e.pos[3];
+    const cx = px - e.anchor[0] * w + w / 2, cy = py - e.anchor[1] * h + h / 2;
+    x.save(); x.translate(cx, cy); x.rotate(e.rot * Math.PI / 180);
+    const rad = e.round ? Math.min(w, h) * e.round : 0;
+    x.beginPath(); if (rad) x.roundRect(-w / 2, -h / 2, w, h, rad); else x.rect(-w / 2, -h / 2, w, h);
+    if (e.alpha > 0.01) {
+      if (e.grad) { const a = (e.grad[6] || 0) * Math.PI / 180, dx = Math.cos(a) * w / 2, dy = Math.sin(a) * h / 2;
+        const gr = x.createLinearGradient(-dx, -dy, dx, dy); gr.addColorStop(0, rgb(e.grad.slice(0, 3), e.alpha)); gr.addColorStop(1, rgb(e.grad.slice(3, 6), e.alpha)); x.fillStyle = gr; }
+      else x.fillStyle = rgb(e.color, e.alpha);
+      x.fill();
+    }
+    if (e.stroke) { x.lineWidth = e.stroke[0]; x.strokeStyle = rgb(e.stroke.slice(1)); x.stroke(); }
+    if (e.text) {
+      x.fillStyle = rgb(e.tcolor); x.textAlign = 'center'; x.textBaseline = 'middle';
+      let fs = h * 0.9; x.font = `900 ${fs}px sans-serif`;
+      while (x.measureText(e.text).width > w * 0.95 && fs > 4) { fs *= 0.9; x.font = `900 ${fs}px sans-serif`; }
+      x.fillText(e.text, 0, 0);
+    }
+    x.restore();
+  }
+  const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 4;
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(fw, fh), new THREE.MeshStandardMaterial({ map: tex, transparent: true, roughness: 0.9, polygonOffset: true, polygonOffsetFactor: -2 }));
+  const off = n.clone().multiply(new THREE.Vector3(size[0] / 2 + 0.004, size[1] / 2 + 0.004, size[2] / 2 + 0.004));
+  m.matrixAutoUpdate = false; m.matrix.makeBasis(r, u, n).setPosition(off);
   return m;
 }
 function build(parts) {
@@ -68,7 +94,7 @@ function build(parts) {
       transparent: p.tr > 0 || p.mat === 'Glass' || p.mat === 'ForceField', opacity: (1 - p.tr) * (p.mat === 'ForceField' ? 0.4 : p.mat === 'Glass' ? 0.6 : 1) });
     const mesh = new THREE.Mesh(geo, mat); mesh.scale.set(...scale); if (p.tr >= 0.98) mesh.visible = false;
     const g = new THREE.Group(); g.add(mesh);
-    for (const t of p.texts || []) g.add(textPlane(t, p.size));
+    for (const gg of p.guis || []) g.add(guiPlane(gg, p.size));
     const c = p.cf;
     g.matrixAutoUpdate = false;
     g.matrix.set(c[3], c[4], c[5], c[0], c[6], c[7], c[8], c[1], c[9], c[10], c[11], c[2], 0, 0, 0, 1);

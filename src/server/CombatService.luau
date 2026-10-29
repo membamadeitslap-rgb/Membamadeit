@@ -150,9 +150,45 @@ local function boxHit(attacker, info)
 	end
 end
 
+-- Where an ability comes out of the body: info.From = "Eyes" | "Chest" | "RightHand" | "LeftHand" | "Mouth" (default: root)
+local function originOf(char, from)
+	local hrp = hrpOf(char)
+	local head = char:FindFirstChild("Head")
+	if (from == "Eyes" or from == "Mouth") and head then
+		return (head.CFrame * CFrame.new(0, from == "Eyes" and head.Size.Y * 0.08 or -head.Size.Y * 0.25, -head.Size.Z * 0.6)).Position
+	end
+	if from == "Chest" and char:FindFirstChild("UpperTorso") then
+		local t = char.UpperTorso; return (t.CFrame * CFrame.new(0, t.Size.Y * 0.15, -t.Size.Z * 0.6)).Position
+	end
+	local hand = from and char:FindFirstChild(from)
+	if hand then return (hand.CFrame * CFrame.new(0, -hand.Size.Y, 0)).Position end
+	return hrp.Position
+end
+Combat.OriginOf = originOf
+
+-- Beam: instant hit-scan from a body part (Cyclops optic blast, Iron Man unibeam, heat vision...).
+-- info.Distance (length), info.Width, info.Duration (visual), plus normal hit fields.
+local function beam(attacker, info)
+	local char = attacker.Character; local hrp = hrpOf(char); if not hrp then return end
+	local origin, dir = originOf(char, info.From), hrp.CFrame.LookVector
+	local len, width = info.Distance or 60, info.Width or 2
+	Net.Fx:FireAllClients("Beam", { char = char, from = info.From, len = len, width = width, dur = info.Duration or 0.35,
+		element = info.Element, hero = char:GetAttribute("Hero"), ult = info.IsUlt })
+	local params = RaycastParams.new(); params.FilterDescendantsInstances = { char }
+	local hitSet = {}
+	for _, off in { 0, -width * 0.4, width * 0.4 } do -- three rays across the beam width
+		local r = workspace:Spherecast(origin + hrp.CFrame.RightVector * off, width * 0.35, dir * len, params)
+		local m = r and r.Instance:FindFirstAncestorOfClass("Model")
+		if m and m:FindFirstChildOfClass("Humanoid") and not hitSet[m] then
+			hitSet[m] = true
+			Combat.Hit(attacker, m, info, origin)
+		end
+	end
+end
+
 local function projectile(attacker, info)
 	local hrp = hrpOf(attacker.Character)
-	local origin, dir = hrp.Position, hrp.CFrame.LookVector
+	local origin, dir = originOf(attacker.Character, info.From), hrp.CFrame.LookVector
 	Net.Fx:FireAllClients("Projectile", { origin = origin, dir = dir, speed = info.Speed, hero = attacker.Character:GetAttribute("Hero"), visual = info.Visual, returns = info.Returns, char = attacker.Character, element = info.Element })
 	local params = RaycastParams.new(); params.FilterDescendantsInstances = { attacker.Character }
 	local traveled, pos = 0, origin
@@ -204,7 +240,7 @@ local function grab(attacker, info)
 end
 
 local Kinds = {
-	Melee = boxHit, Projectile = projectile, Leap = leap, Grab = grab,
+	Melee = boxHit, Projectile = projectile, Leap = leap, Grab = grab, Beam = beam,
 	Counter = function(attacker, info)
 		local s = state[attacker]
 		s.counterUntil = now() + info.Window

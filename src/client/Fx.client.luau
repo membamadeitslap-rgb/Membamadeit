@@ -82,6 +82,7 @@ local function ability(d)
 	local style = d.style or "Fists"
 	local frames
 	if d.anim and M[d.anim] then frames = M[d.anim]
+	elseif d.kind == "Beam" or info.From then frames = info.From == "Eyes" and M.EyeBeam or info.From == "Chest" and M.ChestBeam or (info.From == "RightHand" or info.From == "LeftHand") and M.PalmBlast or M.Cast
 	elseif d.kind == "Projectile" then frames = info.Visual and M.Throw or M.Cast
 	elseif d.kind == "Leap" then frames = M.Leap
 	elseif d.kind == "Grab" then frames = M.Grab
@@ -177,6 +178,9 @@ Net.Fx.OnClientEvent:Connect(function(kind, d)
 	elseif kind == "Hit" then hit(d)
 	elseif kind == "Ability" then ability(d)
 	elseif kind == "Projectile" then projectile(d)
+	elseif kind == "Beam" then
+		if d.char then V.Beam(d.char, d.from, d.len, d.width, V.Bright(V.Color(d.element, d.hero)), d.dur) end
+		if d.ult and V.Near(V.Origin(d.char, d.from) or Vector3.zero, 80) then V.Shake(1.2) end
 	elseif kind == "ProjHit" then
 		V.Burst(d.pos, V.Bright(V.Color(d.element, d.hero)), 3)
 		if V.Near(d.pos, 40) then V.Shake(0.4) end

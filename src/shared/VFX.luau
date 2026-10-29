@@ -20,6 +20,7 @@ end
 V.Elements = {
 	Fire = C(255, 120, 30), Ice = C(140, 220, 255), Air = C(225, 245, 255), Ghost = C(90, 255, 140), Lightning = C(120, 200, 255),
 	Water = C(60, 150, 255), Earth = C(160, 115, 70), Slash = C(255, 255, 255), Bubble = C(190, 240, 255), Impact = C(255, 220, 120),
+	Optic = C(255, 40, 60), Repulsor = C(150, 230, 255), Heat = C(255, 70, 30), Omega = C(255, 40, 40), Ecto = C(90, 255, 140), Cosmic = C(200, 120, 255),
 }
 function V.Color(element, heroId)
 	if element and V.Elements[element] then return V.Elements[element] end
@@ -388,5 +389,75 @@ function V.Tint(color, t)
 	local cc = Instance.new("ColorCorrectionEffect"); cc.TintColor = color; cc.Saturation = -0.5; cc.Contrast = 0.4; cc.Parent = Lighting
 	tween(cc, t or 1.2, { TintColor = C(255, 255, 255), Saturation = 0, Contrast = 0 }, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
 	Debris:AddItem(cc, (t or 1.2) + 0.1)
+end
+-- Where an ability leaves the body (same rules as CombatService originOf): "Eyes" | "Mouth" | "Chest" | hand name | nil (root)
+function V.Origin(char, from)
+	local head = char:FindFirstChild("Head")
+	if (from == "Eyes" or from == "Mouth") and head then
+		return (head.CFrame * CFrame.new(0, from == "Eyes" and head.Size.Y * 0.08 or -head.Size.Y * 0.25, -head.Size.Z * 0.6)).Position
+	end
+	local t = char:FindFirstChild("UpperTorso")
+	if from == "Chest" and t then return (t.CFrame * CFrame.new(0, t.Size.Y * 0.15, -t.Size.Z * 0.6)).Position end
+	local hand = from and char:FindFirstChild(from)
+	if hand then return (hand.CFrame * CFrame.new(0, -hand.Size.Y, 0)).Position end
+	local hrp = char:FindFirstChild("HumanoidRootPart")
+	return hrp and hrp.Position
+end
+
+-- Energy beam that tracks the caster for `dur` seconds: colored outer beam + white-hot core, flare at the source,
+-- sparks and scorch ring where it lands. Cyclops eyes, Iron Man unibeam, heat vision, omega beams.
+function V.Beam(char, from, len, width, color, dur)
+	local hrp = char:FindFirstChild("HumanoidRootPart"); if not hrp then return end
+	local outer = fxPart({ Shape = Enum.PartType.Cylinder, Color = color, Transparency = 0.25, Size = Vector3.new(1, width, width) })
+	local core = fxPart({ Shape = Enum.PartType.Cylinder, Color = C(255, 255, 255), Size = Vector3.new(1, width * 0.4, width * 0.4) })
+	local flare = fxPart({ Shape = Enum.PartType.Ball, Color = color, Size = Vector3.one * width * 1.6, Transparency = 0.2 })
+	local light = Instance.new("PointLight"); light.Color = color; light.Range = 16; light.Brightness = 5; light.Parent = flare
+	local params = RaycastParams.new(); params.FilterType = Enum.RaycastFilterType.Exclude; params.FilterDescendantsInstances = { char, outer, core, flare }
+	local t0, lastSpark = os.clock(), 0
+	local conn
+	conn = RunService.RenderStepped:Connect(function()
+		local t = os.clock() - t0
+		local o = V.Origin(char, from)
+		if t > dur or not o or not hrp.Parent then
+			conn:Disconnect()
+			for _, p in { outer, core, flare } do tween(p, 0.12, { Transparency = 1 }); Debris:AddItem(p, 0.15) end
+			return
+		end
+		local dir = hrp.CFrame.LookVector
+		local r = workspace:Raycast(o, dir * len, params)
+		local e = r and r.Position or o + dir * len
+		local l = (e - o).Magnitude
+		local mid = (o + e) / 2
+		local cf = CFrame.lookAt(mid, e) * CFrame.Angles(0, math.rad(90), 0)
+		local wob = 1 + math.sin(t * 60) * 0.12
+		outer.Size = Vector3.new(l, width * wob, width * wob); outer.CFrame = cf
+		core.Size = Vector3.new(l, width * 0.4 * wob, width * 0.4 * wob); core.CFrame = cf
+		flare.CFrame = CFrame.new(o); flare.Size = Vector3.one * width * (1.4 + math.sin(t * 45) * 0.3)
+		if os.clock() - lastSpark > 0.07 then
+			lastSpark = os.clock()
+			V.Spark(e, color, width * 0.8)
+			if r then V.Ring(e, color, width * 1.2, r.Normal, 0.2) end
+		end
+	end)
+end
+
+-- Ambient "living" effects driven by tags that costume modules put on parts:
+--   FxPulse   glow breathes (arc reactor, repulsors, visor). Attributes: Rate (Hz, default 1.2)
+--   FxFlicker glow flickers like fire / unstable energy
+--   FxCrackle little lightning arcs jump around the part now and then (Thor's hammer, Black Adam, Flash)
+V.Tags = { Pulse = "FxPulse", Flicker = "FxFlicker", Crackle = "FxCrackle" }
+function V.Bolt(a, b, color, thick)
+	local pts = { a }
+	for i = 1, 4 do
+		local p = a:Lerp(b, i / 5) + Vector3.new(math.random() - 0.5, math.random() - 0.5, math.random() - 0.5) * (a - b).Magnitude * 0.25
+		table.insert(pts, p)
+	end
+	table.insert(pts, b)
+	for i = 1, #pts - 1 do
+		local p0, p1 = pts[i], pts[i + 1]
+		local seg = fxPart({ Color = color, Size = Vector3.new(thick or 0.08, thick or 0.08, (p1 - p0).Magnitude), CFrame = CFrame.lookAt((p0 + p1) / 2, p1) })
+		tween(seg, 0.15, { Transparency = 1 })
+		Debris:AddItem(seg, 0.18)
+	end
 end
 return V

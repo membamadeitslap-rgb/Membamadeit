@@ -156,13 +156,13 @@ mock.Color3 = { new = c3, fromRGB = function(r, g, b) return c3((r or 0) / 255, 
 
 -- ===== Misc value types (opaque) =====
 local function opaque(name) return { new = function(...) return { __type = name, ... } end } end
-mock.ColorSequence = opaque("ColorSequence")
-mock.ColorSequenceKeypoint = opaque("ColorSequenceKeypoint")
+mock.ColorSequence = { new = function(a, b) if type(a) == "table" and a.R == nil then return { __type = "ColorSequence", a[1] and a[1].Value or a, a[#a] and a[#a].Value or a } end return { __type = "ColorSequence", a, b or a } end }
+mock.ColorSequenceKeypoint = { new = function(t, c) return { Time = t, Value = c } end }
 mock.NumberSequence = opaque("NumberSequence")
 mock.NumberSequenceKeypoint = opaque("NumberSequenceKeypoint")
 mock.NumberRange = opaque("NumberRange")
-mock.UDim = opaque("UDim")
-mock.UDim2 = { new = function(...) return { ... } end, fromScale = function(...) return { ... } end, fromOffset = function(...) return { ... } end }
+mock.UDim = { new = function(s, o) return { Scale = s or 0, Offset = o or 0 } end }
+mock.UDim2 = { new = function(xs, xo, ys, yo) return { xs or 0, xo or 0, ys or 0, yo or 0 } end, fromScale = function(x, y) return { x or 0, 0, y or 0, 0 } end, fromOffset = function(x, y) return { 0, x or 0, 0, y or 0 } end }
 mock.TweenInfo = opaque("TweenInfo")
 mock.Rect = opaque("Rect")
 mock.PhysicalProperties = opaque("PhysicalProperties")
@@ -438,14 +438,29 @@ function mock.Dump(model)
 				mat = d.Material and d.Material.Name or "Plastic", shape = d.Shape and d.Shape.Name or "Block", tr = d.Transparency or 0 }
 			local sm = Inst.FindFirstChildOfClass(d, "SpecialMesh")
 			if sm then e.mesh = sm.MeshType.Name; e.meshScale = { sm.Scale.X, sm.Scale.Y, sm.Scale.Z } end
+			-- SurfaceGui drawings (Paint shapes, glyph text): flat list of elements per face
 			for _, g in Inst.GetChildren(d) do
 				if g.ClassName == "SurfaceGui" then
-					for _, l in Inst.GetDescendants(g) do
-						if l.ClassName == "TextLabel" and l.Text ~= "" then
-							e.texts = e.texts or {}
-							table.insert(e.texts, { face = g.Face.Name, text = l.Text, color = { l.TextColor3 and l.TextColor3.R or 1, l.TextColor3 and l.TextColor3.G or 1, l.TextColor3 and l.TextColor3.B or 1 } })
+					local elems = {}
+					for _, l in Inst.GetChildren(g) do
+						if l.ClassName == "Frame" or l.ClassName == "TextLabel" then
+							local col = l.BackgroundColor3 or mock.Color3.new(1, 1, 1)
+							local el = { k = l.ClassName, pos = l.Position or { 0, 0, 0, 0 }, size = l.Size or { 1, 0, 1, 0 },
+								anchor = { l.AnchorPoint and l.AnchorPoint.X or 0, l.AnchorPoint and l.AnchorPoint.Y or 0 }, rot = l.Rotation or 0,
+								z = l.ZIndex or 1, color = { col.R, col.G, col.B }, alpha = 1 - (l.BackgroundTransparency or 0) }
+							if l.ClassName == "TextLabel" then
+								local tc = l.TextColor3 or mock.Color3.new(1, 1, 1)
+								el.text = l.Text; el.tcolor = { tc.R, tc.G, tc.B }; el.alpha = 0
+							end
+							local c = Inst.FindFirstChildOfClass(l, "UICorner"); if c and c.CornerRadius then el.round = c.CornerRadius.Scale end
+							local st = Inst.FindFirstChildOfClass(l, "UIStroke"); if st then local sc = st.Color or mock.Color3.new(0, 0, 0); el.stroke = { st.Thickness or 1, sc.R, sc.G, sc.B } end
+							local gr = Inst.FindFirstChildOfClass(l, "UIGradient")
+							if gr and gr.Color then local a1, b1 = gr.Color[1], gr.Color[2]; el.grad = { a1.R, a1.G, a1.B, b1.R, b1.G, b1.B, gr.Rotation or 0 } end
+							table.insert(elems, el)
 						end
 					end
+					e.guis = e.guis or {}
+					table.insert(e.guis, { face = g.Face.Name, pps = (g.SizingMode and g.SizingMode.Name == "PixelsPerStud") and (g.PixelsPerStud or 50) or nil, elems = elems })
 				end
 			end
 			table.insert(parts, e)
