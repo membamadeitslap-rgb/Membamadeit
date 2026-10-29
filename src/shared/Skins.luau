@@ -8,262 +8,15 @@ local function v(name, a, b, opts)
 	return t
 end
 local S = {}
-S.Data = {
-	SpiderMan = {
-		Common = v("Classic Spider-Man", C(200, 30, 40), C(30, 60, 160)),
-		Rare = v("Miles Morales", C(25, 25, 30), C(200, 30, 40)),
-		Epic = v("Iron Spider", C(190, 30, 30), C(215, 170, 50)),
-		Legendary = v("Symbiote Spider-Man", C(15, 15, 18), C(240, 240, 240), { Colors = { Legs = C(15, 15, 18), Hands = C(240, 240, 240) } }),
-		Mythic = v("Spider-Man 2099", C(25, 35, 90), C(220, 30, 40)),
-		Secret = v("Cosmic Spider-Man", C(240, 240, 250), C(40, 60, 200)),
-	},
-	IronMan = {
-		Common = v("Mark VI", C(180, 25, 30), C(205, 160, 60)),
-		Rare = v("Mark I", C(110, 110, 115), C(80, 80, 85), { Extra = {} }),
-		Epic = v("Hulkbuster", C(170, 30, 30), C(200, 160, 50)),
-		Legendary = v("Iron Patriot", C(30, 50, 140), C(200, 30, 40)),
-		Mythic = v("Mark 85", C(200, 20, 30), C(255, 200, 60)),
-		Secret = v("Superior Iron Man", C(240, 240, 245), C(215, 170, 50)),
-	},
-	Thor = {
-		Common = v("Classic Thor", C(60, 70, 110), C(170, 30, 30)),
-		Rare = v("Ragnarok Thor", C(70, 70, 75), C(150, 25, 25)),
-		Epic = v("Infinity War Thor", C(30, 30, 35), C(130, 20, 20)),
-		Legendary = v("Mighty Thor (Jane Foster)", C(180, 185, 195), C(190, 25, 30), { Extra = { { "Helmet", C(190, 195, 205), nil, "Fin" } } }),
-		Mythic = v("King Thor", C(215, 170, 50), C(90, 20, 20)),
-		Secret = v("God of Thunder Unleashed", C(220, 240, 255), C(80, 200, 255)),
-	},
-	CaptainAmerica = {
-		Common = v("Classic Cap", C(30, 60, 150), C(200, 30, 40)),
-		Rare = v("WWII Cap", C(110, 85, 60), C(40, 60, 120)),
-		Epic = v("Stealth Suit", C(25, 35, 70), C(170, 175, 185)),
-		Legendary = v("Sam Wilson Cap", C(240, 240, 245), C(30, 60, 150)),
-		Mythic = v("Captain Carter", C(30, 50, 120), C(200, 30, 40)),
-		Secret = v("Hydra Supreme", C(20, 20, 25), C(190, 20, 20)),
-	},
-	Loki = {
-		Common = v("Classic Loki", C(30, 120, 60), C(215, 170, 50)),
-		Rare = v("Agent of Asgard", C(25, 25, 30), C(30, 120, 60)),
-		Epic = v("Kid Loki", C(40, 140, 70), C(25, 25, 30)),
-		Legendary = v("Sylvie", C(40, 100, 60), C(215, 170, 50)),
-		Mythic = v("President Loki", C(25, 30, 40), C(30, 150, 70)),
-		Secret = v("God of Stories", C(60, 220, 120), C(255, 215, 80)),
-	},
-	Thanos = {
-		Common = v("Classic Thanos", C(110, 70, 140), C(215, 170, 50)),
-		Rare = v("Armored Thanos", C(40, 70, 140), C(215, 170, 50)),
-		Epic = v("Infinity War Thanos", C(100, 80, 120), C(60, 70, 110)),
-		Legendary = v("Endgame Thanos", C(70, 60, 90), C(160, 140, 90)),
-		Mythic = v("Infinity Thanos", C(220, 180, 60), C(130, 60, 200)),
-		Secret = v("Cosmic Ghost Thanos", C(30, 30, 40), C(170, 80, 255)),
-	},
-	Hulk = {
-		Common = v("Classic Hulk", C(70, 150, 50), C(110, 60, 140)),
-		Rare = v("Gray Hulk", C(120, 125, 130), C(70, 70, 75)),
-		Epic = v("Red Hulk", C(190, 30, 30), C(30, 30, 35)),
-		Legendary = v("World War Hulk", C(60, 140, 40), C(140, 140, 150)),
-		Mythic = v("Maestro", C(80, 130, 60), C(190, 190, 195)),
-		Secret = v("Immortal Hulk", C(50, 110, 40), C(80, 255, 120)),
-	},
-	Venom = {
-		Common = v("Classic Venom", C(20, 20, 25), C(240, 240, 240)),
-		Rare = v("Agent Venom", C(25, 25, 30), C(90, 90, 100)),
-		Epic = v("Anti-Venom", C(240, 240, 240), C(20, 20, 25)),
-		Legendary = v("Carnage", C(190, 20, 25), C(30, 10, 10)),
-		Mythic = v("Toxin", C(30, 60, 150), C(190, 20, 25)),
-		Secret = v("King in Black", C(10, 10, 12), C(255, 240, 120)),
-	},
-	GreenGoblin = {
-		Common = v("Classic Goblin", C(60, 140, 50), C(110, 50, 140)),
-		Rare = v("Armored Goblin", C(70, 100, 60), C(60, 60, 65)),
-		Epic = v("Hobgoblin", C(230, 120, 30), C(40, 70, 160)),
-		Legendary = v("Red Goblin", C(200, 30, 30), C(20, 20, 25)),
-		Mythic = v("Demogoblin", C(120, 20, 20), C(255, 130, 30)),
-		Secret = v("Goblin King", C(40, 160, 60), C(255, 215, 80)),
-	},
-	Batman = { -- variants follow the user's reference sheets (TAS, Filmation, Long Halloween...)
-		Common = v("Animated Series Batman", C(120, 120, 130), C(25, 25, 35)),
-		Rare = v("Filmation Batman", C(160, 160, 170), C(60, 110, 210)),
-		Epic = v("Long Halloween Batman", C(95, 80, 70), C(30, 25, 25), { Pieces = {
-			{ "Cowl", C(30, 25, 25), 1.1, C(234, 184, 146) }, { "Eyes", C(245, 245, 245) }, { "Cape", C(30, 25, 25) },
-			{ "Emblem", "🦇", C(0, 0, 0), C(95, 80, 70) }, { "Belt", C(200, 160, 70) }, { "Cuffs", C(30, 25, 25), true } } }),
-		Legendary = v("Hellbat", C(50, 50, 55), C(255, 120, 30), { Extra = { { "Shoulders", C(60, 60, 70), true } } }),
-		Mythic = v("Red Death", C(170, 20, 25), C(30, 10, 10), { Extra = { { "Hair", C(170, 20, 25), "Spiky" } } }),
-		Secret = v("Batman Who Laughs", C(15, 15, 18), C(200, 200, 210), { Extra = { { "Spikes", C(200, 200, 210) } } }),
-	},
-	Nova = { -- from the user's Nova sheets (Richard Rider gold/blue, Sam Alexander black/gold)
-		Common = v("Nova Corps Rookie", C(40, 50, 120), C(205, 165, 60)),
-		Rare = v("Sam Alexander Nova", C(20, 20, 25), C(205, 165, 60), { Colors = { Feet = C(205, 165, 60), Hands = C(205, 165, 60) } }),
-		Epic = v("Richard Rider Nova", C(30, 40, 100), C(200, 160, 60)),
-		Legendary = v("Nova Prime", C(25, 30, 70), C(230, 190, 80)),
-		Mythic = v("Human Rocket", C(240, 120, 30), C(255, 220, 90)),
-		Secret = v("Nova Force Unleashed", C(240, 245, 255), C(120, 200, 255)),
-	},
-	Cyclops = { -- from the user's X-Men '97 / Marvel references
-		Common = v("X-Men '97 Cyclops", C(35, 70, 200), C(250, 215, 40)),
-		Rare = v("Jim Lee Cyclops", C(35, 55, 150), C(240, 200, 40)),
-		Epic = v("X-Factor Cyclops", C(25, 70, 160), C(230, 230, 240)),
-		Legendary = v("Astonishing Cyclops", C(20, 20, 25), C(255, 220, 60)),
-		Mythic = v("Phoenix Five Cyclops", C(255, 140, 30), C(255, 230, 120)),
-		Secret = v("Dark Phoenix Cyclops", C(150, 20, 30), C(255, 90, 40)),
-	},
-	RedHood = { -- from the user's Robin / Red Hood / Arkham Knight sheet
-		Common = v("Red Hood", C(35, 35, 40), C(110, 70, 45)),
-		Rare = v("Robin (Jason Todd)", C(190, 30, 40), C(255, 210, 60), { Pieces = {
-			{ "Hair", C(25, 20, 20) }, { "Visor", C(25, 25, 30), C(245, 245, 245) }, { "Cape", C(255, 210, 60) }, { "Emblem", "R", C(20, 20, 20), C(255, 210, 60), Enum.PartType.Cylinder }, { "Belt", C(255, 210, 60) } } }),
-		Epic = v("Red Hood 2.0", C(30, 30, 35), C(240, 240, 245)),
-		Legendary = v("Arkham Knight", C(30, 35, 50), C(80, 140, 220), { Pieces = {
-			{ "Cowl", C(30, 35, 50), 0.7 }, { "Eyes", C(120, 200, 255) }, { "Emblem", "✦", C(220, 30, 40) }, { "Shoulders", C(40, 45, 60), true }, { "Belt", C(60, 60, 70) } } }),
-		Mythic = v("Red X", C(30, 30, 35), C(200, 30, 30), { Pieces = {
-			{ "Helmet", C(240, 240, 245) }, { "Emblem", "✕", C(220, 30, 30) }, { "Cape", C(25, 25, 30) }, { "Belt", C(60, 60, 70) } } }),
-		Secret = v("Jasonstroke", C(30, 30, 35), C(220, 30, 30), { Pieces = {
-			{ "Helmet", C(220, 30, 30) }, { "Eyes", C(245, 245, 245) }, { "Harness", C(220, 30, 30) }, { "Shoulders", C(220, 30, 30) }, { "Belt", C(220, 30, 30) } } }),
-	},
-	GhostRider = { -- Flame / Flame2 tint the burning skull
-		Common = v("Johnny Blaze", C(22, 22, 24), C(170, 170, 178)),
-		Rare = v("Robbie Reyes", C(25, 25, 30), C(200, 40, 40), { Flame = C(255, 110, 20), Flame2 = C(255, 210, 90) }), -- streaming orange flames, black jacket, red trim
-		Epic = v("Danny Ketch", C(24, 24, 28), C(150, 150, 160), { Flame = C(255, 90, 20), Flame2 = C(255, 180, 60), Colors = { Legs = C(110, 110, 118) } }), -- gray leather pants, mystic chest chain
-		Legendary = v("Cosmic Ghost Rider", C(30, 30, 40), C(215, 170, 50), { Flame = C(170, 80, 255), Flame2 = C(120, 220, 255), HellCycle = true,
-			Extra = { { "HellfireBody", C(170, 80, 255), C(120, 220, 255) }, { "Cape", C(45, 30, 70), C(20, 15, 30) } } }),
-		Mythic = v("Spirit of Vengeance", C(15, 12, 12), C(255, 120, 30), { Flame = C(255, 40, 20), Flame2 = C(255, 140, 40), HellCycle = true,
-			Extra = { { "HellfireBody", C(255, 40, 20), C(255, 140, 40) } } }),
-		Secret = v("King of Hell", C(10, 10, 12), C(255, 215, 80), { Flame = C(255, 255, 255), Flame2 = C(120, 255, 160), HellCycle = true,
-			Extra = { { "HellfireBody", C(255, 255, 255), C(120, 255, 160) } } }),
-	},
-	Superman = {
-		Common = v("Classic Superman", C(30, 70, 190), C(200, 30, 40)),
-		Rare = v("Black Suit Superman", C(25, 25, 30), C(170, 175, 185)),
-		Epic = v("Cyborg Superman", C(150, 155, 165), C(30, 70, 190)),
-		Legendary = v("Kingdom Come Superman", C(35, 60, 140), C(20, 20, 25)),
-		Mythic = v("Superman Prime", C(255, 215, 80), C(30, 70, 190)),
-		Secret = v("Bizarro", C(70, 110, 80), C(140, 20, 30)),
-	},
-	Flash = {
-		Common = v("Barry Allen", C(200, 30, 30), C(255, 210, 40)),
-		Rare = v("Wally West", C(220, 40, 40), C(255, 220, 60)),
-		Epic = v("Reverse-Flash", C(240, 200, 40), C(200, 30, 30)),
-		Legendary = v("Zoom", C(20, 20, 25), C(60, 140, 255)),
-		Mythic = v("Godspeed", C(240, 240, 245), C(255, 200, 60)),
-		Secret = v("Speed Force Flash", C(255, 230, 120), C(255, 120, 30)),
-	},
-	WonderWoman = {
-		Common = v("Classic Wonder Woman", C(180, 30, 40), C(30, 60, 150)),
-		Rare = v("Amazon Warrior", C(140, 60, 50), C(80, 60, 50)),
-		Epic = v("Golden Eagle Armor", C(215, 170, 50), C(180, 140, 40)),
-		Legendary = v("Goddess of War", C(100, 20, 25), C(40, 40, 45)),
-		Mythic = v("Queen of the Amazons", C(240, 240, 245), C(215, 170, 50)),
-		Secret = v("Goddess of Truth", C(255, 230, 140), C(255, 255, 255)),
-	},
-	HarleyQuinn = {
-		Common = v("Classic Harley", C(200, 30, 40), C(25, 25, 30)),
-		Rare = v("Suicide Squad Harley", C(220, 60, 120), C(60, 100, 220)),
-		Epic = v("Birds of Prey Harley", C(240, 200, 60), C(220, 60, 150)),
-		Legendary = v("Rebirth Harley", C(25, 25, 30), C(200, 30, 40)),
-		Mythic = v("Dr. Harleen Quinzel", C(240, 240, 245), C(30, 30, 35)),
-		Secret = v("Queen of Gotham", C(170, 20, 60), C(255, 215, 80)),
-	},
-	Joker = {
-		Common = v("Classic Joker", C(100, 40, 140), C(60, 160, 60)),
-		Rare = v("Arkham Joker", C(110, 50, 130), C(200, 120, 40)),
-		Epic = v("Dark Knight Joker", C(60, 40, 90), C(40, 100, 60)),
-		Legendary = v("Red Suit Joker", C(170, 30, 30), C(200, 120, 40)),
-		Mythic = v("Clown Prince", C(215, 170, 50), C(100, 40, 140)),
-		Secret = v("Emperor Joker", C(240, 240, 245), C(140, 40, 200)),
-	},
-	Deathstroke = {
-		Common = v("Classic Deathstroke", C(220, 120, 30), C(30, 40, 90)),
-		Rare = v("Arkham Origins Deathstroke", C(40, 40, 45), C(220, 120, 30)),
-		Epic = v("Rebirth Deathstroke", C(25, 25, 30), C(170, 175, 185)),
-		Legendary = v("Ravager Armor", C(150, 30, 30), C(30, 30, 35)),
-		Mythic = v("Titans Hunter", C(30, 50, 110), C(255, 140, 30)),
-		Secret = v("Golden Contract", C(215, 170, 50), C(20, 20, 25)),
-	},
-	BlackAdam = {
-		Common = v("Classic Black Adam", C(30, 30, 30), C(215, 170, 50)),
-		Rare = v("Movie Black Adam", C(40, 40, 45), C(150, 120, 60)),
-		Epic = v("Kahndaq Champion", C(25, 25, 30), C(60, 140, 255)),
-		Legendary = v("Teth-Adam", C(160, 120, 70), C(215, 170, 50)),
-		Mythic = v("Champion of Shazam", C(200, 30, 40), C(255, 215, 80)),
-		Secret = v("God of Kahndaq", C(255, 230, 120), C(255, 255, 255)),
-	},
-	Darkseid = {
-		Common = v("Classic Darkseid", C(90, 90, 100), C(40, 60, 130)),
-		Rare = v("Armored Darkseid", C(60, 60, 70), C(30, 30, 40)),
-		Epic = v("Injustice Darkseid", C(80, 70, 70), C(200, 60, 30)),
-		Legendary = v("God of Apokolips", C(50, 50, 55), C(255, 80, 30)),
-		Mythic = v("Omega Darkseid", C(30, 30, 35), C(255, 40, 40)),
-		Secret = v("Absolute Darkseid", C(10, 10, 15), C(170, 80, 255)),
-	},
-	-- ===== Cartoon Network =====
-	SamuraiJack = { -- Primary = gi, Secondary = sash/collar trim; flags: Beard, Armor, Kasa, Ghost
-		Common = v("Classic Jack", C(242, 238, 228), C(222, 215, 198)),
-		Rare = v("Bearded Jack (Season 5)", C(225, 218, 200), C(190, 180, 160), { Beard = true }),
-		Epic = v("Armored Jack", C(70, 65, 70), C(150, 30, 30), { Beard = true, Armor = C(130, 132, 140) }),
-		Legendary = v("Ronin Jack", C(55, 70, 110), C(200, 190, 160), { Kasa = true }),
-		Mythic = v("Ghost Samurai", C(190, 225, 250), C(120, 200, 255), { Ghost = true }),
-		Secret = v("Aku-Slayer Jack", C(250, 240, 210), C(230, 185, 60), { Armor = C(225, 180, 60) }),
-	},
-	Finn = { -- Primary = shirt, Secondary = shorts; flags: Hat, Pack, Hatless, Bunny, GrassArm, RobotArm, Fern, Skin
-		Common = v("Classic Finn", C(95, 175, 235), C(30, 60, 150)),
-		Rare = v("Hatless Finn", C(95, 175, 235), C(30, 60, 150), { Hatless = true }),
-		Epic = v("Grass Sword Finn", C(95, 175, 235), C(30, 60, 150), { GrassArm = true }),
-		Legendary = v("Fionna", C(80, 150, 230), C(40, 80, 190), { Hat = C(245, 245, 250), Pack = C(240, 120, 170), Bunny = true }),
-		Mythic = v("Farmworld Finn", C(130, 100, 70), C(80, 60, 45), { RobotArm = true, Hat = C(225, 215, 190), Pack = C(110, 120, 60) }),
-		Secret = v("Fern", C(80, 160, 60), C(40, 100, 40), { Fern = true, Skin = C(120, 190, 90), Hat = C(170, 220, 140), Pack = C(60, 130, 50) }),
-	},
-	Ben10 = { -- Primary = shirt/jacket, Secondary = pants; flags: Tee, Trim, Stripe, Logo, Suit, AlienX
-		Common = v("Classic Ben", C(245, 245, 245), C(80, 140, 70), { Tee = true, Stripe = C(25, 25, 28) }),
-		Rare = v("Alien Force Ben", C(60, 160, 60), C(55, 80, 140)),
-		Epic = v("Ultimate Alien Ben", C(30, 30, 34), C(50, 70, 120), { Trim = C(60, 170, 60), Stripe = C(245, 245, 245) }),
-		Legendary = v("Omniverse Ben", C(30, 30, 34), C(150, 130, 95), { Tee = true, Stripe = C(80, 210, 80), Logo = true }),
-		Mythic = v("Ben 10,000", C(25, 25, 28), C(25, 25, 28), { Suit = true }),
-		Secret = v("Alien X", C(12, 12, 20), C(245, 245, 245), { AlienX = true }),
-	},
-	Blossom = { -- Primary = dress, Secondary = waist stripe; flags: Bow, Hair, Iris, Ponytail, Armor, Belt, Tights
-		Common = v("Classic Blossom", C(245, 135, 190), C(20, 20, 22)),
-		Rare = v("2016 Reboot Blossom", C(250, 150, 200), C(20, 20, 22), { Hair = C(240, 95, 50), Bow = C(235, 30, 60) }),
-		Epic = v("Hyper Blossom (Powerpuff Z)", C(240, 90, 150), C(250, 250, 250), { Ponytail = true, Belt = C(250, 250, 250), Tights = C(240, 90, 150) }),
-		Legendary = v("Dynamo Pilot Blossom", C(245, 135, 190), C(20, 20, 22), { Armor = C(170, 175, 190) }),
-		Mythic = v("Dark Blossom", C(30, 25, 35), C(220, 30, 60), { Bow = C(20, 20, 22), Iris = C(220, 30, 60), Tights = C(30, 25, 35) }),
-		Secret = v("Chemical X Overload", C(250, 220, 240), C(255, 80, 160), { Bow = C(255, 80, 160), Hair = C(255, 170, 90), Iris = C(255, 60, 140), Armor = C(255, 215, 120) }),
-	},
-	-- ===== Nickelodeon =====
-	Aang = { -- Primary = shirt/pants, Secondary = shawl; flags: Pants, Headband, Hair, Glow, Goatee, Ghost
-		Common = v("Air Nomad Aang", C(245, 190, 60), C(230, 120, 30)),
-		Rare = v("Fire Nation Disguise", C(150, 30, 30), C(60, 30, 30), { Headband = true, Pants = C(40, 30, 30) }),
-		Epic = v("Book 3 Aang", C(240, 175, 60), C(200, 90, 30), { Hair = true }),
-		Legendary = v("Avatar State Aang", C(245, 190, 60), C(230, 120, 30), { Glow = true }),
-		Mythic = v("Avatar Aang (Legend of Korra)", C(235, 165, 55), C(200, 70, 30), { Goatee = true }),
-		Secret = v("Spirit World Aang", C(200, 230, 255), C(120, 200, 255), { Glow = true, Ghost = true }),
-	},
-	Leonardo = { -- Primary = mask, Secondary = gear; flags: Skin, Shell, Plastron, Letter, Iris, Wrap, Tech, Robe
-		Common = v("2012 Leonardo", C(30, 80, 200), C(120, 80, 45)),
-		Rare = v("1987 Leonardo", C(40, 100, 230), C(150, 95, 50), { Skin = C(100, 170, 70), Letter = "L", Iris = C(250, 250, 250) }),
-		Epic = v("Rise of the TMNT Leo", C(30, 120, 230), C(70, 60, 60), { Skin = C(70, 140, 100), Shell = C(80, 70, 50), Plastron = C(200, 190, 120) }),
-		Legendary = v("Mutant Mayhem Leo", C(50, 110, 235), C(110, 80, 50), { Skin = C(95, 155, 60), Wrap = C(225, 225, 215) }),
-		Mythic = v("Fast Forward Leo", C(30, 90, 220), C(70, 75, 90), { Tech = C(150, 160, 180) }),
-		Secret = v("Foot Clan Leader Leo", C(170, 20, 25), C(25, 25, 30), { Skin = C(60, 120, 55), Robe = C(20, 20, 25), Iris = C(200, 30, 30) }),
-	},
-	SpongeBob = { -- Primary = sponge, Secondary = pants; flags: Shirt, Tie, Iris, Hat, Karate, Gar, Cape, Emblem, Mask
-		Common = v("Classic SpongeBob", C(255, 235, 70), C(150, 100, 50)),
-		Rare = v("Krusty Krab Fry Cook", C(255, 235, 70), C(150, 100, 50), { Hat = true }),
-		Epic = v("Karate SpongeBob", C(255, 235, 70), C(150, 100, 50), { Karate = C(245, 245, 245) }),
-		Legendary = v("Invincibubble", C(255, 235, 70), C(30, 60, 160), { Shirt = C(30, 60, 160), Tie = C(255, 215, 60), Cape = C(200, 30, 40), Emblem = "◎", Mask = C(30, 60, 160) }),
-		Mythic = v("SpongeGar", C(225, 200, 80), C(150, 105, 60), { Gar = true }),
-		Secret = v("Goofy Goober Rock God", C(255, 240, 120), C(40, 30, 60), { Shirt = C(25, 25, 30), Tie = C(170, 60, 255), Cape = C(110, 40, 180), Emblem = "ϟ", Extra = { { "Shoulders", C(200, 200, 215), true } } }),
-	},
-	DannyPhantom = { -- Primary = suit, Secondary = trim; flags: Eye, Skin, Hair, Human, Armor, Dan, King
-		Common = v("Danny Phantom", C(22, 22, 26), C(245, 245, 245)),
-		Rare = v("Danny Fenton", C(200, 30, 30), C(50, 80, 150), { Human = true }),
-		Epic = v("Fenton Ghost Peeler", C(22, 22, 26), C(245, 245, 245), { Armor = C(150, 155, 165) }),
-		Legendary = v("Phantom Planet Danny", C(15, 15, 22), C(225, 240, 255), { Eye = C(140, 255, 200) }),
-		Mythic = v("Dan Phantom", C(20, 20, 25), C(235, 240, 250), { Dan = true, Skin = C(120, 175, 215), Eye = C(255, 70, 70), Hair = C(225, 240, 255) }),
-		Secret = v("Ghost King Danny", C(25, 30, 35), C(200, 170, 70), { King = true, Eye = C(140, 255, 170) }),
-	},
-}
+-- One file per hero: src/shared/SkinData/<HeroId>.luau
+S.Data = {}
+for _, mod in script.Parent:WaitForChild("SkinData"):GetChildren() do
+	if mod:IsA("ModuleScript") then S.Data[mod.Name] = require(mod)(v, C) end
+end
 
 local Rarity = require(script.Parent.Rarity)
 local Costume = require(script.Parent.Costume)
+local Body = require(script.Parent.Body)
 function S.Get(heroId, rarity)
 	return S.Data[heroId] and S.Data[heroId][rarity] or S.Data[heroId] and S.Data[heroId].Common
 end
@@ -271,6 +24,7 @@ end
 -- Recolor a rig and add aura by tier. Works on R15 and R6.
 function S.Apply(model, heroId, rarity)
 	local skin = S.Get(heroId, rarity); if not skin then return end
+	Body.Shape(model, heroId) -- hero proportions first, so costume pieces size to the new body
 	local primary = { UpperTorso = 1, LowerTorso = 1, Torso = 1, LeftUpperArm = 1, RightUpperArm = 1, LeftLowerArm = 1, RightLowerArm = 1, ["Left Arm"] = 1, ["Right Arm"] = 1, Head = 1 }
 	for _, p in model:GetChildren() do
 		if p:IsA("BasePart") and p.Name ~= "HumanoidRootPart" then
@@ -283,6 +37,7 @@ function S.Apply(model, heroId, rarity)
 	local head = model:FindFirstChild("Head")
 	local face = head and head:FindFirstChild("face")
 	if face then face:Destroy() end -- every hero has a built face or mask now
+	Body.Sculpt(model, heroId) -- rounded anatomy in the costume's colors over the box parts
 	local tier = Rarity.Tiers[rarity]
 	local root = model:FindFirstChild("HumanoidRootPart")
 	if tier and tier.Index >= 4 and root then

@@ -1,4 +1,5 @@
 return {
+	Build = { "Hero", { muscle = 0.7 } }, -- body preset + overrides (see Body.luau)
 	Name = "Ghost Rider", Faction = "Marvel", Role = "Hero", Style = "Heavy", Color = Color3.fromRGB(255, 120, 20),
 	Weapons = { Right = "HellfireChain" },
 	Abilities = {

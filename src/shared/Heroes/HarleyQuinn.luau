@@ -1,4 +1,5 @@
 return {
+	Build = { "Female", { tall = 0.96 } }, -- body preset + overrides (see Body.luau)
 	Name = "Harley Quinn", Faction = "DC", Role = "Villain", Style = "Heavy", Color = Color3.fromRGB(200, 40, 70),
 	Weapons = { Right = "HarleyMallet" },
 	Abilities = {

@@ -1,4 +1,5 @@
 return {
+	Build = { "Lean", { muscle = 0.8 } }, -- body preset + overrides (see Body.luau)
 	Name = "Nova", Faction = "Marvel", Role = "Hero", Color = Color3.fromRGB(205, 165, 60), WalkSpeed = 18,
 	Abilities = {
 		{ Name = "Nova Blast", Kind = "Projectile", Cooldown = 3, Damage = 9, Speed = 170, Stun = 0.5 },

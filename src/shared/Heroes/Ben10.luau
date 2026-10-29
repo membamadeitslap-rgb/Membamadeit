@@ -1,4 +1,5 @@
 return {
+	Build = { "Kid" }, -- body preset + overrides (see Body.luau)
 	Name = "Ben 10", Faction = "CN", Role = "Hero", Color = Color3.fromRGB(60, 200, 60), Style = "Fists",
 	Weapons = { Left = "Omnitrix" },
 	Abilities = {

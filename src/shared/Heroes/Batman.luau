@@ -1,4 +1,5 @@
 return {
+	Build = { "Hero", { shoulders = 1.18, chest = 1.15 } }, -- body preset + overrides (see Body.luau)
 	Name = "Batman", Faction = "DC", Weapons = { Right = "Batarang" }, Role = "Hero",
 	Color = Color3.fromRGB(40, 40, 55),
 	Abilities = {

@@ -1,4 +1,5 @@
 return {
+	Build = { "Lean", { tall = 1.1, shoulders = 0.92, waist = 0.72, muscle = 0.1, arm = { 0.56, 1.1 }, leg = { 0.62, 1.15 } } }, -- body preset + overrides (see Body.luau)
 	Name = "Joker", Faction = "DC", Role = "Villain", Style = "Heavy", Color = Color3.fromRGB(100, 40, 140),
 	Weapons = { Right = "JokerCrowbar" },
 	Abilities = {

@@ -1,4 +1,5 @@
 return {
+	Build = { "Hero", { shoulders = 1.22, chest = 1.18 } }, -- body preset + overrides (see Body.luau)
 	Name = "Black Adam", Faction = "DC", Role = "Villain", Color = Color3.fromRGB(30, 30, 30),
 	Abilities = {
 		{ Name = "Lightning Bolt", Kind = "Projectile", Cooldown = 3.5, Damage = 9, Speed = 180, Stun = 0.6 },

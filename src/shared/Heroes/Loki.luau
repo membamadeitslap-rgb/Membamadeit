@@ -1,4 +1,5 @@
 return {
+	Build = { "Lean", { tall = 1.08, muscle = 0.3 } }, -- body preset + overrides (see Body.luau)
 	Name = "Loki", Faction = "Marvel", Role = "Villain", Style = "Staff", Color = Color3.fromRGB(30, 120, 60),
 	Weapons = { Right = "LokiScepter" },
 	Abilities = {

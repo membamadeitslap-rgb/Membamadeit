@@ -1,4 +1,5 @@
 return {
+	Build = { "Hero" }, -- body preset + overrides (see Body.luau)
 	Name = "Red Hood", Faction = "DC", Role = "Villain", Color = Color3.fromRGB(190, 30, 40),
 	Weapons = { Right = "DeathstrokeKatana" },
 	Abilities = {

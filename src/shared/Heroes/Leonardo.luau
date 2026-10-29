@@ -1,4 +1,5 @@
 return {
+	Build = { "Turtle" }, -- body preset + overrides (see Body.luau)
 	Name = "Leonardo", Faction = "Nick", Role = "Hero", Color = Color3.fromRGB(40, 90, 200), Style = "Dual",
 	Weapons = { Right = "LeoKatana", Left = "LeoKatana" },
 	Abilities = {

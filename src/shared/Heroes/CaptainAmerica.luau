@@ -1,4 +1,5 @@
 return {
+	Build = { "Hero" }, -- body preset + overrides (see Body.luau)
 	Name = "Captain America", Faction = "Marvel", Role = "Hero", Style = "Fists", Color = Color3.fromRGB(30, 60, 150),
 	Weapons = { Left = "CapShield" },
 	Abilities = {

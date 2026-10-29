@@ -1,4 +1,5 @@
 return {
+	Build = { "Lean" }, -- body preset + overrides (see Body.luau)
 	Name = "Spider-Man", Faction = "Marvel", Weapons = { Right = "WebShooter", Left = "WebShooter" }, Role = "Hero",
 	Color = Color3.fromRGB(200, 30, 40),
 	Abilities = {

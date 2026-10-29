@@ -1,4 +1,5 @@
 return {
+	Build = { "Chibi" }, -- body preset + overrides (see Body.luau)
 	Name = "Blossom", Faction = "CN", Role = "Hero", Color = Color3.fromRGB(240, 120, 180), Style = "Fists", WalkSpeed = 20,
 	Abilities = {
 		{ Name = "Flying Punch", Kind = "Leap", Cooldown = 5, Damage = 10, Distance = 48, Knockback = 55, Element = "Energy", Anim = "Thrust" },

@@ -1,4 +1,5 @@
 return {
+	Build = { "Armored" }, -- body preset + overrides (see Body.luau)
 	Name = "Iron Man", Faction = "Marvel", Role = "Hero", Color = Color3.fromRGB(180, 25, 30),
 	Weapons = { Right = "Repulsor", Left = "Repulsor" },
 	Abilities = {

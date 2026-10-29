@@ -1,4 +1,5 @@
 return {
+	Build = { "Brute" }, -- body preset + overrides (see Body.luau)
 	Name = "Hulk", Faction = "Marvel", Role = "Hero", Color = Color3.fromRGB(70, 150, 50), WalkSpeed = 14,
 	Abilities = {
 		{ Name = "Thunderclap", Kind = "Melee", Cooldown = 6, Damage = 11, Range = Vector3.new(14, 6, 10), Offset = 5, Knockback = 70, Stun = 0.8 },

@@ -1,4 +1,5 @@
 return {
+	Build = { "Teen" }, -- body preset + overrides (see Body.luau)
 	Name = "Danny Phantom", Faction = "Nick", Role = "Hero", Color = Color3.fromRGB(80, 230, 120), Style = "Fists", WalkSpeed = 18,
 	Abilities = {
 		{ Name = "Ecto-Ray", Kind = "Projectile", Cooldown = 3, Damage = 8, Speed = 170, Stun = 0.5, Element = "Ghost", Anim = "Cast" },

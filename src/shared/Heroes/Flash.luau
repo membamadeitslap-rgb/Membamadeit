@@ -1,4 +1,5 @@
 return {
+	Build = { "Lean", { leg = { 0.78, 1.14 } } }, -- body preset + overrides (see Body.luau)
 	Name = "Flash", Faction = "DC", Role = "Hero", Color = Color3.fromRGB(200, 30, 30), WalkSpeed = 22,
 	Abilities = {
 		{ Name = "Speed Blitz", Kind = "Leap", Cooldown = 3, Damage = 7, Distance = 50, Knockback = 30 },

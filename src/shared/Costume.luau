@@ -18,6 +18,32 @@ local function piece(m, anchor, name, size, offset, color, mat, shape)
 	p.Parent = m
 	return p
 end
+-- Rounded piece: ellipsoid filling `size` (helmets, cowls, hair, muscles...)
+local function round(m, anchor, name, size, offset, color, mat)
+	local p = piece(m, anchor, name, size, offset, color, mat)
+	local sm = Instance.new("SpecialMesh"); sm.MeshType = Enum.MeshType.Sphere; sm.Parent = p
+	return p
+end
+-- Round band around a limb (cuffs, armbands, boot tops): cylinder along the anchor's Y axis
+local function band(m, anchor, name, diameter, height, offset, color, mat)
+	local p = piece(m, anchor, name, Vector3.new(height, diameter, diameter), offset * CFrame.Angles(0, 0, math.rad(90)), color, mat, Enum.PartType.Cylinder)
+	return p
+end
+-- Elliptical ring around the torso/waist (belts, collars): n flat segments tangent to the ellipse
+local function ring(m, anchor, name, rx, rz, height, thick, offset, color, mat, n)
+	n = n or 16
+	local parts = {}
+	for i = 0, n - 1 do
+		local a0, a1 = i / n * math.pi * 2, (i + 1) / n * math.pi * 2
+		local p0 = Vector3.new(math.sin(a0) * rx, 0, -math.cos(a0) * rz)
+		local p1 = Vector3.new(math.sin(a1) * rx, 0, -math.cos(a1) * rz)
+		local mid = (p0 + p1) / 2
+		local len = (p1 - p0).Magnitude * 1.08
+		local cf = CFrame.lookAt(mid, mid + (p1 - p0)) * CFrame.Angles(0, math.rad(90), 0)
+		table.insert(parts, piece(m, anchor, name, Vector3.new(len, height, thick), offset * cf, color, mat))
+	end
+	return parts
+end
 local function glyph(part, face, text, color, font)
 	local g = Instance.new("SurfaceGui"); g.Face = face; g.LightInfluence = 0; g.Parent = part
 	local t = Instance.new("TextLabel"); t.Size = UDim2.fromScale(1, 1); t.BackgroundTransparency = 1; t.TextScaled = true
@@ -33,15 +59,19 @@ function P.Cape(m, color, inner)
 	local h = t.Size.Y
 	local cape = piece(m, t, "Cape", Vector3.new(t.Size.X * 1.25, h * 2.6, 0.15), CFrame.new(0, -h * 0.75, t.Size.Z / 2 + 0.12) * CFrame.Angles(math.rad(-6), 0, 0), color, Enum.Material.Fabric)
 	if inner then piece(m, cape, "CapeInner", cape.Size - Vector3.new(0.05, 0.05, 0.1), CFrame.new(0, 0, -0.06), inner, Enum.Material.Fabric) end
-	piece(m, t, "CapeCollar", Vector3.new(t.Size.X * 1.1, 0.3, t.Size.Z * 1.1), CFrame.new(0, h / 2, 0), color, Enum.Material.Fabric)
+	round(m, t, "CapeCollar", Vector3.new(t.Size.X * 0.78, 0.35, t.Size.Z * 1.05), CFrame.new(0, h / 2 - 0.02, 0.05), color, Enum.Material.Fabric)
 end
 -- Bat cowl: mask shell + two ears; earLen 0.6 = TAS/classic, 1.1 = Longest Halloween / BTAS long ears
 function P.Cowl(m, color, earLen, jaw)
 	local hd = find(m, "Head"); if not hd then return end
 	local s = hd.Size
-	piece(m, hd, "Cowl", Vector3.new(s.X * 1.04, s.Y * 0.7, s.Z * 1.04), CFrame.new(0, s.Y * 0.17, 0), color)
-	for _, x in { -0.28, 0.28 } do
-		piece(m, hd, "Ear", Vector3.new(s.X * 0.16, s.Y * (earLen or 0.6), s.Z * 0.16), CFrame.new(x * s.X, s.Y * (0.5 + (earLen or 0.6) / 2), 0), color)
+	round(m, hd, "Cowl", Vector3.new(s.X * 1.1, s.Y * 1.02, s.Z * 1.1), CFrame.new(0, s.Y * 0.2, 0.02), color)
+	for _, x in { -1, 1 } do -- pointed ears: wedge pair forming a tapered spike
+		local len = s.Y * (earLen or 0.6)
+		for _, flip in { 0, 180 } do
+			local e = piece(m, hd, "Ear", Vector3.new(s.X * 0.08, len, s.Z * 0.2), CFrame.new(x * s.X * 0.28, s.Y * 0.58 + len / 2, 0) * CFrame.Angles(0, math.rad(flip), math.rad(-x * 6)) * CFrame.new(-s.X * 0.04, 0, 0), color)
+			local sm = Instance.new("SpecialMesh"); sm.MeshType = Enum.MeshType.Wedge; sm.Parent = e
+		end
 	end
 	if jaw then piece(m, hd, "Jaw", Vector3.new(s.X * 0.7, s.Y * 0.32, s.Z * 0.2), CFrame.new(0, -s.Y * 0.3, -s.Z * 0.45), jaw) end -- skin-tone jaw
 end
@@ -49,7 +79,7 @@ end
 function P.Helmet(m, color, plate, crest)
 	local hd = find(m, "Head"); if not hd then return end
 	local s = hd.Size
-	piece(m, hd, "Helmet", s * 1.08, CFrame.new(), color)
+	round(m, hd, "Helmet", Vector3.new(s.X * 1.14, s.Y * 1.14, s.Z * 1.12), CFrame.new(0, s.Y * 0.04, 0), color)
 	if plate then piece(m, hd, "Faceplate", Vector3.new(s.X * 0.8, s.Y * 0.85, 0.1), CFrame.new(0, -s.Y * 0.04, -s.Z * 0.56), plate) end
 	if crest == "Fin" then piece(m, hd, "Fin", Vector3.new(0.15, s.Y * 0.5, s.Z * 0.9), CFrame.new(0, s.Y * 0.58, 0), color)
 	elseif crest then -- Nova star crest
@@ -62,7 +92,7 @@ function P.Eyes(m, color)
 	local hd = find(m, "Head"); if not hd then return end
 	local s = hd.Size
 	for _, x in { -0.2, 0.2 } do
-		piece(m, hd, "Eye", Vector3.new(s.X * 0.22, s.Y * 0.08, 0.06), CFrame.new(x * s.X, s.Y * 0.08, -s.Z * 0.6), color or C(255, 255, 255), Enum.Material.SmoothPlastic)
+		piece(m, hd, "Eye", Vector3.new(s.X * 0.22, s.Y * 0.08, 0.06), CFrame.new(x * s.X, s.Y * 0.08, -s.Z * 0.57) * CFrame.Angles(0, math.rad(x * 40), 0), color or C(255, 255, 255), Enum.Material.SmoothPlastic)
 	end
 end
 -- Cyclops visor / Deathstroke band: single wide glowing band
@@ -78,7 +108,7 @@ end
 function P.Hair(m, color, style)
 	local hd = find(m, "Head"); if not hd then return end
 	local s = hd.Size
-	piece(m, hd, "Hair", Vector3.new(s.X * 1.06, s.Y * 0.35, s.Z * 1.06), CFrame.new(0, s.Y * 0.4, s.Z * 0.04), color)
+	round(m, hd, "Hair", Vector3.new(s.X * 1.1, s.Y * 0.62, s.Z * 1.12), CFrame.new(0, s.Y * 0.33, s.Z * 0.05), color)
 	if style == "Spiky" then
 		for row, zf in { -0.3, 0.05, 0.38 } do -- three rows of spikes, swept up and back
 			for i = -2, 2 do
@@ -88,9 +118,9 @@ function P.Hair(m, color, style)
 			end
 		end
 	elseif style == "Pigtails" then
-		for _, x in { -0.62, 0.62 } do piece(m, hd, "Pigtail", Vector3.new(s.X * 0.3, s.Y * 0.8, s.Z * 0.3), CFrame.new(x * s.X, s.Y * 0.1, s.Z * 0.2), color) end
+		for _, x in { -0.62, 0.62 } do round(m, hd, "Pigtail", Vector3.new(s.X * 0.32, s.Y * 0.95, s.Z * 0.32), CFrame.new(x * s.X, s.Y * 0.05, s.Z * 0.2) * CFrame.Angles(0, 0, math.rad(x * 25)), color) end
 	elseif style == "Long" then
-		piece(m, hd, "HairBack", Vector3.new(s.X * 1.06, s.Y * 1.1, s.Z * 0.3), CFrame.new(0, -s.Y * 0.1, s.Z * 0.5), color)
+		round(m, hd, "HairBack", Vector3.new(s.X * 1.08, s.Y * 1.5, s.Z * 0.5), CFrame.new(0, -s.Y * 0.2, s.Z * 0.36), color)
 	end
 end
 -- Chest emblem drawn as a glyph on a colored plate (bat oval, S shield, X, star, spider, triangle...)
@@ -123,7 +153,7 @@ function P.Belt(m, color, buckle)
 	local w = waistOf(m); if not w then return end
 	local s = w.Size
 	local y = w.Name == "Torso" and -s.Y * 0.42 or s.Y * 0.3
-	piece(m, w, "Belt", Vector3.new(s.X * 1.06, 0.3, s.Z * 1.08), CFrame.new(0, y, 0), color)
+	ring(m, w, "Belt", s.X * 0.52, s.Z * 0.55, 0.3, 0.12, CFrame.new(0, y, 0), color)
 	if buckle then
 		local b = piece(m, w, "Buckle", Vector3.new(s.X * 0.3, 0.36, 0.1), CFrame.new(0, y, -s.Z * 0.56), buckle.color or color)
 		if buckle.text then glyph(b, Enum.NormalId.Front, buckle.text, buckle.textColor or C(200, 30, 30)) end
@@ -154,7 +184,7 @@ function P.Bands(m, color)
 		local a = m:FindFirstChild(name)
 		if a then
 			local s = a.Size
-			piece(m, a, "Band", Vector3.new(s.X * 1.12, s.Y * (name:find("Lower") and 0.3 or 0.18), s.Z * 1.12), CFrame.new(0, y * s.Y, 0), color)
+			band(m, a, "Band", s.X * 1.08, s.Y * (name:find("Lower") and 0.3 or 0.18), CFrame.new(0, y * s.Y, 0), color)
 		end
 	end
 end
@@ -164,7 +194,7 @@ function P.Shoulders(m, color, spiky, spikeColor)
 		if a then
 			local s = a.Size
 			local h = a.Name:find("Upper") and s.Y * 0.4 or s.Y * 0.4
-			piece(m, a, "Pad", Vector3.new(s.X * 1.35, s.Y * 0.35, s.Z * 1.35), CFrame.new(0, h, 0), color)
+			round(m, a, "Pad", Vector3.new(s.X * 1.55, s.Y * 0.62, s.Z * 1.45), CFrame.new(a.Name:find("Left") and -s.X * 0.08 or s.X * 0.08, h, 0), color)
 			if spiky then
 				for k = -1, 1 do spike(m, a, CFrame.new(k * s.X * 0.35, h + s.Y * 0.3, 0), spikeColor or color) end
 			end
@@ -184,7 +214,7 @@ function P.Cuffs(m, color, fins)
 		local a = m:FindFirstChild(n)
 		if a then
 			local s = a.Size
-			piece(m, a, "Cuff", Vector3.new(s.X * 1.15, s.Y * 0.3, s.Z * 1.15), CFrame.new(0, -s.Y * 0.3, 0), color, Enum.Material.Metal)
+			band(m, a, "Cuff", s.X * 1.1, s.Y * 0.32, CFrame.new(0, -s.Y * 0.3, 0), color, Enum.Material.Metal)
 			if fins then piece(m, a, "Fin", Vector3.new(0.1, s.Y * 0.35, s.Z * 0.5), CFrame.new(a.Name:find("Left") and -s.X * 0.6 or s.X * 0.6, -s.Y * 0.2, 0), color) end
 		end
 	end
@@ -767,7 +797,7 @@ local SKIN, GOLD, WHITE = C(234, 184, 146), C(215, 170, 50), C(245, 245, 245)
 -- Shared helpers handed to every per-hero costume module (src/shared/Costumes/<HeroId>.luau)
 Costume.Helpers = {
 	C = C, SKIN = SKIN, GOLD = GOLD, WHITE = WHITE, P = P,
-	find = find, chestOf = chestOf, waistOf = waistOf, piece = piece, glyph = glyph, front = front,
+	find = find, chestOf = chestOf, waistOf = waistOf, piece = piece, round = round, band = band, ring = ring, glyph = glyph, front = front,
 	spike = function(...) return spike(...) end, hellfire = hellfire,
 }
 Costume.Heroes = {}

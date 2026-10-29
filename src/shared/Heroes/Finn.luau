@@ -1,4 +1,5 @@
 return {
+	Build = { "Kid", { tall = 0.82, head = 1.05 } }, -- body preset + overrides (see Body.luau)
 	Name = "Finn", Faction = "CN", Role = "Hero", Color = Color3.fromRGB(70, 150, 230), Style = "Blade", WalkSpeed = 18,
 	Weapons = { Right = "FinnSword" },
 	Abilities = {

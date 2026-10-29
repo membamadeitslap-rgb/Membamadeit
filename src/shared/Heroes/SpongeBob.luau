@@ -1,4 +1,5 @@
 return {
+	Build = { "Sponge" }, -- body preset + overrides (see Body.luau)
 	Name = "SpongeBob", Faction = "Nick", Role = "Hero", Color = Color3.fromRGB(255, 230, 60), Style = "Blade",
 	Weapons = { Right = "Spatula" },
 	Abilities = {

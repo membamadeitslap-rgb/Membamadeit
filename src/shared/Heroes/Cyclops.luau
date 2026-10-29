@@ -1,4 +1,5 @@
 return {
+	Build = { "Lean", { muscle = 0.8 } }, -- body preset + overrides (see Body.luau)
 	Name = "Cyclops", Faction = "Marvel", Role = "Hero", Color = Color3.fromRGB(30, 60, 170),
 	Abilities = {
 		{ Name = "Optic Blast", Kind = "Projectile", Cooldown = 2.8, Damage = 9, Speed = 220, Stun = 0.5 },
