@@ -16,7 +16,7 @@ const g2 = sheet.getContext('2d'); g2.fillStyle = '#2a2d36'; g2.fillRect(0, 0, s
 function wedgeGeo() {
   const g = new THREE.BufferGeometry();
   const v = [[-.5,-.5,-.5],[.5,-.5,-.5],[-.5,-.5,.5],[.5,-.5,.5],[-.5,.5,.5],[.5,.5,.5]];
-  const f = [[0,2,1],[1,2,3],[2,4,3],[3,4,5],[0,1,4],[1,5,4],[0,4,2],[1,3,5]];
+  const f = [[0,1,2],[1,3,2],[2,3,4],[3,5,4],[0,4,1],[1,4,5],[0,2,4],[1,5,3]];
   const pos = []; for (const t of f) for (const i of t) pos.push(...v[i]);
   g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.computeVertexNormals(); return g;
 }
@@ -61,7 +61,7 @@ function build(parts) {
     const mat = new THREE.MeshStandardMaterial({ color: col, roughness: p.mat === 'Metal' || p.mat === 'DiamondPlate' ? 0.35 : p.mat === 'SmoothPlastic' ? 0.55 : 0.8,
       metalness: p.mat === 'Metal' || p.mat === 'DiamondPlate' ? 0.55 : 0, emissive: neon ? col : 0x000000, emissiveIntensity: neon ? 0.9 : 0,
       transparent: p.tr > 0 || p.mat === 'Glass' || p.mat === 'ForceField', opacity: (1 - p.tr) * (p.mat === 'ForceField' ? 0.4 : p.mat === 'Glass' ? 0.6 : 1) });
-    const mesh = new THREE.Mesh(geo, mat); mesh.scale.set(...scale);
+    const mesh = new THREE.Mesh(geo, mat); mesh.scale.set(...scale); if (p.tr >= 0.98) mesh.visible = false;
     const g = new THREE.Group(); g.add(mesh);
     for (const t of p.texts || []) g.add(textPlane(t, p.size));
     const c = p.cf;

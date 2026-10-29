@@ -16,12 +16,9 @@ return function(m, H)
 		wedge(p(m, name, V(0.05, h, w / 2), f * CF(0, 0, w / 4) * A(0, math.pi, 0), color, Enum.Material.Metal))
 	end
 	round(m, "Blade", V(0.16, 0.07, 0.36), base, BLK, Enum.Material.Metal) -- body
-	round(m, "BatHead", V(0.12, 0.07, 0.14), base * CF(0, 0, 0.2), BLK, Enum.Material.Metal)
+	round(m, "BatHead", V(0.13, 0.07, 0.2), base * CF(0, 0, 0.2), BLK, Enum.Material.Metal)
 	for _, x in { -1, 1 } do
-		tri("Ear", 0.06, 0.1, base * CF(x * 0.04, 0, 0.3), BLK)
 		tri("Wing", 0.3, 0.55, base * CF(x * 0.32, 0, 0.07) * A(0, rad(x * 80), 0), BLK)
 		tri("Scallop", 0.2, 0.22, base * CF(x * 0.36, 0, -0.08) * A(0, math.pi + rad(-x * 10), 0), BLK)
-		tri("Scallop", 0.18, 0.18, base * CF(x * 0.18, 0, -0.1) * A(0, math.pi, 0), BLK)
-		p(m, "Edge", V(0.5, 0.075, 0.02), base * CF(x * 0.31, 0, 0.17) * A(0, rad(x * 12), 0), EDGE, Enum.Material.Metal) -- sharpened leading edge
 	end
 end

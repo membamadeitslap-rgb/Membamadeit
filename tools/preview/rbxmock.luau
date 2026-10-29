@@ -431,7 +431,7 @@ mock.json = enc
 function mock.Dump(model)
 	local parts = {}
 	for _, d in Inst.GetDescendants(model) do
-		if PART_CLASSES[d.ClassName] and d.Name ~= "HumanoidRootPart" and (d.Transparency or 0) < 0.98 then
+		if PART_CLASSES[d.ClassName] and d.Name ~= "HumanoidRootPart" and ((d.Transparency or 0) < 0.98 or Inst.FindFirstChildOfClass(d, "SurfaceGui")) then
 			local c = d.CFrame
 			local e = { name = d.Name, class = d.ClassName, size = { d.Size.X, d.Size.Y, d.Size.Z },
 				cf = { c.p.X, c.p.Y, c.p.Z, table.unpack(c.r) }, color = { d.Color.R, d.Color.G, d.Color.B },

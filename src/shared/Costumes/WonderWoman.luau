@@ -54,9 +54,8 @@ local function kit(H)
 	function k.bat(m, a, cf, w, color, mat)
 		local h = w * 0.42
 		round(m, a, "BatBody", V(w * 0.12, h * 0.8, 0.05), cf * CF(0, -h * 0.05, 0), color, mat)
-		round(m, a, "BatHead", V(w * 0.1, h * 0.28, 0.05), cf * CF(0, h * 0.32, 0), color, mat)
+		round(m, a, "BatHead", V(w * 0.1, h * 0.42, 0.05), cf * CF(0, h * 0.34, 0), color, mat) -- tall head reads as the ears at this size
 		for _, x in { -1, 1 } do
-			k.flat(m, a, "BatEar", w * 0.05, h * 0.2, 0.05, cf * CF(x * w * 0.03, h * 0.5, 0), color, mat)
 			-- wing: triangle out to a raised tip, lower edge cut by two downward scallop points
 			k.flat(m, a, "BatWing", h * 0.75, w * 0.46, 0.05, cf * CF(x * w * 0.27, h * 0.12, 0) * A(0, 0, rad(-x * 78)), color, mat)
 			k.flat(m, a, "BatWing", w * 0.16, h * 0.42, 0.05, cf * CF(x * w * 0.3, -h * 0.18, 0) * A(0, 0, math.pi + rad(x * 10)), color, mat)
@@ -153,6 +152,8 @@ return function(s, H, rarity)
 		if eagle then -- winged eagle helm
 			round(m, hd, "Helm", V(h.X * 1.14, h.Y * 0.7, h.Z * 1.14), CF(0, h.Y * 0.28, 0.02), gold, Enum.Material.Metal)
 			for _, x in { -1, 1 } do k.tri(m, hd, "HelmWing", 0.06, h.Y * 0.6, h.Z * 0.35, CF(x * h.X * 0.57, h.Y * 0.4, h.Z * 0.15) * A(rad(-40), 0, rad(-x * 15)), gold, Enum.Material.Metal) end
+			k.label(m, hd, "HelmStar", V(h.X * 0.24, h.Y * 0.22, 0.02), CF(0, h.Y * 0.3, k.fz(h, 0, 0.1)), "★", C(210, 25, 35))
+			return
 		end
 		-- tiara: band round the brow rising to a point at the front, red star
 		band(m, hd, "Tiara", h.X * 1.07, h.Y * 0.08, CF(0, h.Y * 0.25, 0.01), gold, Enum.Material.Metal)
@@ -199,16 +200,15 @@ return function(s, H, rarity)
 			end
 		end
 		if amazon or war or eagle then -- pteruges: leather / metal strips hanging from the belt
-			for i = 0, 7 do
-				local a = (i + 0.5) / 8 * math.pi * 2
-				piece(m, w, "Pteruges", V(l.X * 0.3, l.Y * 1.5, 0.06), CF(math.sin(a) * l.X * 0.5, -l.Y * 0.5, -math.cos(a) * l.Z * 0.55) * A(0, -a, 0) * A(rad(8), 0, 0),
+			for i = 0, 5 do
+				local a = (i + 0.5) / 6 * math.pi * 2
+				piece(m, w, "Pteruges", V(l.X * 0.4, l.Y * 1.5, 0.06), CF(math.sin(a) * l.X * 0.5, -l.Y * 0.5, -math.cos(a) * l.Z * 0.55) * A(0, -a, 0) * A(rad(8), 0, 0),
 					amazon and C(120, 75, 45) or metal, amazon and Enum.Material.Leather or Enum.Material.Metal)
 			end
 		end
-		-- golden lasso coiled on the right hip (two loops)
+		-- golden lasso coiled on the right hip
 		local lc = truth and C(255, 235, 140) or C(240, 195, 70)
 		ring(m, w, "Lasso", 0.34, 0.34, 0.08, 0.08, CF(l.X * 0.58, -l.Y * 0.2, 0) * A(0, 0, rad(90)), lc, truth and Enum.Material.Neon or Enum.Material.Fabric, 8)
-		ring(m, w, "Lasso", 0.28, 0.28, 0.08, 0.08, CF(l.X * 0.64, -l.Y * 0.25, 0.04) * A(0, 0, rad(90)), lc, truth and Enum.Material.Neon or Enum.Material.Fabric, 7)
 	end
 
 	local function limbs(m)
@@ -232,14 +232,14 @@ return function(s, H, rarity)
 	local function extras(m)
 		local t = chestOf(m); if not t then return end
 		if queen or truth then -- flowing cape from the shoulders
-			k.cape(m, queen and C(240, 240, 245) or C(255, 245, 210), { n = 5, len = 2.2, arc = 90, fan = 9, r = 0.5, pitch = 6, top = 0.4, drape = 0.6, inner = queen and C(200, 160, 50) or nil })
+			k.cape(m, queen and C(240, 240, 245) or C(255, 245, 210), { n = 5, len = 2.2, arc = 90, fan = 9, r = 0.5, pitch = 6, top = 0.4, drape = 0.6 })
 		end
 		if eagle then -- big golden eagle wings on the back
 			local c = t.Size
 			for _, x in { -1, 1 } do
-				for i = 0, 4 do -- primaries sweep out and up, shorter coverts below
+				for i = 0, 3 do -- primaries sweep out and up, shorter coverts below
 					local len = c.Y * (1.7 - i * 0.2)
-					k.tri(m, t, "Feather", 0.06, len, c.Y * 0.36, CF(x * c.X * 0.2, c.Y * (0.3 - i * 0.08), c.Z * 0.6 + i * 0.02) * A(0, 0, rad(-x * (48 + i * 16))) * CF(0, len / 2, 0) * A(0, rad(90), 0), gold:Lerp(C(255, 245, 200), i * 0.08), Enum.Material.Metal)
+					k.tri(m, t, "Feather", 0.06, len, c.Y * 0.36, CF(x * c.X * 0.2, c.Y * (0.3 - i * 0.08), c.Z * 0.6 + i * 0.02) * A(0, 0, rad(-x * (48 + i * 20))) * CF(0, len / 2, 0) * A(0, rad(90), 0), gold:Lerp(C(255, 245, 200), i * 0.08), Enum.Material.Metal)
 				end
 			end
 		end

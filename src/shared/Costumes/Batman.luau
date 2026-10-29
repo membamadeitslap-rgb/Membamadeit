@@ -53,9 +53,8 @@ local function kit(H)
 	function k.bat(m, a, cf, w, color, mat)
 		local h = w * 0.42
 		round(m, a, "BatBody", V(w * 0.12, h * 0.8, 0.05), cf * CF(0, -h * 0.05, 0), color, mat)
-		round(m, a, "BatHead", V(w * 0.1, h * 0.28, 0.05), cf * CF(0, h * 0.32, 0), color, mat)
+		round(m, a, "BatHead", V(w * 0.1, h * 0.42, 0.05), cf * CF(0, h * 0.34, 0), color, mat) -- tall head reads as the ears at this size
 		for _, x in { -1, 1 } do
-			k.flat(m, a, "BatEar", w * 0.05, h * 0.2, 0.05, cf * CF(x * w * 0.03, h * 0.5, 0), color, mat)
 			-- wing: triangle out to a raised tip, lower edge cut by two downward scallop points
 			k.flat(m, a, "BatWing", h * 0.75, w * 0.46, 0.05, cf * CF(x * w * 0.27, h * 0.12, 0) * A(0, 0, rad(-x * 78)), color, mat)
 			k.flat(m, a, "BatWing", w * 0.16, h * 0.42, 0.05, cf * CF(x * w * 0.3, -h * 0.18, 0) * A(0, 0, math.pi + rad(x * 10)), color, mat)
@@ -198,8 +197,8 @@ return function(s, H, rarity)
 				local s2 = a.Size
 				local x = n:find("Left") and -1 or 1
 				band(m, a, "Cuff", s2.X * 1.12, s2.Y * 0.16, CF(0, s2.Y * 0.38, 0), dark)
-				for i = 0, 2 do -- three scalloped fins on the outer forearm
-					k.tri(m, a, "Fin", 0.06, s2.Z * 0.6, s2.Y * 0.24, CF(x * s2.X * 0.5, s2.Y * (0.22 - i * 0.22), 0) * A(0, 0, rad(-x * 90)) * A(0, rad(90), 0), hell and accent or dark)
+				for i = 0, 1 do -- scalloped fins on the outer forearm
+					k.tri(m, a, "Fin", 0.06, s2.Z * 0.6, s2.Y * 0.24, CF(x * s2.X * 0.5, s2.Y * (0.12 - i * 0.26), 0) * A(0, 0, rad(-x * 90)) * A(0, rad(90), 0), hell and accent or dark)
 				end
 			end
 		end

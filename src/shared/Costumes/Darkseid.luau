@@ -54,9 +54,8 @@ local function kit(H)
 	function k.bat(m, a, cf, w, color, mat)
 		local h = w * 0.42
 		round(m, a, "BatBody", V(w * 0.12, h * 0.8, 0.05), cf * CF(0, -h * 0.05, 0), color, mat)
-		round(m, a, "BatHead", V(w * 0.1, h * 0.28, 0.05), cf * CF(0, h * 0.32, 0), color, mat)
+		round(m, a, "BatHead", V(w * 0.1, h * 0.42, 0.05), cf * CF(0, h * 0.34, 0), color, mat) -- tall head reads as the ears at this size
 		for _, x in { -1, 1 } do
-			k.flat(m, a, "BatEar", w * 0.05, h * 0.2, 0.05, cf * CF(x * w * 0.03, h * 0.5, 0), color, mat)
 			-- wing: triangle out to a raised tip, lower edge cut by two downward scallop points
 			k.flat(m, a, "BatWing", h * 0.75, w * 0.46, 0.05, cf * CF(x * w * 0.27, h * 0.12, 0) * A(0, 0, rad(-x * 78)), color, mat)
 			k.flat(m, a, "BatWing", w * 0.16, h * 0.42, 0.05, cf * CF(x * w * 0.3, -h * 0.18, 0) * A(0, 0, math.pi + rad(x * 10)), color, mat)
