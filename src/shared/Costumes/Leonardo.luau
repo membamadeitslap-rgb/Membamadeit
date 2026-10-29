@@ -25,17 +25,15 @@ return function(s, H, rarity)
 				oval(piece(m, hd, "Tail", Vector3.new(sz.X * 0.16, sz.Y * 1.2, 0.06), CFrame.new(x * sz.X * 0.13, -sz.Y * 0.4, sz.Z * 0.6) * CFrame.Angles(math.rad(12), 0, math.rad(x * 16)), s.Primary, Enum.Material.Fabric))
 			end
 			oval(piece(m, hd, "Knot", Vector3.new(sz.X * 0.24, sz.Y * 0.22, 0.2), CFrame.new(0, sz.Y * 0.08, sz.Z * 0.55), s.Primary:Lerp(C(0, 0, 0), 0.15), Enum.Material.Fabric))
-			piece(m, hd, "Mouth", Vector3.new(sz.X * 0.56, sz.Y * 0.035, 0.04), CFrame.new(0, -sz.Y * 0.25, -sz.Z * 0.505), dark)
-			for _, x in { -1, 1 } do piece(m, hd, "MouthEnd", Vector3.new(sz.X * 0.08, sz.Y * 0.035, 0.04), CFrame.new(x * sz.X * 0.3, -sz.Y * 0.22, -sz.Z * 0.505) * CFrame.Angles(0, 0, math.rad(x * 30)), dark) end
+			piece(m, hd, "Mouth", Vector3.new(sz.X * 0.56, sz.Y * 0.035, 0.04), CFrame.new(0, -sz.Y * 0.25, -sz.Z * 0.555), dark)
 			oval(piece(m, hd, "Beak", Vector3.new(sz.X * 0.62, sz.Y * 0.36, sz.Z * 0.3), CFrame.new(0, -sz.Y * 0.16, -sz.Z * 0.4), skin:Lerp(C(255, 255, 255), 0.06)))
-			for _, x in { -1, 1 } do piece(m, hd, "Nostril", Vector3.new(0.05, 0.04, 0.03), CFrame.new(x * sz.X * 0.05, -sz.Y * 0.06, -sz.Z * 0.555), dark) end
 		end,
 		function(m) -- shell: dome, darker rim, scutes; plastron on the front with segment lines
 			local t = chestOf(m); if not t then return end
 			local sz = t.Size
 			local dome = oval(piece(m, t, "Shell", Vector3.new(sz.X * 1.05, sz.Y * 1.35, 1.0), CFrame.new(0, -sz.Y * 0.1, sz.Z / 2 + 0.12), shellC))
 			oval(piece(m, t, "ShellRim", Vector3.new(sz.X * 1.12, sz.Y * 1.42, 0.5), CFrame.new(0, -sz.Y * 0.1, sz.Z / 2 + 0.02), shellC:Lerp(plas, 0.45)))
-			for _, o in { { 0, 0.25 }, { 0, -0.08 }, { 0, -0.38 }, { -0.28, 0.12 }, { 0.28, 0.12 }, { -0.28, -0.22 }, { 0.28, -0.22 } } do
+			for _, o in { { 0, 0.22 }, { 0, -0.2 }, { -0.28, 0.02 }, { 0.28, 0.02 } } do
 				local sx, sy = o[1] * dome.Size.X, o[2] * dome.Size.Y
 				local dz = 0.5 * math.sqrt(math.max(0.05, 1 - (2 * sx / dome.Size.X) ^ 2 - (2 * sy / dome.Size.Y) ^ 2))
 				oval(piece(m, dome, "Scute", Vector3.new(dome.Size.X * 0.26, dome.Size.Y * 0.24, 0.12), CFrame.new(sx, sy, dz - 0.03), shellC:Lerp(C(0, 0, 0), 0.18)))
@@ -44,7 +42,6 @@ return function(s, H, rarity)
 			oval(piece(m, t, "Plastron", Vector3.new(sz.X * 0.84, sz.Y * 1.12, sz.Z * 1.0), CFrame.new(0, -sz.Y * 0.04, -sz.Z * 0.09), plas))
 			fz = -sz.Z * 0.59
 			for j = 0, 3 do piece(m, t, "PlastronLine", Vector3.new(sz.X * (0.62 - math.abs(j - 1.5) * 0.08), 0.04, 0.04), CFrame.new(0, sz.Y * (0.32 - j * 0.24), fz + 0.02 + math.abs(j - 1.5) * 0.02), plas:Lerp(C(0, 0, 0), 0.3)) end
-			piece(m, t, "PlastronMid", Vector3.new(0.04, sz.Y * 0.85, 0.04), CFrame.new(0, -sz.Y * 0.04, fz), plas:Lerp(C(0, 0, 0), 0.3))
 			for _, x in { -1, 1 } do oval(piece(m, t, "Bridge", Vector3.new(0.3, sz.Y * 0.95, sz.Z * 0.95), CFrame.new(x * (sz.X / 2 - 0.08), -sz.Y * 0.08, 0.05), plas:Lerp(shellC, 0.4))) end
 			local w = waistOf(m)
 			if w and w ~= t then oval(piece(m, w, "PlastronLow", Vector3.new(w.Size.X * 0.62, w.Size.Y * 2.0, w.Size.Z * 0.5), CFrame.new(0, -w.Size.Y * 0.2, -w.Size.Z * 0.3), plas)) end
