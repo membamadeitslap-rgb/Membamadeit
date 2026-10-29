@@ -106,7 +106,7 @@ return function(s, H, rarity)
 			local ul = m:FindFirstChild(side .. "UpperLeg"); local ll = m:FindFirstChild(side .. "LowerLeg"); local ft = m:FindFirstChild(side .. "Foot")
 			if ul then
 				local total = ul.Size.Y + (ll and ll.Size.Y or 0) + (ft and ft.Size.Y or 0)
-				local lx = side == "Left" and 0.04 or -0.04 -- small split between the legs
+				local lx = side == "Left" and -0.06 or 0.06 -- small split between the legs
 				local leg = piece(m, ul, "LegoLeg", V(0.92, total, td * 0.88), CF(lx, ul.Size.Y / 2 - total / 2, 0), blue, SP)
 				for _, face in { "Front", "Back", "Left", "Right" } do
 					local f = paint(leg, face)
