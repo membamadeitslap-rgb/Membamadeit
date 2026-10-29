@@ -1,90 +1,115 @@
--- Blossom (Powerpuff Girls): oversized round head shell with huge pink eyes, long orange hair to the waist, big red bow,
--- pink dress with a black waist stripe and A-line skirt, white tights, black Mary Janes.
+-- Blossom (Powerpuff Girls, Craig McCracken style): giant wide oval head (about half her height) with huge pink oval eyes,
+-- no nose, tiny mouth; long orange hair with swept bangs flowing down past her waist; big red bow on top;
+-- tiny body: pink dress with a black stripe under the chest and an A-line skirt, stubby nub arms, white tights, black Mary Janes.
 -- Costume module: return function(s, H, rarity) -> { colors = { group = Color3 }, pieces = { { "Piece", args... } | function(m) end } }
--- s = skin variant (Name, Primary = dress, Secondary = stripe, Bow, Hair, Iris, Ponytail, Armor...), H = shared helpers, rarity = tier name
+-- s = skin variant (Name, Primary = dress, Secondary = stripe, Bow, Hair, Iris, Ponytail, Armor, Belt, Tights...), H = shared helpers, rarity = tier name
 return function(s, H, rarity)
-	local C, SKIN, GOLD, WHITE = H.C, H.SKIN, H.GOLD, H.WHITE
-	local piece, find, chestOf, waistOf, front = H.piece, H.find, H.chestOf, H.waistOf, H.front
+	local C, WHITE = H.C, H.WHITE
+	local piece, round, band, find, chestOf, waistOf = H.piece, H.round, H.band, H.find, H.chestOf, H.waistOf
 	local function each(m, names, fn) for _, n in names do local a = m:FindFirstChild(n); if a then fn(a, n:find("Left") and -1 or 1) end end end
-	local function oval(p) Instance.new("SpecialMesh", p).MeshType = Enum.MeshType.Sphere; return p end
-	local skin = C(255, 222, 200)
+	local V, CF = Vector3.new, CFrame.new
+	local FAB = Enum.Material.Fabric
+	local skin = C(255, 214, 186)
 	local hairC, bowC, iris = s.Hair or C(235, 110, 40), s.Bow or C(220, 25, 40), s.Iris or C(230, 80, 150)
 	local BLACK = C(20, 20, 22)
+	local hairD = hairC:Lerp(C(0, 0, 0), 0.12)
+
 	local pieces = {
-		function(m) -- big head shell + giant eyes
+		function(m) -- the big PPG head (replaces the box head)
 			local hd = find(m, "Head"); if not hd then return end
+			hd.Transparency = 1
 			local sz = hd.Size
-			local X, Y, Z = sz.X * 1.5, sz.Y * 1.32, sz.Z * 1.36
-			local shell = oval(piece(m, hd, "BigHead", Vector3.new(X, Y, Z), CFrame.new(0, sz.Y * 0.14, -sz.Z * 0.05), skin))
-			local function surf(x, y) return -(Z / 2) * math.sqrt(math.max(0.05, 1 - (2 * x / X) ^ 2 - (2 * y / Y) ^ 2)) end
+			local X, Y, Z = sz.X * 1.32, sz.Y * 1.08, sz.Z * 1.12
+			local c0 = CF(0, sz.Y * 0.0, -sz.Z * 0.02)
+			local shell = round(m, hd, "BigHead", V(X, Y, Z), c0, skin)
+			-- point on the shell surface at (x, y) facing outward
+			local function at(x, y, out)
+				local a, b, c = X / 2, Y / 2, Z / 2
+				local z = -c * math.sqrt(math.max(0.02, 1 - (x / a) ^ 2 - (y / b) ^ 2))
+				local pos = V(x, y, z)
+				local n = V(x / (a * a), y / (b * b), z / (c * c)).Unit
+				return CFrame.lookAt(pos, pos + n) * CF(0, 0, -(out or 0))
+			end
+			-- eyes: huge vertical ovals, tilted outward at the top; black upper lid + a single outer lash
 			for _, x in { -1, 1 } do
-				local ex, ey = x * X * 0.2, -Y * 0.02
-				local cf = CFrame.new(ex, ey, surf(ex, ey) + 0.06) * CFrame.Angles(0, math.rad(x * 22), 0)
-				oval(piece(m, shell, "Sclera", Vector3.new(X * 0.3, Y * 0.42, 0.2), cf, C(252, 252, 252)))
-				oval(piece(m, shell, "Iris", Vector3.new(X * 0.21, Y * 0.3, 0.2), cf * CFrame.new(-x * X * 0.02, -Y * 0.02, -0.03), iris))
-				oval(piece(m, shell, "Pupil", Vector3.new(X * 0.11, Y * 0.16, 0.2), cf * CFrame.new(-x * X * 0.025, -Y * 0.03, -0.05), BLACK))
-				oval(piece(m, shell, "Shine", Vector3.new(X * 0.05, Y * 0.07, 0.2), cf * CFrame.new(-x * X * 0.05, Y * 0.04, -0.07), WHITE))
-				piece(m, shell, "Lid", Vector3.new(X * 0.28, 0.07, 0.08), cf * CFrame.new(0, Y * 0.2, -0.04) * CFrame.Angles(0, 0, math.rad(x * -6)), BLACK)
-				piece(m, shell, "Lash", Vector3.new(X * 0.09, 0.07, 0.07), cf * CFrame.new(x * X * 0.15, Y * 0.2, -0.04) * CFrame.Angles(0, 0, math.rad(x * 35)), BLACK)
+				local ex, ey = x * X * 0.2, -Y * 0.04
+				local cf = at(ex, ey, 0.0) * CFrame.Angles(0, 0, math.rad(-x * 10))
+				round(m, shell, "Sclera", V(X * 0.3, Y * 0.44, 0.16), cf, C(252, 252, 252))
+				round(m, shell, "Iris", V(X * 0.21, Y * 0.31, 0.16), cf * CF(-x * X * 0.035, -Y * 0.035, -0.025), iris)
+				round(m, shell, "Pupil", V(X * 0.12, Y * 0.18, 0.16), cf * CF(-x * X * 0.045, -Y * 0.05, -0.04), BLACK)
+				round(m, shell, "Shine", V(X * 0.05, Y * 0.07, 0.14), cf * CF(-x * X * 0.02, Y * 0.0, -0.06), WHITE)
+				piece(m, shell, "LidLine", V(X * 0.2, 0.05, 0.05), cf * CF(0, Y * 0.21, -0.07), BLACK)
+				piece(m, shell, "Lash", V(X * 0.1, 0.05, 0.05), cf * CF(x * X * 0.14, Y * 0.18, -0.07) * CFrame.Angles(0, 0, math.rad(x * 38)), BLACK)
+				round(m, shell, "Blush", V(X * 0.08, Y * 0.04, 0.06), at(x * X * 0.31, -Y * 0.26, -0.01), C(255, 185, 185))
 			end
-			local my = -Y * 0.3
-			piece(m, shell, "Mouth", Vector3.new(X * 0.12, 0.05, 0.06), CFrame.new(0, my, surf(0, my) + 0.01), C(120, 40, 40))
-			for _, x in { -1, 1 } do piece(m, shell, "MouthCurl", Vector3.new(X * 0.04, 0.05, 0.06), CFrame.new(x * X * 0.07, my + 0.02, surf(0, my) + 0.01) * CFrame.Angles(0, 0, math.rad(x * 35)), C(120, 40, 40)) end
-			-- hair: cap over the back/top of the shell, bangs, side curtains, long fall down to the waist
-			oval(piece(m, shell, "HairCap", Vector3.new(X * 1.05, Y * 1.06, Z * 1.02), CFrame.new(0, Y * 0.12, Z * 0.08), hairC))
-			for i = -2, 2 do
-				local bx = i * X * 0.13
-				local bang = piece(m, shell, "Bang", Vector3.new(X * 0.2, Y * 0.2, 0.2), CFrame.new(bx, Y * 0.32 - math.abs(i) * Y * 0.02, surf(bx, Y * 0.32) + 0.08) * CFrame.Angles(math.rad(-25), 0, math.rad(i * 8)), hairC)
-				Instance.new("SpecialMesh", bang).MeshType = Enum.MeshType.Wedge
-			end
-			local fall = piece(m, shell, "HairFall", Vector3.new(X * 0.95, Y * 1.9, Z * 0.32), CFrame.new(0, -Y * 0.75, Z * 0.36) * CFrame.Angles(math.rad(-8), 0, 0), hairC)
-			piece(m, fall, "HairTip", Vector3.new(X * 0.75, Y * 0.2, Z * 0.28), CFrame.new(0, -fall.Size.Y / 2 - Y * 0.08, 0), hairC)
-			if s.Ponytail then
-				piece(m, shell, "Ponytail", Vector3.new(X * 0.35, Y * 1.4, Z * 0.3), CFrame.new(0, -Y * 0.1, Z * 0.65) * CFrame.Angles(math.rad(-25), 0, 0), hairC)
-			end
-			-- the bow: knot + two big loops + two tails
-			local bowCF = CFrame.new(0, Y * 0.45, Z * 0.32) * CFrame.Angles(math.rad(-20), 0, 0)
-			oval(piece(m, shell, "BowKnot", Vector3.new(X * 0.18, Y * 0.2, Z * 0.2), bowCF, bowC:Lerp(C(0, 0, 0), 0.15)))
+			-- small smile
+			local mcf = at(0, -Y * 0.33, -0.01)
+			round(m, shell, "Mouth", V(X * 0.1, Y * 0.045, 0.06), mcf, C(140, 40, 50))
+			round(m, shell, "MouthMask", V(X * 0.12, Y * 0.04, 0.06), mcf * CF(0, Y * 0.02, -0.005), skin)
+			-- hair: crown cap behind the face, two swept bangs parted off-center, side curtains
+			round(m, shell, "HairCap", V(X * 1.06, Y * 1.0, Z * 1.02), CF(0, Y * 0.16, Z * 0.1), hairC)
+			round(m, shell, "Bang", V(X * 0.6, Y * 0.3, Z * 0.25), at(-X * 0.15, Y * 0.28, -0.02) * CFrame.Angles(0, 0, math.rad(-14)), hairC)
+			round(m, shell, "Bang", V(X * 0.46, Y * 0.26, Z * 0.25), at(X * 0.24, Y * 0.29, -0.02) * CFrame.Angles(0, 0, math.rad(20)), hairC)
 			for _, x in { -1, 1 } do
-				oval(piece(m, shell, "BowLoop", Vector3.new(X * 0.55, Y * 0.42, Z * 0.18), bowCF * CFrame.new(x * X * 0.3, Y * 0.06, 0) * CFrame.Angles(0, 0, math.rad(x * -18)), bowC))
-				piece(m, shell, "BowTail", Vector3.new(X * 0.1, Y * 0.35, 0.06), bowCF * CFrame.new(x * X * 0.08, -Y * 0.2, 0.05) * CFrame.Angles(0, 0, math.rad(x * 20)), bowC)
+				round(m, shell, "Curtain", V(X * 0.15, Y * 0.8, Z * 0.5), CF(x * X * 0.46, -Y * 0.06, Z * 0.1) * CFrame.Angles(0, 0, math.rad(x * 6)), hairC)
 			end
-			for _, x in { -1, 1 } do -- tiny round ears hidden by hair; keeps the PPG silhouette clean
-				piece(m, shell, "Cheek", Vector3.new(X * 0.1, Y * 0.06, 0.04), CFrame.new(x * X * 0.28, -Y * 0.2, surf(x * X * 0.28, -Y * 0.2) + 0.01), C(255, 190, 190))
+			-- long fall: widens below the head, ends in a soft point past the waist
+			round(m, shell, "HairFall", V(X * 0.86, Y * 0.95, Z * 0.42), CF(0, -Y * 0.36, Z * 0.3), hairC)
+			round(m, shell, "HairFall", V(X * 0.7, Y * 0.8, Z * 0.3), CF(0, -Y * 0.78, Z * 0.38) * CFrame.Angles(math.rad(-6), 0, 0), hairD)
+			round(m, shell, "HairTip", V(X * 0.42, Y * 0.42, Z * 0.24), CF(0, -Y * 1.08, Z * 0.42) * CFrame.Angles(math.rad(-8), 0, 0), hairC)
+			if s.Ponytail then -- Hyper Blossom: high ponytail swinging back
+				round(m, shell, "Ponytail", V(X * 0.36, Y * 1.3, Z * 0.36), CF(0, -Y * 0.05, Z * 0.7) * CFrame.Angles(math.rad(-30), 0, 0), hairC)
+			end
+			-- the bow: knot + two big loops angled up + two short tails, on top toward the back
+			local bowCF = CF(0, Y * 0.5, Z * 0.18) * CFrame.Angles(math.rad(-12), 0, 0)
+			round(m, shell, "BowKnot", V(X * 0.16, Y * 0.18, Z * 0.18), bowCF, bowC:Lerp(C(0, 0, 0), 0.15))
+			for _, x in { -1, 1 } do
+				round(m, shell, "BowLoop", V(X * 0.5, Y * 0.36, Z * 0.2), bowCF * CF(x * X * 0.26, Y * 0.07, 0) * CFrame.Angles(0, 0, math.rad(x * 22)), bowC)
+				round(m, shell, "BowTail", V(X * 0.12, Y * 0.28, 0.08), bowCF * CF(x * X * 0.09, -Y * 0.14, Z * 0.1) * CFrame.Angles(0, 0, math.rad(x * 24)), bowC)
 			end
 		end,
-		function(m) -- dress: black waist stripe, A-line skirt panels, collar
+		function(m) -- dress: rounded bodice, black stripe under the chest, A-line skirt
 			local t = chestOf(m)
 			if t then
 				local sz = t.Size
-				piece(m, t, "Stripe", Vector3.new(sz.X * 1.03, sz.Y * 0.14, sz.Z * 1.05), CFrame.new(0, -sz.Y * 0.43, 0), s.Secondary)
-				piece(m, t, "Neckline", Vector3.new(sz.X * 0.32, 0.08, 0.04), CFrame.new(0, sz.Y * 0.46, front(t, 0.02)), skin)
+				band(m, t, "Stripe", sz.X * 0.95, sz.Y * 0.14, CF(0, -sz.Y * 0.1, 0), s.Secondary)
 			end
 			local w = waistOf(m); if not w then return end
 			local sz = w.Size
-			local y = w.Name == "Torso" and -sz.Y * 0.5 or -sz.Y * 0.3
-			for i = 0, 9 do
-				local a = i / 10 * math.pi * 2
-				local r = Vector3.new(math.sin(a) * sz.X * 0.55, 0, math.cos(a) * sz.Z * 0.62)
-				piece(m, w, "Skirt", Vector3.new(sz.X * 0.36, 1.0, 0.08), CFrame.new(r.X, y - 0.45, r.Z) * CFrame.Angles(0, a, 0) * CFrame.Angles(math.rad(-14), 0, 0), s.Primary, Enum.Material.Fabric)
+			local n = 12
+			for i = 0, n - 1 do
+				local a = i / n * math.pi * 2
+				local r = V(math.sin(a) * sz.X * 0.56, 0, math.cos(a) * sz.Z * 0.62)
+				piece(m, w, "Skirt", V(sz.X * 0.36, sz.Y * 2.3, 0.08), CF(r.X, -sz.Y * 0.9, r.Z) * CFrame.Angles(0, a, 0) * CFrame.Angles(math.rad(-20), 0, 0), s.Primary, FAB)
 			end
 		end,
-		function(m) -- Mary Janes: black shoe, strap, sole
+		function(m) -- Mary Janes: strap + rounded toe
 			each(m, { "LeftFoot", "RightFoot" }, function(f)
-				piece(m, f, "Strap", Vector3.new(f.Size.X * 1.06, 0.08, 0.12), CFrame.new(0, f.Size.Y * 0.3, -f.Size.Z * 0.1), BLACK)
-				piece(m, f, "Toe", Vector3.new(f.Size.X * 0.9, f.Size.Y * 0.7, 0.1), CFrame.new(0, -f.Size.Y * 0.1, -f.Size.Z / 2 - 0.04), BLACK)
+				piece(m, f, "Strap", V(f.Size.X * 1.02, 0.06, 0.1), CF(0, f.Size.Y * 0.45, -f.Size.Z * 0.05), BLACK)
 			end)
 		end,
 	}
-	if s.Armor then -- Dynamo pilot: chrome shoulder pads, chest plate, gauntlets
-		table.insert(pieces, { "Shoulders", s.Armor })
-		table.insert(pieces, { "Cuffs", s.Armor })
+	if s.Armor then -- Dynamo pilot: chrome shoulder pods, chest plate, cuffs
 		table.insert(pieces, function(m)
 			local t = chestOf(m); if not t then return end
-			piece(m, t, "ChestPlate", Vector3.new(t.Size.X * 0.8, t.Size.Y * 0.5, 0.1), CFrame.new(0, t.Size.Y * 0.15, front(t, 0.05)), s.Armor, Enum.Material.Metal)
+			local sz = t.Size
+			round(m, t, "ChestPlate", V(sz.X * 0.8, sz.Y * 0.55, sz.Z * 0.5), CF(0, sz.Y * 0.18, -sz.Z * 0.32), s.Armor, Enum.Material.Metal)
+			each(m, { "LeftUpperArm", "RightUpperArm" }, function(a, x)
+				round(m, a, "ShoulderPod", V(a.Size.X * 1.8, a.Size.Y * 1.0, a.Size.Z * 1.8), CF(0, a.Size.Y * 0.3, 0), s.Armor, Enum.Material.Metal)
+			end)
+			each(m, { "LeftLowerArm", "RightLowerArm" }, function(a)
+				band(m, a, "Cuff", a.Size.X * 1.4, a.Size.Y * 0.5, CF(0, -a.Size.Y * 0.2, 0), s.Armor, Enum.Material.Metal)
+			end)
 		end)
 	end
-	if s.Belt then table.insert(pieces, { "Belt", s.Belt, { color = C(255, 230, 120), text = "♥", textColor = C(230, 40, 120) } }) end
-	return { colors = { Head = skin, Chest = s.Primary, Waist = s.Primary, Arms = skin, Hands = skin, UpperLegs = WHITE, LowerLegs = s.Tights or WHITE, Feet = BLACK },
+	if s.Belt then -- Hyper Blossom compact belt with a heart buckle
+		table.insert(pieces, function(m)
+			local w = waistOf(m); if not w then return end
+			band(m, w, "Belt", w.Size.X * 1.08, w.Size.Y * 0.6, CF(0, w.Size.Y * 0.1, 0), s.Belt)
+			local b = round(m, w, "Buckle", V(w.Size.X * 0.3, w.Size.X * 0.26, 0.12), CF(0, w.Size.Y * 0.1, -w.Size.Z * 0.55), C(255, 230, 120), Enum.Material.Metal)
+			H.glyph(b, Enum.NormalId.Front, "♥", C(230, 40, 120))
+		end)
+	end
+	return { colors = { Head = skin, Chest = s.Primary, Waist = s.Primary, Arms = skin, Hands = skin, UpperLegs = s.Tights or WHITE, LowerLegs = s.Tights or WHITE, Feet = BLACK },
 		pieces = pieces }
 end

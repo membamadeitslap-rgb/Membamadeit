@@ -1,103 +1,155 @@
--- Finn (Adventure Time): white bear-ear hat framing the face, light-blue tee, dark-blue shorts, green backpack, skinny legs, white socks, black shoes
+-- Finn (Adventure Time): rounded white bear hat (two little round ears) with a big face opening, black dot eyes and a wide open grin,
+-- light-blue tee with short sleeves, noodle arms, dark-blue shorts, skinny bare legs, white knee socks, black shoes, green backpack.
 -- Costume module: return function(s, H, rarity) -> { colors = { group = Color3 }, pieces = { { "Piece", args... } | function(m) end } }
--- s = skin variant (Name, Primary = shirt, Secondary = shorts, Hat, Pack, Hatless, GrassArm, RobotArm, Fern...), H = shared helpers, rarity = tier name
+-- s = skin variant (Name, Primary = shirt, Secondary = shorts, Hat, Pack, Hatless, GrassArm, RobotArm, Fern, Bunny...), H = shared helpers, rarity = tier name
 return function(s, H, rarity)
-	local C, SKIN, GOLD, WHITE = H.C, H.SKIN, H.GOLD, H.WHITE
-	local piece, find, chestOf, waistOf, front = H.piece, H.find, H.chestOf, H.waistOf, H.front
+	local C, WHITE = H.C, H.WHITE
+	local piece, round, band, find, chestOf, waistOf = H.piece, H.round, H.band, H.find, H.chestOf, H.waistOf
 	local function each(m, names, fn) for _, n in names do local a = m:FindFirstChild(n); if a then fn(a, n:find("Left") and -1 or 1) end end end
+	local CYL, V, CF = Enum.PartType.Cylinder, Vector3.new, CFrame.new
+	local FAB = Enum.Material.Fabric
 	local skin = s.Skin or C(250, 215, 180)
 	local hat = s.Hat or WHITE
 	local pack = s.Pack or C(90, 170, 70)
 	local HAIR = C(250, 215, 100)
-	local pieces = {
-		{ "Face", C(20, 20, 22), C(60, 45, 30), "grin" },
-	}
-	if s.Hatless then -- hat off: Finn's long flowing golden hair
-		table.insert(pieces, function(m)
-			local hd = find(m, "Head"); if not hd then return end
-			local sz = hd.Size
-			piece(m, hd, "Hair", Vector3.new(sz.X * 1.08, sz.Y * 0.38, sz.Z * 1.08), CFrame.new(0, sz.Y * 0.38, 0.02), HAIR)
-			piece(m, hd, "HairBack", Vector3.new(sz.X * 1.1, sz.Y * 2.2, sz.Z * 0.35), CFrame.new(0, -sz.Y * 0.55, sz.Z * 0.5) * CFrame.Angles(math.rad(-6), 0, 0), HAIR)
-			for _, x in { -1, 1 } do
-				piece(m, hd, "Lock", Vector3.new(sz.X * 0.16, sz.Y * 1.3, sz.Z * 0.5), CFrame.new(x * sz.X * 0.52, -sz.Y * 0.25, sz.Z * 0.15), HAIR)
-				piece(m, hd, "Fringe", Vector3.new(sz.X * 0.36, sz.Y * 0.18, 0.08), CFrame.new(x * sz.X * 0.24, sz.Y * 0.26, -sz.Z * 0.52) * CFrame.Angles(0, 0, math.rad(x * 12)), HAIR)
+	local INK = C(20, 20, 22)
+	local fionna = s.Bunny
+
+	-- rounded-rectangle slab: rounded corners seen from the front, depth d along Z
+	local function rbox(m, a, name, w, h, d, r, cf, color, mat)
+		local core = piece(m, a, name, V(w, h - 2 * r, d), cf, color, mat)
+		piece(m, a, name, V(w - 2 * r, h, d), cf, color, mat)
+		for _, x in { -1, 1 } do for _, y in { -1, 1 } do
+			piece(m, a, name, V(d, 2 * r, 2 * r), cf * CF(x * (w / 2 - r), y * (h / 2 - r), 0) * CFrame.Angles(0, math.rad(90), 0), color, mat, CYL)
+		end end
+		return core
+	end
+
+	local pieces = {}
+	-- head: the box head is replaced by Finn's rounded head shape (hat shell, or bare head with long hair)
+	table.insert(pieces, function(m)
+		local hd = find(m, "Head"); if not hd then return end
+		hd.Transparency = 1
+		local sz = hd.Size
+		local W, Hh, D = sz.X * 1.12, sz.Y * 1.12, sz.Z * 1.0
+		local c0 = CF(0, sz.Y * 0.04, 0)
+		local fz = -D / 2
+		if s.Hatless then
+			rbox(m, hd, "Skull", W * 0.96, Hh * 0.98, D * 0.94, W * 0.3, c0, skin)
+			-- long golden hair: crown cap, swept bangs, side curtains and a long fall down the back
+			round(m, hd, "Hair", V(W * 1.08, Hh * 0.6, D * 1.1), c0 * CF(0, Hh * 0.3, D * 0.04), HAIR)
+			for i = -1, 1 do
+				round(m, hd, "Bang", V(W * 0.42, Hh * 0.26, 0.14), c0 * CF(i * W * 0.28, Hh * 0.3 - math.abs(i) * Hh * 0.03, fz - 0.02) * CFrame.Angles(0, 0, math.rad(-i * 14 - 6)), HAIR)
 			end
-		end)
-	else
-		table.insert(pieces, function(m) -- the hat: shell wrapping top, sides, back and under the chin, two round bear ears
-			local hd = find(m, "Head"); if not hd then return end
-			local sz = hd.Size
-			piece(m, hd, "HatTop", Vector3.new(sz.X * 1.1, sz.Y * 0.3, sz.Z * 1.1), CFrame.new(0, sz.Y * 0.42, 0), hat, Enum.Material.Fabric)
-			piece(m, hd, "HatBack", Vector3.new(sz.X * 1.1, sz.Y * 1.14, sz.Z * 0.45), CFrame.new(0, -sz.Y * 0.03, sz.Z * 0.33), hat, Enum.Material.Fabric)
 			for _, x in { -1, 1 } do
-				piece(m, hd, "HatSide", Vector3.new(sz.X * 0.08, sz.Y * 1.14, sz.Z * 1.1), CFrame.new(x * sz.X * 0.52, -sz.Y * 0.03, 0), hat, Enum.Material.Fabric)
-				if s.Bunny then -- Fionna: tall bunny ears
-					local ear = piece(m, hd, "HatEar", Vector3.new(sz.X * 0.22, sz.Y * 0.75, sz.X * 0.14), CFrame.new(x * sz.X * 0.28, sz.Y * 0.88, 0.02) * CFrame.Angles(0, 0, math.rad(-x * 8)), hat, Enum.Material.Fabric)
-					Instance.new("SpecialMesh", ear).MeshType = Enum.MeshType.Sphere
-					piece(m, ear, "HatEarInner", Vector3.new(ear.Size.X * 0.45, ear.Size.Y * 0.7, 0.04), CFrame.new(0, 0, -ear.Size.Z * 0.4), C(255, 190, 210), Enum.Material.Fabric)
-				else
-					piece(m, hd, "HatEar", Vector3.new(sz.X * 0.3, sz.X * 0.3, sz.X * 0.3), CFrame.new(x * sz.X * 0.36, sz.Y * 0.62, 0.02), hat, Enum.Material.Fabric, Enum.PartType.Ball)
-					piece(m, hd, "HatEarInner", Vector3.new(sz.X * 0.16, sz.X * 0.16, 0.05), CFrame.new(x * sz.X * 0.36, sz.Y * 0.62, -sz.X * 0.15), hat:Lerp(C(0, 0, 0), 0.08), Enum.Material.Fabric)
+				round(m, hd, "Lock", V(W * 0.22, Hh * 1.25, D * 0.7), c0 * CF(x * W * 0.5, -Hh * 0.2, D * 0.12) * CFrame.Angles(0, 0, math.rad(x * 4)), HAIR)
+			end
+			round(m, hd, "HairBack", V(W * 1.1, Hh * 2.3, D * 0.45), c0 * CF(0, -Hh * 0.75, D * 0.48) * CFrame.Angles(math.rad(-6), 0, 0), HAIR)
+		else
+			-- hat shell: rounded slab, slightly rounded back
+			rbox(m, hd, "Hat", W, Hh, D * 0.7, W * 0.3, c0 * CF(0, 0, -D * 0.15), hat, FAB)
+			round(m, hd, "HatBack", V(W * 1.0, Hh * 1.0, D * 0.94), c0 * CF(0, 0, D * 0.0), hat, FAB)
+			-- face opening
+			rbox(m, hd, "FaceSkin", W * 0.76, Hh * 0.58, 0.04, W * 0.2, c0 * CF(0, -Hh * 0.1, fz - 0.01), skin)
+			if fionna then -- tall bunny ears with pink inner
+				for _, x in { -1, 1 } do
+					local ear = round(m, hd, "HatEar", V(W * 0.22, Hh * 0.8, D * 0.18), c0 * CF(x * W * 0.25, Hh * 0.85, 0) * CFrame.Angles(0, 0, math.rad(-x * 10)), hat, FAB)
+					round(m, ear, "HatEarInner", V(ear.Size.X * 0.5, ear.Size.Y * 0.75, 0.05), CF(0, -ear.Size.Y * 0.04, -ear.Size.Z * 0.42), C(255, 185, 205), FAB)
+				end
+			else -- little round bear ears on the top corners
+				for _, x in { -1, 1 } do
+					round(m, hd, "HatEar", V(W * 0.26, W * 0.24, D * 0.3), c0 * CF(x * W * 0.33, Hh * 0.5, 0), hat, FAB)
 				end
 			end
-			piece(m, hd, "HatChin", Vector3.new(sz.X * 1.1, sz.Y * 0.14, sz.Z * 1.1), CFrame.new(0, -sz.Y * 0.53, 0), hat, Enum.Material.Fabric)
-			piece(m, hd, "HatRim", Vector3.new(sz.X * 0.98, 0.05, 0.04), CFrame.new(0, sz.Y * 0.27, -sz.Z * 0.555), hat:Lerp(C(0, 0, 0), 0.12), Enum.Material.Fabric)
-		end)
-	end
-	table.insert(pieces, function(m) -- tee: short sleeves, collar
+			if s.Fern then -- Fern's grass hat: leaf blades sprouting off the top
+				for i = -1, 1 do
+					round(m, hd, "Leaf", V(0.14, Hh * 0.45, 0.3), c0 * CF(i * W * 0.2, Hh * 0.62, 0) * CFrame.Angles(0, 0, math.rad(-i * 28)), C(70, 150, 50), Enum.Material.Grass)
+				end
+			end
+			if fionna then -- blonde locks peeking out from under the hat
+				for _, x in { -1, 1 } do round(m, hd, "Lock", V(W * 0.16, Hh * 0.35, 0.1), c0 * CF(x * W * 0.3, Hh * 0.14, fz - 0.04), HAIR) end
+			end
+		end
+		-- face: black dot eyes, wide open grin (dark crescent: mouth oval masked by a skin oval)
+		local ey = s.Hatless and -Hh * 0.02 or -Hh * 0.0
+		local fzz = fz - (s.Hatless and 0.0 or 0.05)
+		for _, x in { -1, 1 } do
+			round(m, hd, "Eye", V(W * 0.09, W * 0.11, 0.05), c0 * CF(x * W * 0.2, ey, fzz - 0.01), INK)
+			if fionna then piece(m, hd, "Lash", V(W * 0.06, 0.03, 0.03), c0 * CF(x * W * 0.26, ey + W * 0.04, fzz - 0.02) * CFrame.Angles(0, 0, math.rad(x * 30)), INK) end
+		end
+		local my = -Hh * 0.2
+		round(m, hd, "Mouth", V(W * 0.34, Hh * 0.17, 0.04), c0 * CF(0, my, fzz - 0.01), C(70, 25, 30))
+		round(m, hd, "Tongue", V(W * 0.16, Hh * 0.06, 0.04), c0 * CF(0, my - Hh * 0.05, fzz - 0.015), C(230, 110, 120))
+		round(m, hd, "MouthMask", V(W * 0.42, Hh * 0.12, 0.04), c0 * CF(0, my + Hh * 0.075, fzz - 0.02), skin)
+		piece(m, hd, "Teeth", V(W * 0.2, Hh * 0.025, 0.04), c0 * CF(0, my + Hh * 0.005, fzz - 0.022), WHITE)
+	end)
+	-- tee: short sleeves over the noodle arms, collar
+	table.insert(pieces, function(m)
 		local t = chestOf(m); if not t then return end
 		local sz = t.Size
-		piece(m, t, "Collar", Vector3.new(sz.X * 0.4, 0.08, 0.05), CFrame.new(0, sz.Y * 0.46, front(t, 0.02)), s.Primary:Lerp(C(0, 0, 0), 0.25))
-		piece(m, t, "Neck", Vector3.new(sz.X * 0.3, 0.12, 0.04), CFrame.new(0, sz.Y * 0.43, front(t, 0.01)), skin)
+		local col = s.Primary:Lerp(C(0, 0, 0), 0.2)
+		piece(m, t, "Collar", V(sz.X * 0.34, 0.06, 0.06), CF(0, sz.Y * 0.47, -sz.Z * 0.42), col)
 		each(m, { "LeftUpperArm", "RightUpperArm" }, function(a)
-			piece(m, a, "SleeveHem", Vector3.new(a.Size.X * 1.06, 0.06, a.Size.Z * 1.06), CFrame.new(0, -a.Size.Y * 0.08, 0), s.Primary:Lerp(C(0, 0, 0), 0.2))
+			band(m, a, "Sleeve", a.Size.X * 1.14, a.Size.Y * 0.55, CF(0, a.Size.Y * 0.2, 0), s.Primary, FAB)
+			band(m, a, "SleeveHem", a.Size.X * 1.16, 0.05, CF(0, -a.Size.Y * 0.06, 0), col, FAB)
 		end)
 	end)
-	table.insert(pieces, function(m) -- green backpack: body, flap, buckle, side pocket, shoulder straps
+	-- green backpack: rounded pack, flap, buckle, straps over the shoulders
+	table.insert(pieces, function(m)
 		local t = chestOf(m); if not t then return end
 		local sz = t.Size
-		local bz = sz.Z / 2 + 0.35
-		local bag = piece(m, t, "Pack", Vector3.new(sz.X * 0.75, sz.Y * 0.85, 0.65), CFrame.new(0, -sz.Y * 0.05, bz), pack, Enum.Material.Fabric)
-		piece(m, bag, "Flap", Vector3.new(bag.Size.X * 0.96, bag.Size.Y * 0.45, 0.06), CFrame.new(0, bag.Size.Y * 0.22, 0.34), pack:Lerp(C(0, 0, 0), 0.15), Enum.Material.Fabric)
-		piece(m, bag, "Buckle", Vector3.new(0.2, 0.16, 0.05), CFrame.new(0, 0, 0.38), C(230, 200, 80), Enum.Material.Metal)
-		piece(m, bag, "Pocket", Vector3.new(bag.Size.X * 0.6, bag.Size.Y * 0.28, 0.08), CFrame.new(0, -bag.Size.Y * 0.3, 0.36), pack:Lerp(C(0, 0, 0), 0.1), Enum.Material.Fabric)
+		local bag = rbox(m, t, "Pack", sz.X * 0.8, sz.Y * 0.95, sz.Z * 0.75, sz.X * 0.18, CF(0, -sz.Y * 0.02, sz.Z * 0.5 + sz.Z * 0.36), pack, FAB)
+		local dark = pack:Lerp(C(0, 0, 0), 0.22)
+		round(m, t, "Flap", V(sz.X * 0.82, sz.Y * 0.5, sz.Z * 0.5), CF(0, sz.Y * 0.28, sz.Z * 0.5 + sz.Z * 0.52), pack:Lerp(C(0, 0, 0), 0.1), FAB)
+		piece(m, t, "Buckle", V(sz.X * 0.12, sz.Y * 0.1, 0.06), CF(0, sz.Y * 0.08, sz.Z * 0.5 + sz.Z * 0.75), C(230, 200, 80), Enum.Material.Metal)
+		round(m, bag, "Pocket", V(bag.Size.X * 0.6, bag.Size.Y * 0.3, sz.Z * 0.3), CF(0, -sz.Y * 0.28, sz.Z * 0.36), dark, FAB)
 		for _, x in { -1, 1 } do
-			piece(m, t, "Strap", Vector3.new(sz.X * 0.1, 0.06, sz.Z * 1.12), CFrame.new(x * sz.X * 0.24, sz.Y / 2 + 0.02, 0), pack:Lerp(C(0, 0, 0), 0.2), Enum.Material.Fabric)
-			piece(m, t, "StrapFront", Vector3.new(sz.X * 0.1, sz.Y * 0.8, 0.05), CFrame.new(x * sz.X * 0.24, sz.Y * 0.1, front(t, 0.03)), pack:Lerp(C(0, 0, 0), 0.2), Enum.Material.Fabric)
+			piece(m, t, "Strap", V(sz.X * 0.11, 0.07, sz.Z * 1.1), CF(x * sz.X * 0.26, sz.Y * 0.5, 0), dark, FAB)
+			piece(m, t, "StrapFront", V(sz.X * 0.11, sz.Y * 0.75, 0.05), CF(x * sz.X * 0.26, sz.Y * 0.12, -sz.Z * 0.5 + 0.0), dark, FAB)
 		end
 	end)
-	table.insert(pieces, function(m) -- shorts hem, white socks, black shoes
+	-- shorts legs over the thighs, white socks up to the knee
+	table.insert(pieces, function(m)
 		each(m, { "LeftUpperLeg", "RightUpperLeg" }, function(a)
-			piece(m, a, "Hem", Vector3.new(a.Size.X * 1.06, 0.08, a.Size.Z * 1.06), CFrame.new(0, -a.Size.Y * 0.3, 0), s.Secondary:Lerp(C(0, 0, 0), 0.25), Enum.Material.Fabric)
+			band(m, a, "ShortLeg", a.Size.X * 1.3, a.Size.Y * 0.5, CF(0, a.Size.Y * 0.25, 0), s.Secondary, FAB)
 		end)
+		local w = waistOf(m)
+		if w then round(m, w, "Seat", V(w.Size.X * 1.08, w.Size.Y * 2.4, w.Size.Z * 1.12), CF(0, -w.Size.Y * 0.3, 0), s.Secondary, FAB) end
 		each(m, { "LeftLowerLeg", "RightLowerLeg" }, function(a)
-			piece(m, a, "Sock", Vector3.new(a.Size.X * 1.04, a.Size.Y * 0.35, a.Size.Z * 1.04), CFrame.new(0, -a.Size.Y * 0.33, 0), WHITE, Enum.Material.Fabric)
+			band(m, a, "Sock", a.Size.X * 1.08, a.Size.Y * 0.8, CF(0, -a.Size.Y * 0.1, 0), WHITE, FAB)
 		end)
+		if fionna then -- Fionna: dark skirt instead of shorts
+			local wl = waistOf(m); if not wl then return end
+			local z = wl.Size
+			round(m, wl, "Skirt", V(z.X * 1.35, z.Y * 2.8, z.Z * 1.45), CF(0, -z.Y * 0.9, 0), s.Secondary, FAB)
+		end
 	end)
-	if s.GrassArm then -- grass sword cursed arm: leafy green right forearm + hand
+	if s.GrassArm then -- grass sword cursed arm: leafy green right forearm wrapped in grass blades
 		table.insert(pieces, function(m)
-			each(m, { "RightLowerArm", "RightHand", "RightArm" }, function(a)
-				a.Color = C(80, 170, 60)
-				for i = 0, 3 do piece(m, a, "GrassBlade", Vector3.new(a.Size.X * 0.2, a.Size.Y * 0.5, 0.05), CFrame.new((i - 1.5) * a.Size.X * 0.25, 0, -a.Size.Z / 2 - 0.03) * CFrame.Angles(0, 0, math.rad((i - 1.5) * 12)), C(60, 140, 45), Enum.Material.Grass) end
+			each(m, { "RightLowerArm", "RightHand" }, function(a)
+				a.Color = C(80, 170, 60); a.Material = Enum.Material.Grass
 			end)
+			local a = find(m, "RightLowerArm"); if not a then return end
+			for i = 0, 3 do
+				round(m, a, "GrassBlade", V(a.Size.X * 0.35, a.Size.Y * 0.9, 0.1), CF(math.cos(i * 1.57) * a.Size.X * 0.4, a.Size.Y * 0.1, math.sin(i * 1.57) * a.Size.Z * 0.4) * CFrame.Angles(0, -i * 1.57, math.rad(15)), C(60, 140, 45), Enum.Material.Grass)
+			end
 		end)
 	end
-	if s.RobotArm then -- Farmworld / later-season robotic right arm
+	if s.RobotArm then -- Farmworld / later-season mechanical arm
 		table.insert(pieces, function(m)
-			each(m, { "RightLowerArm", "RightHand", "RightArm" }, function(a)
+			each(m, { "RightLowerArm", "RightHand" }, function(a)
 				a.Color = C(150, 155, 165); a.Material = Enum.Material.Metal
-				piece(m, a, "Joint", Vector3.new(a.Size.X * 1.08, 0.12, a.Size.Z * 1.08), CFrame.new(0, a.Size.Y * 0.35, 0), C(90, 90, 100), Enum.Material.Metal)
 			end)
+			local a = find(m, "RightLowerArm"); if not a then return end
+			band(m, a, "Joint", a.Size.X * 1.2, 0.14, CF(0, a.Size.Y * 0.4, 0), C(90, 90, 100), Enum.Material.Metal)
+			band(m, a, "Joint", a.Size.X * 1.15, 0.1, CF(0, -a.Size.Y * 0.1, 0), C(90, 90, 100), Enum.Material.Metal)
 		end)
 	end
-	if s.Fern then -- Fern: grass Finn, mossy body with leaf tufts
+	if s.Fern then
 		table.insert(pieces, function(m)
-			local hd = find(m, "Head")
-			if hd then for i = -1, 1 do piece(m, hd, "Leaf", Vector3.new(0.12, hd.Size.Y * 0.4, 0.25), CFrame.new(i * hd.Size.X * 0.3, hd.Size.Y * 0.75, 0) * CFrame.Angles(0, 0, math.rad(-i * 25)), C(70, 150, 50), Enum.Material.Grass) end end
-			local t = chestOf(m)
-			if t then t.Material = Enum.Material.Grass end
+			for _, n in { "UpperTorso", "LeftLowerArm", "RightLowerArm" } do local p = find(m, n); if p then p.Material = Enum.Material.Grass end end
 		end)
 	end
-	return { colors = { Head = skin, Chest = s.Primary, Waist = s.Secondary, UpperArms = s.Primary, LowerArms = skin, Hands = skin, UpperLegs = s.Secondary, LowerLegs = skin, Feet = C(25, 25, 28) },
+	return { colors = { Head = skin, Chest = s.Primary, Waist = s.Secondary, UpperArms = skin, LowerArms = skin, Hands = skin, UpperLegs = skin, LowerLegs = skin, Feet = C(25, 25, 28) },
 		pieces = pieces }
 end
