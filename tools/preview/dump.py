@@ -56,6 +56,7 @@ for _, id in ids do
 			local m = mock.services.Players.CreateHumanoidModelFromDescription()
 			Skins.Apply(m, id, r)
 			for hand, wid in (Heroes[id].Weapons or {{}}) do Weapons.Attach(m, wid, hand) end
+			if Shared:FindFirstChild("Toon") then require(Shared.Toon).Apply(m) end
 			local skin = Skins.Get(id, r)
 			print("@@" .. mock.json({{ hero = id, rarity = r, name = skin and skin.Name or id, parts = mock.Dump(m) }}))
 		end)

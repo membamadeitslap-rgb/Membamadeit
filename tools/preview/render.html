@@ -5,7 +5,11 @@ import * as THREE from 'three';
 const TW = 260, TH = 400;
 const scenes = await (await fetch('scene.json')).json();
 const views = (new URLSearchParams(location.search).get('views') || '0,35,180').split(',').map(Number);
-const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true, alpha: true });
+const INK = 4; // outline thickness in px (Highlight outline)
+const inkMat = new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.DoubleSide });
+const tmp = document.createElement('canvas'); tmp.width = TW; tmp.height = TH; const tg = tmp.getContext('2d');
+const msk = document.createElement('canvas'); msk.width = TW; msk.height = TH; const mg = msk.getContext('2d');
 renderer.setSize(TW, TH); renderer.outputColorSpace = THREE.SRGBColorSpace;
 const sheet = document.getElementById('sheet');
 const cols = views.length * Math.min(scenes.length, Number(new URLSearchParams(location.search).get('cols') || 3));
@@ -58,7 +62,7 @@ function build(parts) {
     else { geo = new THREE.BoxGeometry(1, 1, 1); scale = [sx, sy, sz]; }
     const col = new THREE.Color(...p.color);
     const neon = p.mat === 'Neon';
-    const mat = new THREE.MeshStandardMaterial({ color: col, roughness: p.mat === 'Metal' || p.mat === 'DiamondPlate' ? 0.35 : p.mat === 'SmoothPlastic' ? 0.55 : 0.8,
+    const mat = new THREE.MeshStandardMaterial({ color: col, roughness: p.mat === 'Metal' || p.mat === 'DiamondPlate' ? 0.35 : p.mat === 'SmoothPlastic' ? 0.9 : 0.8,
       metalness: p.mat === 'Metal' || p.mat === 'DiamondPlate' ? 0.55 : 0, emissive: neon ? col : 0x000000, emissiveIntensity: neon ? 0.9 : 0,
       transparent: p.tr > 0 || p.mat === 'Glass' || p.mat === 'ForceField', opacity: (1 - p.tr) * (p.mat === 'ForceField' ? 0.4 : p.mat === 'Glass' ? 0.6 : 1) });
     const mesh = new THREE.Mesh(geo, mat); mesh.scale.set(...scale); if (p.tr >= 0.98) mesh.visible = false;
@@ -72,23 +76,29 @@ function build(parts) {
   return root;
 }
 scenes.forEach((s, i) => {
-  const scene = new THREE.Scene(); scene.background = new THREE.Color(0x3a3f4b);
-  scene.add(new THREE.HemisphereLight(0xffffff, 0x555566, 1.6));
-  const key = new THREE.DirectionalLight(0xffffff, 1.6); key.position.set(-4, 8, -10); scene.add(key);
-  const rim = new THREE.DirectionalLight(0xaaccff, 0.8); rim.position.set(6, 4, 10); scene.add(rim);
+  const scene = new THREE.Scene();
+  scene.add(new THREE.HemisphereLight(0xffffff, 0xb8b8c0, 2.4));
+  const key = new THREE.DirectionalLight(0xffffff, 0.9); key.position.set(-4, 8, -10); scene.add(key);
+  const rim = new THREE.DirectionalLight(0xffffff, 0.3); rim.position.set(6, 4, 10); scene.add(rim);
   const model = build(s.parts); scene.add(model);
   const box = new THREE.Box3().setFromObject(model); const ctr = box.getCenter(new THREE.Vector3());
   const h = Math.max(box.max.y - box.min.y, (box.max.x - box.min.x) * TH / TW, 6) * 0.56;
-  const floor = new THREE.Mesh(new THREE.CircleGeometry(3, 32), new THREE.MeshStandardMaterial({ color: 0x2b2f38 })); floor.rotation.x = -Math.PI / 2; floor.position.y = -3.01; scene.add(floor);
+  const floor = new THREE.Mesh(new THREE.CircleGeometry(3, 32), new THREE.MeshBasicMaterial({ color: 0xd8d4c8 })); floor.rotation.x = -Math.PI / 2; floor.position.y = -3.01; scene.add(floor);
   views.forEach((deg, k) => {
     const cam = new THREE.OrthographicCamera(-h * TW / TH, h * TW / TH, h, -h, 0.1, 100);
     const a = deg * Math.PI / 180;
     cam.position.set(ctr.x - Math.sin(a) * 30, ctr.y + 3, ctr.z - Math.cos(a) * 30); cam.lookAt(ctr);
-    renderer.render(scene, cam);
     const col = (i % perRow) * views.length + k, row = Math.floor(i / perRow);
-    g2.drawImage(renderer.domElement, col * TW, row * TH);
+    // silhouette mask -> dilate -> black ink outline under the shaded render (like a Roblox Highlight outline)
+    floor.visible = false; scene.overrideMaterial = inkMat; renderer.setClearColor(0x000000, 0); renderer.render(scene, cam);
+    mg.clearRect(0, 0, TW, TH); mg.drawImage(renderer.domElement, 0, 0);
+    scene.overrideMaterial = null; floor.visible = true; renderer.render(scene, cam);
+    tg.clearRect(0, 0, TW, TH); tg.drawImage(renderer.domElement, 0, 0);
+    g2.fillStyle = '#e9e6dc'; g2.fillRect(col * TW, row * TH, TW, TH);
+    for (let a = 0; a < 16; a++) g2.drawImage(msk, col * TW + Math.cos(a / 8 * Math.PI) * INK, row * TH + Math.sin(a / 8 * Math.PI) * INK);
+    g2.drawImage(tmp, col * TW, row * TH);
   });
-  g2.fillStyle = '#fff'; g2.font = 'bold 15px sans-serif';
+  g2.fillStyle = '#111'; g2.font = 'bold 15px sans-serif';
   g2.fillText(`${s.name}  (${s.rarity})`, (i % perRow) * views.length * TW + 8, Math.floor(i / perRow) * TH + 20);
 });
 document.title = 'done';

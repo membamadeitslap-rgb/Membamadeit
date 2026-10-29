@@ -51,6 +51,7 @@ function M.Build(heroId, rarity, extra)
 	line("$" .. Rarity.Format(tier.Income) .. "/s", 34, 14, Color3.fromRGB(90, 255, 110))
 	if extra then line(extra, 52, 16, Color3.fromRGB(255, 220, 80)).Name = "Extra" end
 	bb.Parent = m.Head
+	require(RS.Shared.Toon).Apply(m)
 	return m
 end
 return M

@@ -18,7 +18,8 @@ end
 local function solid(parent, props) local p = part(parent, props); p.CanCollide = true; return p end
 
 local function lighting()
-	Lighting.ClockTime = 0; Lighting.Brightness = 2; Lighting.GlobalShadows = true; Lighting.ExposureCompensation = 0.25
+	Lighting.ClockTime = 0; Lighting.Brightness = 2; Lighting.GlobalShadows = true; Lighting.EnvironmentSpecularScale = 0; Lighting.EnvironmentDiffuseScale = 0.2; -- matte, flat-shaded ink look
+	 Lighting.ExposureCompensation = 0.25
 	Lighting.Ambient = C(105, 100, 140); Lighting.OutdoorAmbient = C(125, 120, 170) -- bright enough to read characters at night
 	Lighting.FogColor = C(40, 30, 90); Lighting.FogStart = 120; Lighting.FogEnd = 900
 	for _, x in Lighting:GetChildren() do if x:IsA("PostEffect") or x:IsA("Atmosphere") or x:IsA("Sky") then x:Destroy() end end

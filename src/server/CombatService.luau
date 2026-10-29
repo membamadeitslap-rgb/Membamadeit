@@ -44,6 +44,7 @@ function Combat.SetupCharacter(player, heroId, rarity)
 	hum.MaxHealth = Config.MaxHealth; hum.Health = Config.MaxHealth
 	hum.BreakJointsOnDeath = false
 	for hand, id in (Heroes[heroId] and Heroes[heroId].Weapons or {}) do Weapons.Attach(char, id, hand) end
+	require(RS.Shared.Toon).Apply(char, heroId == nil)
 	state[player] = { combo = 0, lastM1 = 0, recoverUntil = 0, cds = {}, counterUntil = 0, blockAt = 0, sidestepUntil = 0, hits = 0, lastHit = 0, sprint = false, lastMove = 0 }
 end
 
