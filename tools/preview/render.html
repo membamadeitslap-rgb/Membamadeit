@@ -125,7 +125,7 @@ scenes.forEach((s, i) => {
     const ring = (r) => { for (let a = 0; a < 24; a++) g2.drawImage(msk, col * TW + Math.cos(a / 12 * Math.PI) * r, row * TH + Math.sin(a / 12 * Math.PI) * r); };
     if (PAPERB) { // paper cutout: thin dark edge around a thick white paper border
       ring(4); mg.globalCompositeOperation = 'source-in'; mg.fillStyle = '#fff'; mg.fillRect(0, 0, TW, TH); mg.globalCompositeOperation = 'source-over'; ring(3); // ~Highlight outline width
-    } else ring(INK);
+    } else if (new URLSearchParams(location.search).get('style') !== 'none') ring(INK);
     g2.drawImage(tmp, col * TW, row * TH);
   });
   g2.fillStyle = '#111'; g2.font = 'bold 15px sans-serif';

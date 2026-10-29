@@ -17,6 +17,7 @@ end
 local Rarity = require(script.Parent.Rarity)
 local Costume = require(script.Parent.Costume)
 local Body = require(script.Parent.Body)
+local PaperDoll = require(script.Parent.PaperDoll)
 function S.Get(heroId, rarity)
 	return S.Data[heroId] and S.Data[heroId][rarity] or S.Data[heroId] and S.Data[heroId].Common
 end
@@ -33,7 +34,12 @@ function S.Apply(model, heroId, rarity)
 			p:Destroy() -- skins replace the player's clothing
 		end
 	end
-	Costume.Apply(model, heroId, skin, rarity) -- capes, cowls, helmets, emblems, per-part colors
+	local paper = script.Parent:FindFirstChild("PaperDesigns") and script.Parent.PaperDesigns:FindFirstChild(heroId)
+	if paper then
+		PaperDoll.Build(model, require(paper), skin, rarity) -- Paper Mario style: drawn cards on the skeleton
+	else
+		Costume.Apply(model, heroId, skin, rarity) -- capes, cowls, helmets, emblems, per-part colors
+	end
 	local head = model:FindFirstChild("Head")
 	local face = head and head:FindFirstChild("face")
 	if face then face:Destroy() end -- every hero has a built face or mask now
