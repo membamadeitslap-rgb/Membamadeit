@@ -29,7 +29,12 @@ function Combat.SetupCharacter(player, heroId, rarity)
 	local char = player.Character
 	char:SetAttribute("Hero", heroId)
 	char:SetAttribute("Rarity", rarity)
-	if heroId then Skins.Apply(char, heroId, rarity or "Common") end
+	if heroId then
+		-- Reset the player's own avatar (body packages, scales, accessories) to the plain R15 base the hero bodies are built on
+		local h = char:FindFirstChildOfClass("Humanoid")
+		if h and h.RigType == Enum.HumanoidRigType.R15 then pcall(function() h:ApplyDescription(Instance.new("HumanoidDescription")) end) end
+		Skins.Apply(char, heroId, rarity or "Common")
+	end
 	char:SetAttribute("Stamina", Config.MaxStamina)
 	char:SetAttribute("Ult", 0)
 	char:SetAttribute("Blocking", false)
