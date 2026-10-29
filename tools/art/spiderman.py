@@ -73,7 +73,7 @@ def head(front):
             f'<stop offset="0.55" stop-color="{RED}"/><stop offset="1" stop-color="{RED_D}"/></radialGradient>'
             '<linearGradient id="gLens" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#cfd8e6"/></linearGradient>')
     if front:
-        w = web(200, 300, 16, [40, 78, 118, 160, 204, 250], 330, bend=0.05, a0=-math.pi / 2, width=2.4, squash=1.08)
+        w = web(200, 290, 16, [40, 78, 118, 160, 204, 250], 330, bend=0.05, a0=-math.pi / 2, width=2.4, squash=1.08)
         detail = "".join(lens(s) for s in (-1, 1))
     else:
         w = web(200, 150, 16, [36, 74, 114, 156, 200, 248, 296], 380, bend=0.05, a0=-math.pi / 2, width=2.4, squash=1.15)
@@ -111,26 +111,31 @@ def narrow(path, k=0.8, cx=200):
 TORSO, CHEST, BELT = narrow(TORSO), narrow(CHEST), narrow(BELT)
 
 
-def spider(cx, cy, s):
+def spider(cx, cy, s, fill=None):
+    """Spider emblem. fill=None: solid black (chest); fill=color: that color with a black outline (classic back spider)."""
     legs = [
         [(8, -30), (60, -70), (128, -96)], [(10, -18), (78, -34), (150, -30)],
         [(10, 8), (80, 30), (130, 92)], [(8, 24), (52, 84), (82, 160)],
     ]
-    out = []
-    for sx in (-1, 1):
-        for L in legs:
-            pts = [(cx + sx * x * s, cy + y * s) for x, y in L]
-            out.append(f'<path d="M{pts[0][0]:.1f} {pts[0][1]:.1f}Q{pts[1][0]:.1f} {pts[1][1]:.1f} {pts[2][0]:.1f} {pts[2][1]:.1f}" '
-                       f'fill="none" stroke="{INK}" stroke-width="{7 * s:.1f}" stroke-linecap="round"/>')
-    out.append(f'<ellipse cx="{cx}" cy="{cy - 22 * s:.1f}" rx="{14 * s:.1f}" ry="{18 * s:.1f}" fill="{INK}"/>')
-    out.append(f'<path d="M{cx} {cy - 8 * s:.1f} C{cx + 24 * s:.1f} {cy:.1f} {cx + 22 * s:.1f} {cy + 56 * s:.1f} {cx} {cy + 74 * s:.1f} '
-               f'C{cx - 22 * s:.1f} {cy + 56 * s:.1f} {cx - 24 * s:.1f} {cy:.1f} {cx} {cy - 8 * s:.1f} Z" fill="{INK}"/>')
-    return "".join(out)
+    def shapes(col, grow):
+        out = []
+        for sx in (-1, 1):
+            for L in legs:
+                pts = [(cx + sx * x * s, cy + y * s) for x, y in L]
+                out.append(f'<path d="M{pts[0][0]:.1f} {pts[0][1]:.1f}Q{pts[1][0]:.1f} {pts[1][1]:.1f} {pts[2][0]:.1f} {pts[2][1]:.1f}" '
+                           f'fill="none" stroke="{col}" stroke-width="{7 * s + grow:.1f}" stroke-linecap="round"/>')
+        out.append(f'<ellipse cx="{cx}" cy="{cy - 22 * s:.1f}" rx="{14 * s + grow / 2:.1f}" ry="{18 * s + grow / 2:.1f}" fill="{col}"/>')
+        out.append(f'<path d="M{cx} {cy - 8 * s:.1f} C{cx + 24 * s:.1f} {cy:.1f} {cx + 22 * s:.1f} {cy + 56 * s:.1f} {cx} {cy + 74 * s:.1f} '
+                   f'C{cx - 22 * s:.1f} {cy + 56 * s:.1f} {cx - 24 * s:.1f} {cy:.1f} {cx} {cy - 8 * s:.1f} Z" fill="{col}" stroke="{col}" stroke-width="{grow:.1f}"/>')
+        return "".join(out)
+    if fill is None:
+        return shapes(INK, 0)
+    return shapes(INK, 8) + shapes(fill, 0)
 
 
 def torso(front):
     defs = (f'<clipPath id="cc"><path d="{CHEST}"/></clipPath><clipPath id="bc"><path d="{BELT}"/></clipPath><clipPath id="tc"><path d="{TORSO}"/></clipPath>')
-    cy = 118 if front else 130
+    cy = 150 if front else 168  # the web radiates from the spider
     w = web(200, cy, 14, [34, 68, 104, 142, 182, 224], 300, bend=0.05, a0=-math.pi / 2, width=2.2, squash=1.0)
     belt_web = "".join(f'<path d="M{200 + (110 + i * 23 - 200) * 0.8:.1f} 352 L{200 + (108 + i * 23.5 - 200) * 0.8:.1f} 440" stroke="{INK}" stroke-width="2.2"/>' for i in range(9)) + \
         f'<path d="M100 396 C170 404 230 404 300 396" fill="none" stroke="{INK}" stroke-width="2.2"/>'
@@ -144,7 +149,7 @@ def torso(front):
                   f'<path d="{CHEST}" fill="url(#gRed)" stroke="{INK}" stroke-width="5"/>'
                   f'<g clip-path="url(#cc)">{w}<path d="{narrow("M290 60 C320 120 280 200 240 260 L232 312 L250 312 C262 240 330 150 300 60 Z")}" fill="{RED_D}" opacity="0.4"/></g>'
                   f'<path d="{BELT}" fill="url(#gRed)" stroke="{INK}" stroke-width="5"/><g clip-path="url(#bc)">{belt_web}</g>'
-                  + muscles + '<g clip-path="url(#tc)">' + spider(200, 150 if front else 168, 0.85 if front else 1.25) + '</g>' +
+                  + muscles + '<g clip-path="url(#tc)">' + spider(200, 150 if front else 168, 0.85 if front else 1.25, None if front else RED_L) + '</g>' +
                   f'<path d="{TORSO}" fill="none" stroke="{INK}" stroke-width="10" stroke-linejoin="round"/>')
     return svg(400, 480, body, defs)
 
@@ -168,13 +173,14 @@ def grid_lines(x0, x1, y0, y1, cols, rows, curve=8):
 
 def arm():
     defs = (f'<clipPath id="ac"><path d="{ARM}"/></clipPath>')
-    red_low = f'<rect x="0" y="256" width="160" height="330" fill="url(#gRed)"/>'
     cap = f'<path d="M0 0 H160 V96 C120 108 40 108 0 96 Z" fill="url(#gRed)"/>'
     body = cutout(ARM, "url(#gBlue)", ink=8, extra=
                   f'<g clip-path="url(#ac)">'
                   f'<path d="M100 60 C122 110 122 170 112 214 L96 214 C106 170 108 110 100 60 Z" fill="{BLUE_D}" opacity="0.5"/>'
                   f'{cap}<path d="M0 96 C40 108 120 108 160 96" fill="none" stroke="{INK}" stroke-width="5"/>'
-                  f'{red_low}<path d="M0 256 C40 266 120 266 160 256" fill="none" stroke="{INK}" stroke-width="5"/>'
+                  f'<path d="M24 90 L58 98 C56 150 54 200 56 262 L24 262 Z" fill="url(#gRed)"/><path d="M58 98 C56 150 54 200 56 262" fill="none" stroke="{INK}" stroke-width="4"/>'
+                  f'<path d="M0 270 C40 262 64 250 82 240 C100 250 124 262 160 270 L160 600 L0 600 Z" fill="url(#gRed)"/>'
+                  f'<path d="M0 270 C40 262 64 250 82 240 C100 250 124 262 160 270" fill="none" stroke="{INK}" stroke-width="5"/>'
                   f'{grid_lines(30, 134, 260, 470, 4, 8, 6)}{grid_lines(30, 134, 10, 100, 4, 3, 6)}'
                   f'<path d="M98 270 C112 330 108 400 100 462 L116 462 C124 400 126 330 116 270 Z" fill="{RED_D}" opacity="0.45"/>'
                   f'<path d="M96 476 C112 490 116 520 108 552 L124 540 C132 510 126 486 110 470 Z" fill="{RED_D}" opacity="0.5"/>'
@@ -198,8 +204,8 @@ def leg():
     body = cutout(LEG, "url(#gBlue)", ink=8, extra=
                   f'<g clip-path="url(#lc)">'
                   f'<path d="M118 30 C146 100 146 200 134 290 L112 292 C124 200 126 100 118 30 Z" fill="{BLUE_D}" opacity="0.5"/>'
-                  f'<rect x="0" y="300" width="180" height="320" fill="url(#gRed)"/>'
-                  f'<path d="M0 300 C50 312 130 312 180 300" fill="none" stroke="{INK}" stroke-width="5"/>'
+                  f'<path d="M0 334 C40 326 70 306 90 290 C110 306 140 326 180 334 L180 630 L0 630 Z" fill="url(#gRed)"/>'
+                  f'<path d="M0 334 C40 326 70 306 90 290 C110 306 140 326 180 334" fill="none" stroke="{INK}" stroke-width="5"/>'
                   f'{grid_lines(26, 156, 304, 560, 4, 9, 7)}'
                   f'<path d="M112 330 C134 400 128 470 116 520 L132 520 C148 460 152 400 134 330 Z" fill="{RED_D}" opacity="0.45"/>'
                   f'<path d="M20 586 L160 586 L160 620 L20 620 Z" fill="{BLUE}"/><path d="M20 586 L160 586" stroke="{INK}" stroke-width="4"/>'
