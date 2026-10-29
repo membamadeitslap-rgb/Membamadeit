@@ -34,12 +34,15 @@ return function(skin, rarity, K)
 	local function draw(part, face, f)
 		local back = face == "Back"
 		if part == "Head" then
-			K.union(f, { { 0.5, 0.44, 0.86, 0.8, 0.5 }, { 0.5, 0.66, 0.64, 0.5, 0.5 } }, red, { ink = 0.03 })
-			K.web(f, 0.5, back and 0.4 or 0.55, 0.36, 10, 3, 0.012)
+			-- head: round cranium, cheeks tapering to a narrow chin, short neck
+			K.union(f, { { 0.5, 0.36, 0.84, 0.62, 0.5 }, { 0.5, 0.56, 0.74, 0.42, 0.45 }, { 0.5, 0.72, 0.52, 0.3, 0.5 }, { 0.5, 0.9, 0.3, 0.2, 0.3 } }, red, { ink = 0.028 })
+			K.web(f, 0.5, back and 0.42 or 0.5, back and 0.3 or 0.33, 12, 4, 0.0075, (f.h / f.w) * 0.82) -- kept inside the head shape
 			if not back then
-				for _, x in { -1, 1 } do -- big angular lenses, wide thick frames
-					f:Box(0.5 + x * 0.21, 0.47, 0.42, 0.3, INK, { round = 0.35, rot = x * -26, z = 80 })
-					f:Box(0.5 + x * 0.2, 0.475, 0.3, 0.18, white, { round = 0.35, rot = x * -26, z = 81 })
+				for _, x in { -1, 1 } do -- Ultimate lenses: big, angled up and out, thick black frames
+					local cx = 0.5 + x * 0.19
+					f:Box(cx, 0.46, 0.38, 0.27, INK, { round = 0.3, rot = x * -30, z = 500 })
+					f:Box(cx + x * 0.006, 0.462, 0.27, 0.165, white, { round = 0.3, rot = x * -30, z = 501 })
+					f:Box(cx + x * 0.06, 0.43, 0.08, 0.03, Color3.fromRGB(255, 255, 255), { round = 0.5, rot = x * -30, z = 502 })
 				end
 			end
 		elseif part == "UpperTorso" then
@@ -71,7 +74,7 @@ return function(skin, rarity, K)
 	end
 	return {
 		cards = { -- w/h in studs, or sw/sh = multiples of the body part's size (follows the skeleton's proportions)
-			Head = { w = 1.6, h = 1.9, y = 0.3 },
+			Head = { w = 1.55, h = 2.05, y = 0.2 },
 			UpperTorso = { sw = 1.08, sh = 1.2, y = 0.02 },
 			LowerTorso = { sw = 0.8, sh = 1.6, z = 0.012 }, -- belt tucks behind the torso
 			LeftUpperArm = { sw = 1.4, sh = 1.35 }, RightUpperArm = { sw = 1.4, sh = 1.35 },

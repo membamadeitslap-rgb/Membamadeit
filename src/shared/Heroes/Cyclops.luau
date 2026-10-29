@@ -1,5 +1,5 @@
 return {
-	Build = { "Lean", { muscle = 0.8 } }, -- body preset + overrides (see Body.luau)
+	Build = { "Lean", { tall = 1.12, shoulders = 1.05, chest = 0.9, waist = 0.7, hips = 0.8, arm = { 0.6, 1.2 }, leg = { 0.66, 1.5 }, head = 1.0, muscle = 0.8 } }, -- body preset + overrides (see Body.luau)
 	Name = "Cyclops", Faction = "Marvel", Role = "Hero", Color = Color3.fromRGB(30, 60, 170),
 	Abilities = {
 		{ Name = "Optic Blast", Kind = "Beam", From = "Eyes", Element = "Optic", Cooldown = 2.8, Damage = 9, Distance = 60, Width = 1.2, Duration = 0.35, Stun = 0.5, Knockback = 20 },
