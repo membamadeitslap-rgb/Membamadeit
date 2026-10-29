@@ -78,8 +78,24 @@ function Kit.union(f, shapes, color, opt)
 		end
 	end
 end
+-- Cel shading: a darker inset copy of the same shapes pushed toward the shadow side (light from the upper left).
+function Kit.shade(f, shapes, color, opt)
+	opt = opt or {}
+	local dark = color:Lerp(INK, opt.amount or 0.22)
+	local k = opt.inset or 0.62
+	for _, s in shapes do
+		f:Box(s[1] + s[3] * (1 - k) * 0.36, s[2] + s[4] * 0.04, s[3] * k, s[4] * 0.9, dark, { round = s[5] or 0.3, rot = s[6], z = opt.z or 10 })
+	end
+	-- light rim on the lit edge
+	for _, s in shapes do
+		f:Box(s[1] - s[3] * 0.32, s[2] - s[4] * 0.05, s[3] * 0.1, s[4] * 0.6, color:Lerp(Color3.new(1, 1, 1), 0.25), { round = 0.5, rot = s[6], z = (opt.z or 10) + 1 })
+	end
+end
 function PaperDoll.Has(designs, heroId) return designs and designs:FindFirstChild(heroId) ~= nil end
 
+-- Card spec fields: w/h (studs) or sw/sh (multiples of the part size), x/y/z offsets, skip = true (no card),
+-- span = { "PartA", "PartB", ... }: one card covering a whole chain hung from this part (a full arm drawn as one
+-- piece from shoulder to fist), height = the chain's total length * (sh or 1.06), top aligned with this part's top.
 function PaperDoll.Build(model, design, skin, rarity)
 	local d = design(skin, rarity, Kit)
 	for _, n in PARTS do
@@ -88,16 +104,24 @@ function PaperDoll.Build(model, design, skin, rarity)
 			p.Transparency = 1
 			local face = p:FindFirstChild("face"); if face then face:Destroy() end
 			local spec = d.cards[n] or {}
-			local w, h = spec.w or p.Size.X * (spec.sw or 1.15), spec.h or p.Size.Y * (spec.sh or 1.3) -- cards overlap at the joints so the doll reads as one piece
-			local card = Instance.new("Part"); card.Name = "Paper_" .. n
-			card.Size = Vector3.new(w, h, 0.04); card.Transparency = 1
-			card.CanCollide = false; card.CanQuery = false; card.CanTouch = false; card.Massless = true; card.CastShadow = false
-			card.Anchored = p.Anchored
-			card.CFrame = p.CFrame * CFrame.new(spec.x or 0, spec.y or 0, spec.z or LAYER[n] or 0)
-			local wc = Instance.new("WeldConstraint"); wc.Part0 = p; wc.Part1 = card; wc.Parent = card
-			card.Parent = model
-			for _, faceName in { "Front", "Back" } do
-				d.draw(n, faceName, Paint.Face(card, faceName), Kit)
+			if not spec.skip then
+				local w, h, y = spec.w or p.Size.X * (spec.sw or 1.15), spec.h or p.Size.Y * (spec.sh or 1.3), spec.y or 0
+				if spec.span then
+					local total = 0
+					for _, sn in spec.span do local sp = model:FindFirstChild(sn); if sp then total += sp.Size.Y end end
+					h = total * (spec.sh or 1.06)
+					y = p.Size.Y / 2 - h / 2 + (spec.y or 0) + total * 0.03
+				end
+				local card = Instance.new("Part"); card.Name = "Paper_" .. n
+				card.Size = Vector3.new(w, h, 0.04); card.Transparency = 1
+				card.CanCollide = false; card.CanQuery = false; card.CanTouch = false; card.Massless = true; card.CastShadow = false
+				card.Anchored = p.Anchored
+				card.CFrame = p.CFrame * CFrame.new(spec.x or 0, y, spec.z or LAYER[n] or 0)
+				local wc = Instance.new("WeldConstraint"); wc.Part0 = p; wc.Part1 = card; wc.Parent = card
+				card.Parent = model
+				for _, faceName in { "Front", "Back" } do
+					d.draw(n, faceName, Paint.Face(card, faceName), Kit)
+				end
 			end
 		end
 	end
