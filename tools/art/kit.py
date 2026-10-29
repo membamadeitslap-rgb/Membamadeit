@@ -71,25 +71,34 @@ for (const f of JSON.parse(process.argv[2])) {
     os.remove(jp)
 
 
+# Puppet proportions (action-game hero, ~7.5 heads tall): compact trunk, long legs, arms to mid-thigh.
+# The same numbers size the in-game paper cards.
+PROP = {"head_w": 190, "torso_w": 370, "arm_w": 118, "arm_stretch": 1.15, "leg_w": 140, "leg_stretch": 1.25, "cape_w": 450}
+
+
 def assemble(outdir, out_png, title=""):
     """Front + back preview of the six pieces (+ Cape if present) laid out like the in-game puppet."""
     from PIL import Image
+    P = PROP
     def ld(k):
         p = os.path.join(outdir, k + ".png")
         return Image.open(p).convert("RGBA") if os.path.exists(p) else None
-    def sc(img, w): return img.resize((w, int(img.height * w / img.width)), Image.LANCZOS)
+    def sc(img, w, stretch=1.0): return img.resize((w, int(img.height * w / img.width * stretch)), Image.LANCZOS)
     arm, leg, cape = ld("Arm"), ld("Leg"), ld("Cape")
+    cx = 450
     def puppet(head, torso, back):
         c = Image.new("RGBA", (900, 1400), (234, 231, 222, 255))
-        if cape and not back: c.alpha_composite(sc(cape, 520), (190, 250))
-        L = sc(leg, 150)
-        for x in (305, 445): c.alpha_composite(L, (x, 760))
-        c.alpha_composite(sc(torso, 440), (230, 290))
-        A = sc(arm, 138)
-        for x, flip in ((150, False), (612, True)):
-            c.alpha_composite(A.transpose(Image.FLIP_LEFT_RIGHT) if flip else A, (x, 300))
-        if cape and back: c.alpha_composite(sc(cape, 520), (190, 250))
-        c.alpha_composite(sc(head, 200), (350, 92))
+        T = sc(torso, P["torso_w"]); Hd = sc(head, P["head_w"]); A = sc(arm, P["arm_w"], P["arm_stretch"]); L = sc(leg, P["leg_w"], P["leg_stretch"])
+        ty = 70 + int(Hd.height * 0.84)  # neck tucks under the jaw
+        C = sc(cape, P["cape_w"]) if cape else None
+        if C and not back: c.alpha_composite(C, (cx - C.width // 2, ty - 10))
+        for x in (cx - 8 - L.width, cx + 8): c.alpha_composite(L, (x, ty + int(T.height * 0.86)))
+        c.alpha_composite(T, (cx - T.width // 2, ty))
+        sh = int(T.width * 0.36)  # shoulder joints
+        for x, flip in ((cx - sh - A.width + 26, False), (cx + sh - 26, True)):
+            c.alpha_composite(A.transpose(Image.FLIP_LEFT_RIGHT) if flip else A, (x, ty + 8))
+        if C and back: c.alpha_composite(C, (cx - C.width // 2, ty - 10))
+        c.alpha_composite(Hd, (cx - Hd.width // 2, 70))
         return c
     o = Image.new("RGBA", (1800, 1400))
     o.paste(puppet(ld("Head_Front"), ld("Torso_Front"), False), (0, 0))
