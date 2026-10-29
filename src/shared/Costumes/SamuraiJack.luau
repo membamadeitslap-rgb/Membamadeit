@@ -96,7 +96,7 @@ return function(s, H, rarity)
 		eband(m, w, "SkirtHem", sz.X * 1.14, sz.Z * 1.27, 0.06, CF(0, -sz.Y * 0.4 - len + 0.03, 0), fold, FAB)
 		piece(m, w, "SkirtSlit", V(0.03, len * 0.9, 0.04), CF(sz.X * 0.08, -sz.Y * 0.4 - len * 0.55, -sz.Z * 0.63), fold, FAB)
 		-- saya: long black lacquered scabbard angled back off the left hip
-		local saya = piece(m, w, "Saya", V(0.16, 3.3, 0.24), CF(-sz.X * 0.56, sz.Y * 0.2 - 0.3, 0.35) * CFrame.Angles(math.rad(-68), 0, math.rad(6)), C(30, 26, 26), Enum.Material.SmoothPlastic)
+		local saya = piece(m, w, "Saya", V(0.16, 3.3, 0.24), CF(-sz.X * 0.58, sz.Y * 0.2 - 0.45, 0.85) * CFrame.Angles(math.rad(-62), 0, math.rad(6)), C(30, 26, 26), Enum.Material.SmoothPlastic)
 		piece(m, saya, "Koiguchi", V(0.2, 0.12, 0.28), CF(0, 1.6, 0), C(205, 165, 60), Enum.Material.Metal)
 		piece(m, saya, "Kojiri", V(0.2, 0.14, 0.28), CF(0, -1.6, 0), C(205, 165, 60), Enum.Material.Metal)
 	end)

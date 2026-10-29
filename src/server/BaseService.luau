@@ -39,7 +39,7 @@ function Base.Render(p)
 		local m = HeroModel.Build(entry.H, entry.R)
 		m.Name = "Hero"
 		m:PivotTo(CFrame.new(ped.Position + Vector3.new(0, 3.6, 0)) * (plot.CFrame - plot.CFrame.Position)) -- face the entrance
-		if stolen then for _, x in m:GetDescendants() do if x:IsA("BasePart") then x.Transparency = 0.8 end end end
+		if stolen then for _, x in m:GetDescendants() do if x:IsA("BasePart") and x.Transparency < 1 then x.Transparency = 0.8 end -- keep hidden body boxes hidden end end
 		local prompt = Instance.new("ProximityPrompt")
 		prompt.ActionText = "Steal"; prompt.ObjectText = Skins.Get(entry.H, entry.R).Name
 		prompt.HoldDuration = 1.5; prompt.MaxActivationDistance = 9; prompt.RequiresLineOfSight = false
