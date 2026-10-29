@@ -52,8 +52,14 @@ local function runDuel(a, b, picks)
 			task.wait(0.1)
 			local ha = a.Character and a.Character:FindFirstChildOfClass("Humanoid")
 			local hb = b.Character and b.Character:FindFirstChildOfClass("Humanoid")
+			local floor = arena.Center.Y - Config.RingOutDepth
+			local ya = a.Character and a.Character:FindFirstChild("HumanoidRootPart") and a.Character.HumanoidRootPart.Position.Y or floor + 1
+			local yb = b.Character and b.Character:FindFirstChild("HumanoidRootPart") and b.Character.HumanoidRootPart.Position.Y or floor + 1
 			if not a.Parent or not ha or ha.Health <= 0 then winner = b
 			elseif not b.Parent or not hb or hb.Health <= 0 then winner = a
+			elseif ya < floor or yb < floor then -- knocked off the stage
+				winner = ya < floor and b or a
+				Net.Fx:FireAllClients("RingOut", { loser = (winner == a and b or a).DisplayName })
 			elseif os.clock() - t0 > Config.RoundTime then winner = ha.Health >= hb.Health and a or b end
 		end
 		wins[winner] += 1

@@ -1,5 +1,5 @@
 return {
-	Name = "Captain America", Faction = "Marvel", Role = "Hero", Color = Color3.fromRGB(30, 60, 150),
+	Name = "Captain America", Faction = "Marvel", Role = "Hero", Style = "Fists", Color = Color3.fromRGB(30, 60, 150),
 	Weapons = { Left = "CapShield" },
 	Abilities = {
 		{ Name = "Shield Throw", Kind = "Projectile", Cooldown = 3.5, Damage = 9, Speed = 120, Stun = 0.6, Visual = "CapShield", Returns = true },

@@ -49,11 +49,11 @@ function A.BuildArena(root, c, t)
 		CFrame = CFrame.new(c) * CFrame.Angles(0, 0, math.rad(90)), Color = t.Floor, Material = t.FloorMat, Parent = root })
 	for i = 0, 35 do
 		local a = math.rad(i * 10)
-		local pos = c + Vector3.new(math.cos(a) * 54, 3, math.sin(a) * 54)
-		local cf = CFrame.lookAt(pos, c + Vector3.new(0, 3, 0))
-		part({ Size = Vector3.new(10, 1, 0.6), CFrame = cf + Vector3.new(0, 1.5, 0), Color = t.Rail, Material = t.RailMat, Parent = root })
-		part({ Size = Vector3.new(0.8, 4, 0.8), CFrame = cf, Color = t.Rail, Material = t.RailMat, Parent = root })
-		part({ Size = Vector3.new(10, 30, 1), CFrame = cf + Vector3.new(0, 12, 0), Transparency = 1, Parent = root })
+		-- knee-high rail: stops casual walk-offs, but finishers launch fighters over it (ring out)
+		local pos = c + Vector3.new(math.cos(a) * 54, 2, math.sin(a) * 54)
+		local cf = CFrame.lookAt(pos, c + Vector3.new(0, 2, 0))
+		part({ Size = Vector3.new(10, 0.6, 0.6), CFrame = cf + Vector3.new(0, 0.9, 0), Color = t.Rail, Material = t.RailMat, Parent = root })
+		part({ Size = Vector3.new(0.8, 2, 0.8), CFrame = cf, Color = t.Rail, Material = t.RailMat, Parent = root })
 	end
 	t.Props(root, c)
 end

@@ -1,5 +1,5 @@
 return {
-	Name = "Wonder Woman", Faction = "DC", Role = "Hero", Color = Color3.fromRGB(180, 30, 40),
+	Name = "Wonder Woman", Faction = "DC", Role = "Hero", Style = "Blade", Color = Color3.fromRGB(180, 30, 40),
 	Weapons = { Right = "GodKillerSword", Left = "AmazonShield" },
 	Abilities = {
 		{ Name = "Lasso of Truth", Kind = "Grab", Cooldown = 7, Damage = 6, Distance = 40, Stun = 1.2 },

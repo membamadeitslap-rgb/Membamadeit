@@ -1,5 +1,5 @@
 return {
-	Name = "Loki", Faction = "Marvel", Role = "Villain", Color = Color3.fromRGB(30, 120, 60),
+	Name = "Loki", Faction = "Marvel", Role = "Villain", Style = "Staff", Color = Color3.fromRGB(30, 120, 60),
 	Weapons = { Right = "LokiScepter" },
 	Abilities = {
 		{ Name = "Scepter Bolt", Kind = "Projectile", Cooldown = 3, Damage = 8, Speed = 130, Stun = 0.5 },

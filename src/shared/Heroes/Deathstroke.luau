@@ -1,5 +1,5 @@
 return {
-	Name = "Deathstroke", Faction = "DC", Role = "Villain", Color = Color3.fromRGB(220, 120, 30),
+	Name = "Deathstroke", Faction = "DC", Role = "Villain", Style = "Blade", Color = Color3.fromRGB(220, 120, 30),
 	Weapons = { Right = "DeathstrokeKatana", Left = "DeathstrokeStaff" },
 	Abilities = {
 		{ Name = "Katana Dash", Kind = "Leap", Cooldown = 5, Damage = 10, Distance = 36, Knockback = 35 },

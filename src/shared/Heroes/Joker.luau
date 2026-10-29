@@ -1,5 +1,5 @@
 return {
-	Name = "Joker", Faction = "DC", Role = "Villain", Color = Color3.fromRGB(100, 40, 140),
+	Name = "Joker", Faction = "DC", Role = "Villain", Style = "Heavy", Color = Color3.fromRGB(100, 40, 140),
 	Weapons = { Right = "JokerCrowbar" },
 	Abilities = {
 		{ Name = "Joker Card", Kind = "Projectile", Cooldown = 3, Damage = 6, Speed = 150, Stun = 0.4 },

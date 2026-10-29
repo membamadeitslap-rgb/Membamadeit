@@ -3,7 +3,7 @@
 Read this first. Update the "Status" and "Next up" sections before you stop.
 
 ## What it is
-A Roblox game that mixes Steal a Brainrot with Dueling Grounds, using Marvel and DC characters.
+A Roblox game that mixes Steal a Brainrot with a Soul Calibur style 3D weapon fighter, using Marvel, DC, Cartoon Network and Nickelodeon characters.
 - **Base world:** a convoy of trucks drives down a road. Each truck carries a random hero variant whose rarity is rolled by weight. Buy it with cash and it walks to your base and stands on a pedestal (10 slots). Heroes earn $/s by rarity.
 - **Stealing:** hold E on another player's pedestal hero (when their base isn't locked). It floats over your head, you're slowed, and you must run into your own base to keep it. Getting slapped (M1 in the lobby does knockback only) makes you drop it. Owners step on the lock pad for a 60s laser door (15s cooldown).
 - **Fight mode:** the FIGHT button queues you. Two players get paired and see a Mortal Kombat vs DC style select screen (big P1/P2 portraits, VS, roster grid of your own base heroes, lock-in reveal), then a best-of-3 duel in a random themed arena.
@@ -32,11 +32,24 @@ A Roblox game that mixes Steal a Brainrot with Dueling Grounds, using Marvel and
 - `src/server/GothamTheme.luau`: Halloween 90s-animated-Batman art deco night: lighting, deco skyline, convoy gateway, searchlights, Bat-Signal, bats, pumpkins, fog
 - `src/server/ArenaBuilder.luau`: base world (road, 8 plots) and 5 floating duel arenas
 - `src/server/Main.server.luau`: bootstrap (Base.Start must run before Data.Start)
-- `src/client/Input.client.luau`: LMB M1, hold F block, Q dash, 1-4 abilities, G ult
-- `src/client/Fx.client.luau`: sparks, camera shake, ult red flash, projectile visuals
+- `src/client/Input.client.luau`: LMB Horizontal, RMB Vertical, R Kick, hold F guard (tap = Guard Impact), Q dash (A/D + Q = sidestep), 1-4 abilities, G Critical Edge, T lock-on toggle. Lock-on auto-faces the opponent in duels (8-way run).
+- `src/client/Movement.client.luau`: parkour. Shift sprint, Space in air double jump (flip), hold Space beside a wall to wall-run (release = wall jump), C/Ctrl slide, auto-vault low obstacles (lobby only). Client-simulated; server relays `Move` so others see the anim.
+- `src/client/Fx.client.luau`: routes server events (Swing, Hit, Ability, Projectile, ProjHit, Slam, GuardImpact, Evade, GuardBreak, Counter, Dashed, Move, RingOut) to Anim + VFX
+- `src/shared/Anim.luau`: procedural keyframe animator on R15 Motor6D.C0 (no uploaded animation assets). Pose library `Anim.Moves` per Style (Blade, Dual, Staff, Heavy, Fists) x H/V/K, finishers, abilities (Thrust, Cast, Throw, Grab, Counter, Leap, Slam, Spin, Uppercut, Kick, Flurry), Critical Edge charge, block, hit, launch, parkour poses. R6 rigs are a no-op.
+- `src/shared/VFX.luau`: smear slash arcs, crossed slash marks, black/white impact frames, shockwave rings, crater rocks, speed lines, afterimages, weapon trails, charge orb, Critical Edge banner, combo counter, damage numbers, popups
 - `src/client/HUD.client.luau`: in-duel fighting-game HUD only
 
 State lives as Character attributes: Hero, Stamina, Ult, Blocking, StunUntil, IFrameUntil, InDuel.
+
+## Soul Calibur combat (session 5)
+- M1 is now 3 buttons: H (wide, `Tracks` sidesteps), V (strong, linear, whiffs vs sidestep), K (fast). Tuning in `Config.Attacks`. Each has startup (hit lands after the windup, and getting stunned during startup cancels it) and recovery.
+- 4th hit of a string = finisher: V launches (Up 62, air juggle), H spins for big knockback (ring out), K guard-breaks.
+- Guard Impact: guard pressed within `Config.GuardImpact.Window` before a close hit parries it and stuns the attacker.
+- Sidestep: Q while holding A/D. Verticals and projectiles whiff during `Config.Sidestep.Window`; horizontals connect.
+- Critical Edge: the ultimate now has a `Config.CritEdgeCharge` invulnerable windup with banner + charge orb + impact frames.
+- Ring Out: arenas lost their invisible walls (knee-high rail only). Falling `Config.RingOutDepth` below the arena ends the round.
+- Hero fields: `Style` ("Blade" | "Dual" | "Staff" | "Heavy" | "Fists", default Fists), per ability `Element` (VFX color) and `Anim` (pose name in Anim.Moves).
+- Weapon trails attach to the weapon part named "Blade" (else "Grip"); unarmed heroes trail from the hands/feet.
 
 ## Status
 - DONE (untested in Studio, written blind): structure, combat core, duel loop, HUD, FX.
@@ -58,6 +71,7 @@ State lives as Character attributes: Hero, Stamina, Ult, Blocking, StunUntil, IF
 - DONE (session 4): pivot to the Steal a Brainrot loop (convoy, bases, income, stealing, lock), rarity skins, matchmaking, MK-style select. All files compile with luau-compile.
 
 ## Next up (in order)
+0. Mobile controls (ContextActionService buttons for H/V/K/guard/dash/abilities). Current input is keyboard + mouse only.
 1. Test in Studio with 2 to 3 players. Check: convoy buy, the hero walking home, income, steal plus deliver, drop on slap, lock door, queue to select to duel to back to base. Nobody has run any of it yet.
 2. Sell button on pedestal heroes (refund around 50% of price) so full bases can make room.
 3. Slot upgrades bought with cash (10 -> 15 -> 20), with pedestals added to the plot.

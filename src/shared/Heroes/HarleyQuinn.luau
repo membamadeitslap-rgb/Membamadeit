@@ -1,5 +1,5 @@
 return {
-	Name = "Harley Quinn", Faction = "DC", Role = "Villain", Color = Color3.fromRGB(200, 40, 70),
+	Name = "Harley Quinn", Faction = "DC", Role = "Villain", Style = "Heavy", Color = Color3.fromRGB(200, 40, 70),
 	Weapons = { Right = "HarleyMallet" },
 	Abilities = {
 		{ Name = "Mallet Toss", Kind = "Projectile", Cooldown = 4, Damage = 9, Speed = 100, Stun = 0.7, Visual = "HarleyMallet", Returns = true },
