@@ -1,5 +1,5 @@
 return {
-	Build = { "Armored" }, -- body preset + overrides (see Body.luau)
+	Build = { "Armored", { muscle = 0.38, waist = 0.82, chest = 1.05, shoulders = 1.15 } }, -- body preset + overrides (see Body.luau)
 	Name = "Iron Man", Faction = "Marvel", Role = "Hero", Color = Color3.fromRGB(180, 25, 30),
 	Weapons = { Right = "Repulsor", Left = "Repulsor" },
 	Abilities = {

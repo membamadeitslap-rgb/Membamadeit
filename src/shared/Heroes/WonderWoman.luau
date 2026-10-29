@@ -1,5 +1,5 @@
 return {
-	Build = { "Female", { tall = 1.06, shoulders = 0.98, arm = { 0.64, 1.04 } } }, -- body preset + overrides (see Body.luau)
+	Build = { "Female", { tall = 1.1, shoulders = 1.0, waist = 0.7, arm = { 0.58, 1.04 }, leg = { 0.74, 1.12 }, muscle = 0.45 } }, -- body preset + overrides (see Body.luau)
 	Name = "Wonder Woman", Faction = "DC", Role = "Hero", Style = "Blade", Color = Color3.fromRGB(180, 30, 40),
 	Weapons = { Right = "GodKillerSword", Left = "AmazonShield" },
 	Abilities = {

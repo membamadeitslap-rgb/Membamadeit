@@ -1,5 +1,5 @@
 return {
-	Build = { "Titan" }, -- body preset + overrides (see Body.luau)
+	Build = { "Titan", { head = 1.0, tall = 1.24, waist = 1.05 } }, -- body preset + overrides (see Body.luau)
 	Name = "Darkseid", Faction = "DC", Role = "Villain", Color = Color3.fromRGB(90, 90, 100), WalkSpeed = 14,
 	Abilities = {
 		{ Name = "Omega Beams", Kind = "Projectile", Cooldown = 4, Damage = 12, Speed = 160, Stun = 0.7 },

@@ -1,5 +1,5 @@
 return {
-	Build = { "Hero", { muscle = 0.9 } }, -- body preset + overrides (see Body.luau)
+	Build = { "Hero", { tall = 1.07, head = 0.95, shoulders = 1.18, chest = 1.15, muscle = 1.15, arm = { 0.84, 1.05 }, leg = { 0.86, 1.06 } } }, -- body preset + overrides (see Body.luau)
 	Name = "Deathstroke", Faction = "DC", Role = "Villain", Style = "Blade", Color = Color3.fromRGB(220, 120, 30),
 	Weapons = { Right = "DeathstrokeKatana", Left = "DeathstrokeStaff" },
 	Abilities = {

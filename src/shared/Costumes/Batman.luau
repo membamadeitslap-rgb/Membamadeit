@@ -42,8 +42,9 @@ local function kit(H)
 			end
 		end
 		if o.drape ~= false then -- cloth over the shoulders
+			local d = o.drape or 1
 			for _, x in { -1, 1 } do
-				round(m, t, "CapeDrape", V(s.X * 0.5, s.Y * 0.32, s.Z * 1.08), CF(x * s.X * 0.24, s.Y * 0.42, s.Z * 0.06) * A(0, 0, rad(-x * 14)), color, Enum.Material.Fabric)
+				round(m, t, "CapeDrape", V(s.X * 0.5 * d, s.Y * 0.32 * d, s.Z * 1.08), CF(x * s.X * 0.24, s.Y * 0.42, s.Z * 0.06) * A(0, 0, rad(-x * 14)), color, Enum.Material.Fabric)
 			end
 		end
 		return panels
@@ -60,6 +61,60 @@ local function kit(H)
 			k.flat(m, a, "BatWing", w * 0.16, h * 0.42, 0.05, cf * CF(x * w * 0.3, -h * 0.18, 0) * A(0, 0, math.pi + rad(x * 10)), color, mat)
 			k.flat(m, a, "BatWing", w * 0.16, h * 0.34, 0.05, cf * CF(x * w * 0.14, -h * 0.2, 0) * A(0, 0, math.pi), color, mat)
 		end
+	end
+	-- z of the head's front surface (classic rounded head) at horizontal offset x
+	function k.fz(h, x, out) return -math.sqrt(math.max(0.02, 0.25 - (x / h.X) ^ 2)) * h.Z - (out or 0.01) end
+	-- Comic face on the bare head: rounded eyes (sclera/iris/pupil), lid line, brows, nose, lips, ears, heroic jaw
+	-- o: iris, brow, lip, style ("neutral" | "angry" | "smirk" | "grin"), jaw (bool), lash (female)
+	function k.face(m, o)
+		local hd = H.find(m, "Head"); if not hd then return end
+		local h = hd.Size
+		local skin = o.skin or hd.Color
+		local dark = skin:Lerp(H.C(0, 0, 0), 0.6)
+		local style = o.style or "neutral"
+		if o.jaw ~= false then round(m, hd, "Jaw", V(h.X * 0.78, h.Y * 0.46, h.Z * 0.6), CF(0, -h.Y * 0.27, -h.Z * 0.2), skin) end
+		for _, x in { -1, 1 } do
+			local ex = x * h.X * 0.19
+			local z = k.fz(h, ex, 0)
+			round(m, hd, "Sclera", V(h.X * 0.2, h.Y * 0.11, 0.08), CF(ex, h.Y * 0.06, z), H.C(250, 250, 250), Enum.Material.SmoothPlastic)
+			round(m, hd, "Iris", V(h.X * 0.085, h.Y * 0.095, 0.08), CF(ex - x * 0.012, h.Y * 0.055, z - 0.012), o.iris or H.C(70, 110, 170), Enum.Material.SmoothPlastic)
+			round(m, hd, "Pupil", V(h.X * 0.04, h.Y * 0.045, 0.06), CF(ex - x * 0.012, h.Y * 0.055, z - 0.035), H.C(10, 10, 12), Enum.Material.SmoothPlastic)
+			piece(m, hd, "Lid", V(h.X * 0.22, h.Y * (o.lash and 0.035 or 0.025), 0.04), CF(ex, h.Y * 0.11, z - 0.01) * A(0, x * rad(20), rad(o.lash and -x * 8 or 0)), o.lash and H.C(20, 15, 15) or dark)
+			local tilt = (style == "angry" and 20 or style == "smirk" and (x > 0 and -12 or 6) or 5) * x
+			piece(m, hd, "Brow", V(h.X * 0.24, h.Y * (o.lash and 0.035 or 0.06), 0.05), CF(ex, h.Y * 0.19, z - 0.01) * A(0, x * rad(20), rad(-tilt)), o.brow or H.C(40, 30, 25))
+			round(m, hd, "Ear", V(0.1, h.Y * 0.28, h.Z * 0.2), CF(x * h.X * 0.5, h.Y * 0.0, h.Z * 0.02), skin)
+		end
+		local nz = -h.Z * 0.5
+		k.wedge(m, hd, "Nose", V(h.X * 0.11, h.Y * 0.2, 0.12), CF(0, -h.Y * 0.05, nz - 0.04), skin:Lerp(H.C(0, 0, 0), 0.06))
+		local mz = -h.Z * 0.5 - (o.jaw ~= false and 0.025 or 0.01)
+		local mw = style == "grin" and 0.4 or 0.26
+		piece(m, hd, "Mouth", V(h.X * mw, h.Y * 0.03, 0.04), CF(0, -h.Y * 0.27, mz) * A(0, 0, rad(style == "smirk" and 7 or 0)), dark)
+		if style == "grin" then piece(m, hd, "Teeth", V(h.X * 0.34, h.Y * 0.05, 0.04), CF(0, -h.Y * 0.3, mz + 0.005), H.C(250, 250, 245)) end
+		if o.lip then round(m, hd, "Lip", V(h.X * 0.22, h.Y * 0.07, 0.06), CF(0, -h.Y * 0.31, mz + 0.01), o.lip) end
+	end
+	-- Hair cap that follows the skull (rounded), with optional back volume
+	function k.hair(m, color, o)
+		local hd = H.find(m, "Head"); if not hd then return end
+		local h = hd.Size
+		o = o or {}
+		round(m, hd, "Hair", V(h.X * 1.1, h.Y * (o.top or 0.62), h.Z * 1.12), CF(0, h.Y * (o.y or 0.3), h.Z * 0.05), color)
+		round(m, hd, "HairBack", V(h.X * 1.06, h.Y * (o.back or 0.75), h.Z * 0.6), CF(0, h.Y * 0.08, h.Z * 0.26), color)
+		if o.sideburns ~= false then
+			for _, x in { -1, 1 } do piece(m, hd, "Sideburn", V(0.06, h.Y * 0.22, h.Z * 0.14), CF(x * h.X * 0.5, h.Y * 0.08, -h.Z * 0.06), color) end
+		end
+	end
+	-- Superman-style pentagon shield (flat-top, pointed bottom) facing -Z at cf; returns nothing
+	function k.pentagon(m, a, name, w, ht, cf, color, mat, depth)
+		depth = depth or 0.05
+		local topH = ht * 0.32
+		piece(m, a, name, V(w, topH, depth), cf * CF(0, ht / 2 - topH / 2, 0), color, mat)
+		k.flat(m, a, name, w, ht - topH, depth, cf * CF(0, -topH / 2, 0) * A(0, 0, math.pi), color, mat)
+	end
+	-- text label on a nearly invisible plate (fully transparent plates are skipped by the preview dump)
+	function k.label(m, a, name, size, cf, text, color, font)
+		local g = piece(m, a, name, size, cf, color); g.Transparency = 0.97
+		H.glyph(g, Enum.NormalId.Front, text, color, font or Enum.Font.GothamBlack)
+		return g
 	end
 	return k
 end
@@ -81,21 +136,18 @@ return function(s, H, rarity)
 		local hd = find(m, "Head"); if not hd then return end
 		local h = hd.Size
 		round(m, hd, "Cowl", V(h.X * 1.08, h.Y * 1.05, h.Z * 1.08), CF(0, h.Y * 0.05, 0.02), dark)
-		-- skin jaw out of the cowl opening
-		round(m, hd, "Jaw", V(h.X * 0.8, h.Y * 0.5, h.Z * 0.62), CF(0, -h.Y * 0.25, -h.Z * 0.24), jawSkin)
-		round(m, hd, "Chin", V(h.X * 0.5, h.Y * 0.28, h.Z * 0.4), CF(0, -h.Y * 0.36, -h.Z * 0.36), jawSkin)
-		-- cowl nose: bridge comes down over the nose to the upper lip
-		k.flat(m, hd, "CowlNose", h.X * 0.34, h.Y * 0.3, h.Z * 0.2, CF(0, -h.Y * 0.06, -h.Z * 0.46) * A(rad(-12), 0, math.pi), dark)
+		-- skin jaw out of the cowl opening (square TAS jaw)
+		round(m, hd, "Jaw", V(h.X * 0.84, h.Y * 0.46, h.Z * 0.66), CF(0, -h.Y * 0.27, -h.Z * 0.22), jawSkin)
 		-- scowling brow + angular white eyes (no Neon on faces)
 		for _, x in { -1, 1 } do
-			piece(m, hd, "Brow", V(h.X * 0.3, h.Y * 0.08, h.Z * 0.12), CF(x * h.X * 0.17, h.Y * 0.16, -h.Z * 0.5) * A(0, 0, rad(-x * 14)), dark)
-			k.wedge(m, hd, "Eye", V(h.X * 0.22, h.Y * 0.075, 0.04), CF(x * h.X * 0.18, h.Y * 0.08, -h.Z * 0.555) * A(0, rad(x * 16), rad(-x * 10)) * A(rad(-90), 0, 0),
+			piece(m, hd, "Brow", V(h.X * 0.3, h.Y * 0.07, h.Z * 0.1), CF(x * h.X * 0.17, h.Y * 0.17, -h.Z * 0.53) * A(0, x * rad(14), rad(-x * 14)), dark)
+			piece(m, hd, "Eye", V(h.X * 0.24, h.Y * 0.075, 0.04), CF(x * h.X * 0.18, h.Y * 0.08, -h.Z * 0.575) * A(0, x * rad(16), rad(-x * 12)),
 				laughs and C(170, 20, 25) or hell and C(255, 170, 60) or WHITE, Enum.Material.SmoothPlastic)
 			-- tapered bat ears
 			local len = h.Y * earLen
 			k.flat(m, hd, "Ear", h.X * 0.26, len, h.Z * 0.16, CF(x * h.X * 0.3, h.Y * 0.47 + len / 2, h.Z * 0.02) * A(0, 0, rad(-x * 5)), dark)
 		end
-		piece(m, hd, "Mouth", V(h.X * 0.24, h.Y * 0.025, 0.03), CF(0, -h.Y * 0.28, -h.Z * 0.555), laughs and C(20, 20, 20) or jawSkin:Lerp(C(0, 0, 0), 0.5))
+		piece(m, hd, "Mouth", V(h.X * 0.26, h.Y * 0.025, 0.03), CF(0, -h.Y * 0.3, -h.Z * 0.555), laughs and C(20, 20, 20) or jawSkin:Lerp(C(0, 0, 0), 0.5))
 		if laughs then -- Joker grin + spiked crown
 			for _, x in { -1, 1 } do piece(m, hd, "Grin", V(h.X * 0.12, h.Y * 0.025, 0.03), CF(x * h.X * 0.15, -h.Y * 0.25, -h.Z * 0.54) * A(0, x * rad(25), rad(x * 30)), C(20, 20, 20)) end
 			for i = 0, 6 do
@@ -163,12 +215,6 @@ return function(s, H, rarity)
 		local panels = k.cape(m, dark, capeOpts)
 		if laughs then -- ragged hem
 			for i, pnl in panels do k.flat(m, chestOf(m), "Rag", pnl.w * 0.5, pnl.len * (0.08 + (i % 2) * 0.08), 0.08, pnl.cf * CF(-pnl.w * 0.2, -pnl.len / 2 - pnl.len * 0.05, 0) * A(0, 0, math.pi), dark, Enum.Material.Fabric) end
-		end
-		if hell then -- glowing seams on the armor
-			local t = chestOf(m)
-			if t then local c = t.Size
-				for _, x in { -1, 1 } do piece(m, t, "Seam", V(0.05, c.Y * 0.7, 0.05), CF(x * c.X * 0.43, -c.Y * 0.05, -c.Z * 0.42), accent, Enum.Material.Neon) end
-			end
 		end
 	end
 

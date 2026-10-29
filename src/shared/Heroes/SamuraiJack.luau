@@ -1,5 +1,5 @@
 return {
-	Build = { "Lean", { muscle = 0.7, tall = 1.04 } }, -- body preset + overrides (see Body.luau)
+	Build = { "Lean", { tall = 1.08, shoulders = 0.86, chest = 0.82, waist = 0.72, hips = 0.8, arm = { 0.55, 1.1 }, leg = { 0.64, 1.18 }, head = 0.86, hand = 0.74, foot = 0.8, muscle = 0.3 } }, -- body preset + overrides (see Body.luau)
 	Name = "Samurai Jack", Faction = "CN", Role = "Hero", Color = Color3.fromRGB(235, 230, 215), Style = "Blade", WalkSpeed = 18,
 	Weapons = { Right = "JackKatana" },
 	Abilities = {

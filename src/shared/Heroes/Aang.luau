@@ -1,5 +1,5 @@
 return {
-	Build = { "Kid", { tall = 0.8, head = 1.08, arm = { 0.55, 0.9 } } }, -- body preset + overrides (see Body.luau)
+	Build = { "Kid", { tall = 0.8, head = 1.22, shoulders = 0.82, chest = 0.78, waist = 0.72, hips = 0.8, arm = { 0.48, 0.95 }, leg = { 0.56, 0.92 }, hand = 0.66, foot = 0.8, muscle = 0.05 } }, -- body preset + overrides (see Body.luau)
 	Name = "Aang", Faction = "Nick", Role = "Hero", Color = Color3.fromRGB(240, 150, 40), Style = "Staff", WalkSpeed = 20,
 	Weapons = { Right = "AangStaff" },
 	Abilities = {

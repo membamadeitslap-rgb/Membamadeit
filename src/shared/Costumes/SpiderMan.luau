@@ -71,6 +71,7 @@ return function(s, H, rarity)
 
 	local pieces = {}
 	local function add(f) table.insert(pieces, f) end
+	if cfg.metal then table.insert(pieces, { "Material", Enum.Material.Metal }) end
 
 	-- ===== head: smooth egg mask, chin, neck, lenses, web lines =====
 	add(function(m)
@@ -80,7 +81,6 @@ return function(s, H, rarity)
 		local cy = s0 * 0.04
 		local R = V(s0 * 0.45, s0 * 0.55, s0 * 0.5)
 		round(m, hd, "Mask", R * 2, CF(0, cy, 0), body)
-		round(m, hd, "Chin", V(s0 * 0.5, s0 * 0.36, s0 * 0.6), CF(0, -s0 * 0.3, -s0 * 0.12), body)
 		band(m, hd, "Neck", s0 * 0.44, s0 * 0.5, CF(0, -s0 * 0.5, 0.02), body)
 		local surf = ell(V(0, cy, 0), R)
 		local ls = cfg.lensSize or 1
@@ -90,15 +90,15 @@ return function(s, H, rarity)
 			round(m, hd, "Lens", V(s0 * 0.3 * ls, s0 * 0.19 * ls, 0.1), faceOn(p + n * 0.03, n, x * math.rad(24)) * CF(x * s0 * 0.01, s0 * 0.01, 0), cfg.lens, Enum.Material.SmoothPlastic)
 		end
 		if cfg.web then
-			local g = 1.07
+			local g = 1.035
 			for i = 0, 5 do -- radial lines converging on the face center (and the back of the head)
 				local a = math.rad(i * 30)
 				local r = 1 / math.sqrt((math.sin(a) / R.X) ^ 2 + (math.cos(a) / R.Y) ^ 2)
-				disc(m, hd, "WebR", V(0.12, r * 2 * g, R.Z * 2 * g), CF(0, cy, 0) * CFrame.Angles(0, 0, a), cfg.web)
+				disc(m, hd, "WebR", V(0.07, r * 2 * g, R.Z * 2 * g), CF(0, cy, 0) * CFrame.Angles(0, 0, a), cfg.web)
 			end
 			for _, z0 in { -0.72, -0.3, 0.2, 0.65 } do -- concentric rings around the face
 				local k = math.sqrt(1 - z0 * z0)
-				disc(m, hd, "WebC", V(R.X * 2 * k * g, R.Y * 2 * k * g, 0.12), CF(0, cy, z0 * R.Z), cfg.web)
+				disc(m, hd, "WebC", V(R.X * 2 * k * g, R.Y * 2 * k * g, 0.07), CF(0, cy, z0 * R.Z), cfg.web)
 			end
 		end
 	end)
@@ -128,15 +128,15 @@ return function(s, H, rarity)
 			end
 		end
 		if cfg.web then
-			local g = 1.1
+			local g = 1.06
 			for i = 0, 5 do
 				local a = math.rad(i * 30)
 				local r = 1 / math.sqrt((math.sin(a) / R.X) ^ 2 + (math.cos(a) / R.Y) ^ 2)
-				disc(m, t, "WebR", V(0.12, r * 2 * g, R.Z * 2 * g), CF(c) * CFrame.Angles(0, 0, a), cfg.web)
+				disc(m, t, "WebR", V(0.07, r * 2 * g, R.Z * 2 * g), CF(c) * CFrame.Angles(0, 0, a), cfg.web)
 			end
-			for _, z0 in { -0.75, -0.3, 0.3, 0.75 } do
+			for _, z0 in { 0.78 } do
 				local k = math.sqrt(1 - z0 * z0)
-				disc(m, t, "WebC", V(R.X * 2 * k * g, R.Y * 2 * k * g, 0.12), CF(c + V(0, 0, z0 * R.Z)), cfg.web)
+				disc(m, t, "WebC", V(R.X * 2 * k * g, R.Y * 2 * k * g, 0.07), CF(c + V(0, 0, z0 * R.Z)), cfg.web)
 			end
 		end
 		local k = sz.Y * 0.5 * (cfg.scale or 1)
@@ -144,10 +144,10 @@ return function(s, H, rarity)
 		if cfg.back then spider(m, t, surf, sz.Y * 0.08, k * (cfg.scale > 1.5 and 1 or 1.7), cfg.back, true, cfg.skull) end
 		if cfg.waldos then -- Iron Spider: four golden waldo legs arching out of the back
 			for _, x in { -1, 1 } do
-				for j, a in { 30, -10 } do
+				for j = 1, 2 do
 					local base = V(x * sz.X * 0.18, sz.Y * (0.25 - j * 0.25), sz.Z * 0.5)
-					local knee = base + V(x * sz.X * 0.55, sz.Y * 0.55 + math.rad(a), sz.Z * 0.6)
-					local tip = knee + V(x * sz.X * 0.35, -sz.Y * (0.9 + j * 0.3), -sz.Z * 0.2)
+					local knee = base + V(x * sz.X * (0.3 + j * 0.1), sz.Y * (0.75 - j * 0.15), sz.Z * 0.7)
+					local tip = knee + V(x * sz.X * (0.45 + j * 0.05), -sz.Y * (0.55 + j * 0.15), sz.Z * 0.1)
 					seg(m, t, "Waldo", base, knee, V(0, 0, 1), 0.14, 0.14, cfg.spider, Enum.Material.Metal)
 					seg(m, t, "Waldo", knee, tip, V(0, 0, 1), 0.11, 0.11, cfg.spider, Enum.Material.Metal)
 					round(m, t, "WaldoJoint", V(0.2, 0.2, 0.2), CF(knee), cfg.body, Enum.Material.Metal)
@@ -163,7 +163,7 @@ return function(s, H, rarity)
 				local a = m:FindFirstChild(n)
 				if a then
 					local sz = a.Size; local x = n:find("Left") and -1 or 1
-					round(m, a, "ShoulderCap", V(sz.X * 1.2, sz.Y * 0.5, sz.Z * 1.18), CF(0, sz.Y * 0.4, 0), body)
+					round(m, a, "ShoulderCap", V(sz.X * 1.17, sz.Y * 0.66, sz.Z * 1.15), CF(0, sz.Y * 0.42, 0), body)
 					round(m, a, "ArmStripe", V(sz.X * 0.4, sz.Y * 1.25, sz.Z * 0.5), CF(x * sz.X * 0.36, 0, 0), body)
 				end
 			end
@@ -180,10 +180,10 @@ return function(s, H, rarity)
 					local leg = n:find("Leg") ~= nil
 					local r = sz.X * (leg and 0.52 or 0.51)
 					for _, y in (leg and { 0.3, -0.05, -0.38 } or { 0.15, -0.25 }) do
-						round(m, a, "WebRing", V(r * 2.1, 0.08, r * 2.1 + (leg and sz.Z * 0.12 or 0)), CF(0, y * sz.Y, leg and sz.Z * 0.05 or 0), cfg.web)
+						round(m, a, "WebRing", V(r * 2.03, 0.06, r * 2.03 + (leg and sz.Z * 0.12 or 0)), CF(0, y * sz.Y, leg and sz.Z * 0.05 or 0), cfg.web)
 					end
 					for i = 0, 1 do
-						piece(m, a, "WebLine", V(0.035, sz.Y * (leg and 0.85 or 0.95), r * 2.08 + (leg and sz.Z * 0.12 or 0)), CF(0, -sz.Y * 0.03, leg and sz.Z * 0.05 or 0) * CFrame.Angles(0, math.rad(i * 90 + 45), 0), cfg.web)
+						round(m, a, "WebLine", V(0.05, sz.Y * (leg and 1.05 or 1.15), r * 2.08 + (leg and sz.Z * 0.12 or 0)), CF(0, -sz.Y * 0.03, leg and sz.Z * 0.05 or 0) * CFrame.Angles(0, math.rad(i * 90), 0), cfg.web)
 					end
 				end
 			end

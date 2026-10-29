@@ -1,5 +1,5 @@
 return {
-	Build = { "Hero", { shoulders = 1.2, chest = 1.18, tall = 1.08 } }, -- body preset + overrides (see Body.luau)
+	Build = { "Hero", { shoulders = 1.22, chest = 1.16, tall = 1.08, waist = 0.82, head = 0.88 } }, -- body preset + overrides (see Body.luau)
 	Name = "Superman", Faction = "DC", Role = "Hero", Color = Color3.fromRGB(30, 70, 190),
 	Abilities = {
 		{ Name = "Heat Vision", Kind = "Projectile", Cooldown = 3.5, Damage = 9, Speed = 200, Stun = 0.5 },

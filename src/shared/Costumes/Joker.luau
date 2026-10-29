@@ -142,10 +142,12 @@ return function(s, H, rarity)
 		table.insert(pieces, function(m)
 			local t = chestOf(m); if not t then return end
 			local sz = t.Size
-			local len = sz.Y * 2.7
-			local back = piece(m, t, "Cape", V(sz.X * 0.8, len, 0.08), CF(0, sz.Y * 0.45 - len / 2, sz.Z * 0.62) * CFrame.Angles(rad(5), 0, 0), s.Cape, Enum.Material.Fabric)
+			local len = sz.Y * 2.4
+			for i = -2, 2 do -- curved drape: strips around the back, flaring at the hem
+				local a = rad(i * 22)
+				piece(m, t, "Cape", V(sz.X * 0.27, len, 0.07), CF(math.sin(a) * sz.X * 0.6, sz.Y * 0.45 - len / 2, math.cos(a) * sz.Z * 0.64) * CFrame.Angles(0, a, 0) * CFrame.Angles(rad(7), 0, 0), s.Cape, Enum.Material.Fabric)
+			end
 			for _, x in { -1, 1 } do
-				piece(m, back, "CapeWing", V(sz.X * 0.36, len * 0.97, 0.08), CF(x * sz.X * 0.55, len * 0.015, -sz.Z * 0.12) * CFrame.Angles(0, rad(x * 35), 0), s.Cape, Enum.Material.Fabric)
 				round(m, t, "CapeCollar", V(sz.X * 0.35, sz.Y * 0.5, 0.12), CF(x * sz.X * 0.3, sz.Y * 0.62, sz.Z * 0.3) * CFrame.Angles(rad(-15), rad(x * 25), 0), s.Cape:Lerp(C(255, 255, 255), 0.2), Enum.Material.Fabric)
 			end
 		end)

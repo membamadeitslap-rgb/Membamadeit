@@ -1,5 +1,5 @@
 return {
-	Build = { "Kid" }, -- body preset + overrides (see Body.luau)
+	Build = { "Kid", { tall = 0.78, head = 1.24, shoulders = 0.82, chest = 0.8, waist = 0.76, hips = 0.8, arm = { 0.5, 0.92 }, leg = { 0.56, 0.9 }, hand = 0.68, foot = 0.85, muscle = 0.05 } }, -- body preset + overrides (see Body.luau)
 	Name = "Ben 10", Faction = "CN", Role = "Hero", Color = Color3.fromRGB(60, 200, 60), Style = "Fists",
 	Weapons = { Left = "Omnitrix" },
 	Abilities = {
