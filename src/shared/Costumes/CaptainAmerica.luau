@@ -165,15 +165,18 @@ return function(s, H, rarity)
 			path(m, t, surf, 0, 0.46 * Y, 0, -0.14 * Y, 2, X * 0.08, RED, 0.09)
 			path(m, t, surf, -0.42 * X, 0.16 * Y, 0.42 * X, 0.16 * Y, 3, Y * 0.13, WHITE, 0.07)
 			path(m, t, surf, -0.42 * X, 0.16 * Y, 0.42 * X, 0.16 * Y, 3, Y * 0.075, RED, 0.09)
-		elseif cfg.hydra then -- red hydra: skull disc with six curling tentacles
-			local p, n = surf(0, sz.Y * 0.2, 0.04)
-			local cf = faceOn(p, n)
-			round(m, t, "HydraSkull", V(sz.X * 0.16, sz.X * 0.17, 0.08), cf, cfg.hydra)
-			for i = 0, 5 do
-				local a = math.rad(i * 60 + 30)
-				local q0 = surf(math.cos(a) * sz.X * 0.07, sz.Y * 0.2 + math.sin(a) * sz.X * 0.07, 0.04)
-				local q1, qn = surf(math.cos(a + 0.35) * sz.X * 0.17, sz.Y * 0.2 + math.sin(a + 0.35) * sz.X * 0.17, 0.04)
-				local q2, q2n = surf(math.cos(a + 0.95) * sz.X * 0.22, sz.Y * 0.2 + math.sin(a + 0.95) * sz.X * 0.22, 0.04)
+		elseif cfg.hydra then -- red Hydra crest: skull on top, six tentacles fanning DOWN and curling outward (mirror-symmetric)
+			local cx, cy = 0, sz.Y * 0.3
+			local p, n = surf(cx, cy, 0.04)
+			round(m, t, "HydraSkull", V(sz.X * 0.17, sz.X * 0.16, 0.08), faceOn(p, n), cfg.hydra)
+			for _, deg in { -160, -132, -104, -76, -48, -20 } do
+				local a = math.rad(deg)
+				local side = math.cos(a) < 0 and -1 or 1
+				local r0, r1, r2 = sz.X * 0.07, sz.X * 0.17, sz.X * 0.22
+				local a2 = a + side * math.rad(35) -- curl outward / up at the tip
+				local q0 = surf(math.cos(a) * r0, cy + math.sin(a) * r0, 0.04)
+				local q1, qn = surf(math.cos(a) * r1, cy + math.sin(a) * r1 * 1.4, 0.04)
+				local q2, q2n = surf(math.cos(a2) * r2, cy + math.sin(a2) * r2 * 1.4, 0.04)
 				bar(m, t, q0, q1, qn, sz.X * 0.05, cfg.hydra)
 				bar(m, t, q1, q2, qn + q2n, sz.X * 0.035, cfg.hydra)
 			end

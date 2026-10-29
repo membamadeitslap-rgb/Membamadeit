@@ -148,7 +148,6 @@ return function(s, H, rarity)
 				local p, n = surf(x * sz.X * 0.2, sz.Y * (0.27 - j * 0.24), 0.02)
 				local d = sz.X * 0.15
 				band(m, t, "Disc", d, 0.08, faceOn(p, n) * CFrame.Angles(math.rad(90), 0, 0), dc, METAL)
-				band(m, t, "DiscBoss", d * 0.55, 0.12, faceOn(p, n) * CFrame.Angles(math.rad(90), 0, 0), dc:Lerp(C(0, 0, 0), 0.2), METAL)
 			end
 		end
 		-- cape: mantle over the shoulder blades + three panels flaring to mid-calf
@@ -180,16 +179,15 @@ return function(s, H, rarity)
 			local la = m:FindFirstChild(side .. "LowerArm")
 			if la and not cfg.sleeves then
 				band(m, la, "Wristband", la.Size.X * 1.08, la.Size.Y * 0.42, CF(0, -la.Size.Y * 0.26, 0), SILVER, METAL)
-				band(m, la, "WristbandRim", la.Size.X * 1.12, la.Size.Y * 0.07, CF(0, -la.Size.Y * 0.06, 0), SILVER:Lerp(C(0, 0, 0), 0.3), METAL)
 			end
 			local ll = m:FindFirstChild(side .. "LowerLeg")
 			if ll then
 				local sz = ll.Size
 				round(m, ll, "BootCuff", V(sz.X * 1.12, sz.Y * 0.16, sz.Z * 1.2), CF(0, sz.Y * 0.36, sz.Z * 0.04), cfg.boots, Enum.Material.Leather)
 				if cfg.straps then
-					for k = 0, 2 do
+					for k = 0, 1 do
 						for _, d in { -1, 1 } do
-							round(m, ll, "Strap", V(sz.X * 1.07, 0.05, sz.Z * 1.15), CF(0, sz.Y * (0.18 - k * 0.24), sz.Z * 0.05) * CFrame.Angles(math.rad(d * 22), 0, 0), cfg.straps)
+							round(m, ll, "Strap", V(sz.X * 1.07, 0.05, sz.Z * 1.15), CF(0, sz.Y * (0.12 - k * 0.32), sz.Z * 0.05) * CFrame.Angles(math.rad(d * 26), 0, 0), cfg.straps)
 						end
 					end
 				end
@@ -199,7 +197,7 @@ return function(s, H, rarity)
 
 	if cfg.bolts then -- Unleashed: lightning crackling along the arms (neon is fine off the face)
 		add(function(m)
-			for _, n in { "LeftUpperArm", "RightUpperArm", "LeftLowerArm", "RightLowerArm" } do
+			for _, n in { "LeftUpperArm", "RightUpperArm" } do
 				local a = m:FindFirstChild(n)
 				if a then
 					local sz = a.Size; local x = n:find("Left") and -1 or 1

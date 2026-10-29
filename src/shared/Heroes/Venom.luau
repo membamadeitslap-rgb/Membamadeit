@@ -1,5 +1,5 @@
 return {
-	Build = { "Brute", { tall = 1.25, head = 0.95 } }, -- body preset + overrides (see Body.luau)
+	Build = { "Brute", { tall = 1.25, head = 1.08, waist = 0.98, leg = { 1.05, 1.1 } } }, -- body preset + overrides (see Body.luau)
 	Name = "Venom", Faction = "Marvel", Role = "Villain", Color = Color3.fromRGB(20, 20, 25),
 	Abilities = {
 		{ Name = "Symbiote Tendril", Kind = "Grab", Cooldown = 6, Damage = 7, Distance = 35, Stun = 1.0 },

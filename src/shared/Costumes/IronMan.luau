@@ -125,7 +125,7 @@ return function(s, H, rarity)
 		-- gold abdomen plate (Mark VI / 85 / Superior)
 		for _, x in { -1, 1 } do
 			-- shoulder-blade flaps + small exhaust nozzles at the small of the back
-			round(m, t, "BackFlap", V(sz.X * 0.34, sz.Y * 0.42, sz.Z * 0.22), CF(x * sz.X * 0.2, sz.Y * 0.22, sz.Z * 0.43) * CFrame.Angles(0, 0, math.rad(x * 12)), main:Lerp(C(0, 0, 0), 0.18), METAL)
+			round(m, t, "BackFlap", V(sz.X * 0.3, sz.Y * 0.4, sz.Z * 0.14), CF(x * sz.X * 0.2, sz.Y * 0.24, sz.Z * 0.46) * CFrame.Angles(0, 0, math.rad(x * 12)), main:Lerp(C(0, 0, 0), 0.18), METAL)
 			band(m, t, "Nozzle", sz.X * 0.1, sz.Y * 0.12, CF(x * sz.X * 0.12, -sz.Y * 0.42, sz.Z * 0.42), C(70, 72, 80), METAL)
 		end
 		local w = find(m, "LowerTorso")

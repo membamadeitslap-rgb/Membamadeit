@@ -183,7 +183,7 @@ return function(s, H, rarity)
 						round(m, a, "WebRing", V(r * 2.03, 0.06, r * 2.03 + (leg and sz.Z * 0.12 or 0)), CF(0, y * sz.Y, leg and sz.Z * 0.05 or 0), cfg.web)
 					end
 					for i = 0, 1 do
-						round(m, a, "WebLine", V(0.05, sz.Y * (leg and 1.05 or 1.15), r * 2.08 + (leg and sz.Z * 0.12 or 0)), CF(0, -sz.Y * 0.03, leg and sz.Z * 0.05 or 0) * CFrame.Angles(0, math.rad(i * 90), 0), cfg.web)
+						round(m, a, "WebLine", V(0.05, sz.Y * (leg and 1.05 or 1.15), r * 2.06 + ((leg and i == 0) and sz.Z * 0.12 or 0)), CF(0, -sz.Y * 0.03, leg and sz.Z * 0.05 or 0) * CFrame.Angles(0, math.rad(i * 90), 0), cfg.web)
 					end
 				end
 			end
