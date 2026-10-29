@@ -6,6 +6,6 @@ return function(v, C)
 		Epic = v("Hobgoblin", C(230, 120, 30), C(40, 70, 160)),
 		Legendary = v("Red Goblin", C(200, 30, 30), C(20, 20, 25)),
 		Mythic = v("Demogoblin", C(120, 20, 20), C(255, 130, 30)),
-		Secret = v("Goblin King", C(40, 160, 60), C(255, 215, 80)),
+		Secret = v("Goblin King", C(40, 150, 60), C(70, 25, 95)),
 	}
 end

@@ -29,9 +29,9 @@ return function(s, H, rarity)
 		local s3 = hd.Size
 		local hx, hy, hz = s3.X, s3.Y, s3.Z
 		-- massive square jaw + chin ridges
-		round(m, hd, "Jaw", V(hx * 1.04, hy * 0.62, hz * 0.95), CF(0, -hy * 0.3, -hz * 0.04), SKINP)
-		for i = -3, 3 do
-			round(m, hd, "ChinRidge", V(hx * 0.06, hy * 0.36, hz * 0.08), CF(i * hx * 0.075, -hy * 0.42, -hz * 0.47 + math.abs(i) * 0.02), SKIND)
+		round(m, hd, "Jaw", V(hx * 1.04, hy * 0.62, hz * 0.95), CF(0, -hy * 0.3, 0), SKINP)
+		for i = -2, 2 do
+			round(m, hd, "ChinRidge", V(hx * 0.05, hy * 0.24, hz * 0.07), CF(i * hx * 0.09, -hy * 0.44, -hz * 0.47 + math.abs(i) * 0.02), SKIND)
 		end
 		piece(m, hd, "Brow", V(hx * 0.7, hy * 0.08, hz * 0.12), CF(0, hy * 0.2, -hz * 0.47), SKIND)
 		if look.helmet then

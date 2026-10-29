@@ -1,5 +1,5 @@
 return {
-	Build = { "Armored", { tall = 1.0 } }, -- body preset + overrides (see Body.luau)
+	Build = { "Hero", { muscle = 0.7, head = 0.95, tall = 1.02 } }, -- body preset + overrides (see Body.luau)
 	Name = "Green Goblin", Faction = "Marvel", Role = "Villain", Color = Color3.fromRGB(60, 140, 50),
 	Weapons = { Right = "PumpkinBomb" },
 	Abilities = {

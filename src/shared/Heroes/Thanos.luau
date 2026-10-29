@@ -1,5 +1,5 @@
 return {
-	Build = { "Titan", { tall = 1.3 } }, -- body preset + overrides (see Body.luau)
+	Build = { "Titan", { tall = 1.3, head = 1.02, waist = 1.0 } }, -- body preset + overrides (see Body.luau)
 	Name = "Thanos", Faction = "Marvel", Role = "Villain", Color = Color3.fromRGB(110, 70, 140),
 	Weapons = { Left = "InfinityGauntlet" },
 	Abilities = {
