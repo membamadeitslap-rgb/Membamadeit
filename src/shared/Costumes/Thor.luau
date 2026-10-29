@@ -158,9 +158,9 @@ return function(s, H, rarity)
 		local L = top - bottom
 		round(m, t, "CapeMantle", V(sz.X * 1.08, sz.Y * 0.36, sz.Z * 0.8), CF(0, sz.Y * 0.42, sz.Z * 0.2), cape, FABRIC)
 		local z0 = sz.Z * 0.5 + 0.08
-		piece(m, t, "Cape", V(sz.X * 0.62, L, 0.08), CF(0, top, z0) * CFrame.Angles(math.rad(7), 0, 0) * CF(0, -L / 2, 0), cape, FABRIC)
+		piece(m, t, "Cape", V(sz.X * 0.62, L, 0.08), CF(0, top, z0) * CFrame.Angles(math.rad(-11), 0, 0) * CF(0, -L / 2, 0), cape, FABRIC)
 		for _, x in { -1, 1 } do
-			piece(m, t, "CapeSide", V(sz.X * 0.36, L, 0.08), CF(x * sz.X * 0.3, top, z0) * CFrame.Angles(math.rad(7), x * math.rad(28), 0) * CF(x * sz.X * 0.17, -L / 2, -0.03) * CFrame.Angles(0, 0, math.rad(x * 3)), cape, FABRIC)
+			piece(m, t, "CapeSide", V(sz.X * 0.36, L, 0.08), CF(x * sz.X * 0.3, top, z0) * CFrame.Angles(math.rad(-11), x * math.rad(16), 0) * CF(x * sz.X * 0.16, -L / 2, 0) * CFrame.Angles(0, 0, math.rad(x * 3)), cape, FABRIC)
 			-- clasp discs where the cape meets the tunic
 			local p, n = surf(x * sz.X * 0.36, sz.Y * 0.42, 0.03)
 			band(m, t, "Clasp", sz.X * 0.13, 0.08, faceOn(p, n) * CFrame.Angles(math.rad(90), 0, 0), dc, METAL)

@@ -6,7 +6,8 @@
 return function(m, H)
 	local p, C, cyl, up, round = H.p, H.C, H.cyl, H.up, H.round
 	local uru, uruDark, leather = C(165, 168, 178), C(120, 122, 132), C(95, 62, 38)
-	p(m, "Grip", Vector3.new(0.2, 1.25, 0.2), CFrame.new(0, 0.1, 0) * up, leather, Enum.Material.Leather, cyl)
+	local g = p(m, "Grip", Vector3.new(0.2, 0.2, 0.2), CFrame.new(), leather); g.Transparency = 1 -- unrotated: the model is pivoted on it
+	p(m, "Handle", Vector3.new(1.25, 0.2, 0.2), CFrame.new(0, 0.1, 0) * up, leather, Enum.Material.Leather, cyl)
 	for i = 0, 3 do p(m, "Wrap" .. i, Vector3.new(0.05, 0.23, 0.23), CFrame.new(0, -0.35 + i * 0.3, 0) * up, C(70, 45, 28), Enum.Material.Leather, cyl) end
 	p(m, "Collar", Vector3.new(0.12, 0.3, 0.3), CFrame.new(0, 0.76, 0) * up, uruDark, Enum.Material.Metal, cyl)
 	round(m, "Pommel", Vector3.new(0.3, 0.26, 0.3), CFrame.new(0, -0.56, 0), uru, Enum.Material.Metal)
