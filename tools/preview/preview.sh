@@ -7,5 +7,5 @@ out="$(realpath -m "$1")"; shift
 scene="$(mktemp --suffix .json)"
 python3 "$here/dump.py" "${LUAU:-luau}" "$scene" "$@"
 [ -d "$here/node_modules/three" ] || (cd "$here" && npm i --silent --no-save three@0.160.0)
-node "$here/render.js" "$scene" "$out" "${VIEWS:-0,35,180}" "${COLS:-3}"
+node "$here/render.js" "$scene" "$out" "${VIEWS:-0,35,180}" "${COLS:-3}" "${STYLE:-ink}"
 echo "wrote $out"

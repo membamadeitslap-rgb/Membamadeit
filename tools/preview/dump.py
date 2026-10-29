@@ -46,6 +46,7 @@ def build(heroes, rarities):
 local Heroes = require(Shared.Heroes)
 local Skins = require(Shared.Skins)
 local Weapons = require(Shared.Weapons)
+local PAPER = {"true" if __import__("os").environ.get("PAPER") else "false"}
 local want = {lua_list(heroes)}
 local rarities = {lua_list(rarities)}
 local ids = {{}}
@@ -57,6 +58,7 @@ for _, id in ids do
 			Skins.Apply(m, id, r)
 			for hand, wid in (Heroes[id].Weapons or {{}}) do Weapons.Attach(m, wid, hand) end
 			if Shared:FindFirstChild("Toon") then require(Shared.Toon).Apply(m) end
+			if PAPER and Shared:FindFirstChild("Paper") then require(Shared.Paper).Flatten(m) end
 			local skin = Skins.Get(id, r)
 			print("@@" .. mock.json({{ hero = id, rarity = r, name = skin and skin.Name or id, parts = mock.Dump(m) }}))
 		end)

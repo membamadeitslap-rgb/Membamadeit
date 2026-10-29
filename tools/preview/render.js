@@ -1,7 +1,7 @@
 // node render.js <scene.json> <out.png> [views] [cols]  — serves this dir + scene, screenshots the sheet
 const { chromium } = require('playwright');
 const http = require('http'), fs = require('fs'), path = require('path');
-const [scenePath, out, views = '0,35,180', cols = '3'] = process.argv.slice(2);
+const [scenePath, out, views = '0,35,180', cols = '3', style = 'ink'] = process.argv.slice(2);
 const root = __dirname;
 const srv = http.createServer((req, res) => {
   const u = decodeURIComponent(req.url.split('?')[0]);
@@ -13,7 +13,7 @@ const srv = http.createServer((req, res) => {
   const b = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
   const p = await b.newPage();
   p.on('console', m => console.log('page:', m.text())); p.on('pageerror', e => console.log('err:', e.message));
-  await p.goto(`http://localhost:${srv.address().port}/render.html?views=${views}&cols=${cols}`);
+  await p.goto(`http://localhost:${srv.address().port}/render.html?views=${views}&cols=${cols}&style=${style}`);
   await p.waitForFunction(() => document.title === 'done', null, { timeout: 120000 });
   await (await p.$('#sheet')).screenshot({ path: out });
   await b.close(); srv.close();
