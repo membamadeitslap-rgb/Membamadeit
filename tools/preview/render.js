@@ -13,7 +13,7 @@ const srv = http.createServer((req, res) => {
   const b = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
   const p = await b.newPage();
   p.on('console', m => console.log('page:', m.text())); p.on('pageerror', e => console.log('err:', e.message));
-  await p.goto(`http://localhost:${srv.address().port}/render.html?views=${views}&cols=${cols}&style=${style}`);
+  await p.goto(`http://localhost:${srv.address().port}/render.html?views=${views}&cols=${cols}&style=${style}&tw=${process.env.TW || 260}`);
   await p.waitForFunction(() => document.title === 'done', null, { timeout: 120000 });
   await (await p.$('#sheet')).screenshot({ path: out });
   await b.close(); srv.close();

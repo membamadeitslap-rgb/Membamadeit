@@ -1,5 +1,5 @@
 return {
-	Build = { "Lean", { tall = 1.1, shoulders = 0.82, chest = 0.8, waist = 0.72, hips = 0.78, arm = { 0.7, 1.12 }, leg = { 0.74, 1.2 }, head = 1.1, hand = 0.72, foot = 0.78, muscle = 0.5 } }, -- body preset + overrides (see Body.luau)
+	Build = { "Lean", { tall = 1.15, shoulders = 1.0, chest = 0.85, waist = 0.66, hips = 0.76, arm = { 0.55, 1.2 }, leg = { 0.62, 1.55 }, head = 1.0, hand = 0.7, foot = 0.75, muscle = 0.6 } }, -- body preset + overrides (see Body.luau)
 	Name = "Spider-Man", Faction = "Marvel", Weapons = {}, -- web shooters sit under the gloves on the classic suit Role = "Hero",
 	Color = Color3.fromRGB(200, 30, 40),
 	Abilities = {

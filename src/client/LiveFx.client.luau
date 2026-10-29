@@ -81,6 +81,17 @@ RunService.RenderStepped:Connect(function()
 				p.Waist = { br * 1.8, 0, 0 }; p.Neck = { br * -1.2, 0, 0 }
 				p.RS = { 0, 0, 2 + br * 1.5 }; p.LS = { 0, 0, -2 - br * 1.5 }
 			end
+			if m:GetAttribute("Paper") then
+				-- Paper Mario: the cut-out always faces the camera; the front shows when the camera is in front of
+				-- the hero, the back when behind, and it flips edge-on through the side like a sheet of paper
+				local l = root.CFrame:PointToObjectSpace(cam.CFrame.Position)
+				local yaw = l.Z < 0 and math.deg(math.atan2(-l.X, -l.Z)) or math.deg(math.atan2(l.X, l.Z))
+				local prev = m:GetAttribute("PaperYaw") or yaw
+				yaw = prev + (yaw - prev) * 0.35 -- quick but smooth turn
+				m:SetAttribute("PaperYaw", yaw)
+				local r = p.Root or { 0, 0, 0 }
+				p.Root = { r[1] or 0, yaw, r[3] or 0, r[4], r[5], r[6] }
+			end
 			Anim.Idle(m, p)
 		end
 	end

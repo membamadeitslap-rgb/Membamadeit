@@ -2,7 +2,7 @@
 <script type="importmap">{"imports":{"three":"./node_modules/three/build/three.module.js"}}</script>
 <script type="module">
 import * as THREE from 'three';
-const TW = 260, TH = 400;
+const TW = Number(new URLSearchParams(location.search).get('tw') || 260), TH = Math.round(TW * 400 / 260);
 const scenes = await (await fetch('scene.json')).json();
 const views = (new URLSearchParams(location.search).get('views') || '0,35,180').split(',').map(Number);
 const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true, alpha: true });

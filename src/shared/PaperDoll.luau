@@ -60,6 +60,24 @@ function Kit.web(f, cx, cy, r, spokes, rings, thick, aspect)
 	end
 end
 
+-- Merge several shapes into one cutout with a single outline: paper border pass, ink pass, then fills on top.
+-- shapes = { { cx, cy, w, h, round, rot }, ... }; opt.border (default Kit.BORDER, false = none), opt.ink (fraction of face height)
+function Kit.union(f, shapes, color, opt)
+	opt = opt or {}
+	local ar = f.w / f.h
+	local b = opt.border == false and 0 or (opt.border or Kit.BORDER * 0.6)
+	local ink = opt.ink or 0.025
+	local z = opt.z or 0
+	for _, pg in { { 1, b + ink }, { 2, ink }, { 3, 0 } } do
+		local pass, g = pg[1], pg[2]
+		if pass ~= 1 or b > 0 then
+			for _, s in shapes do
+				local col = pass == 1 and PAPER or pass == 2 and INK or color
+				f:Box(s[1], s[2], s[3] + g * 2 / ar, s[4] + g * 2, col, { round = s[5] or 0.3, rot = s[6], z = z + pass * 2 })
+			end
+		end
+	end
+end
 function PaperDoll.Has(designs, heroId) return designs and designs:FindFirstChild(heroId) ~= nil end
 
 function PaperDoll.Build(model, design, skin, rarity)
@@ -70,7 +88,7 @@ function PaperDoll.Build(model, design, skin, rarity)
 			p.Transparency = 1
 			local face = p:FindFirstChild("face"); if face then face:Destroy() end
 			local spec = d.cards[n] or {}
-			local w, h = spec.w or p.Size.X * 1.15, spec.h or p.Size.Y * 1.3 -- cards overlap at the joints so the doll reads as one piece
+			local w, h = spec.w or p.Size.X * (spec.sw or 1.15), spec.h or p.Size.Y * (spec.sh or 1.3) -- cards overlap at the joints so the doll reads as one piece
 			local card = Instance.new("Part"); card.Name = "Paper_" .. n
 			card.Size = Vector3.new(w, h, 0.04); card.Transparency = 1
 			card.CanCollide = false; card.CanQuery = false; card.CanTouch = false; card.Massless = true; card.CastShadow = false
