@@ -50,19 +50,18 @@ def svg(w, h, body, defs=""):
 
 
 # ---------------- HEAD ----------------
-HEAD = ("M200 34 C292 34 352 104 352 206 C352 296 318 372 276 426 C254 454 228 470 200 470 "
-        "C172 470 146 454 124 426 C82 372 48 296 48 206 C48 104 108 34 200 34 Z")
+HEAD = ("M200 30 C298 30 358 100 356 196 C354 280 326 350 288 408 C262 446 232 470 200 470 "
+        "C168 470 138 446 112 408 C74 350 46 280 44 196 C42 100 102 30 200 30 Z")  # Ultimate mask: broad cranium, rounded jaw
 
 
-def lens(side, k=0.78):
-    # teardrop lens sweeping up and out from the bridge of the nose (k scales it around the lens center)
-    s = 1 if side > 0 else -1
-    def X(x): return 200 + s * (82 + (x - 82) * k)
-    def Y(y): return 255 + (y - 255) * k
-    path = (f"M{X(18)} {Y(300)} C{X(14)} {Y(262)} {X(40)} {Y(214)} {X(88)} {Y(192)} C{X(120)} {Y(178)} {X(150)} {Y(186)} {X(146)} {Y(214)} "
-            f"C{X(140)} {Y(256)} {X(104)} {Y(300)} {X(62)} {Y(318)} C{X(40)} {Y(326)} {X(20)} {Y(318)} {X(18)} {Y(300)} Z")
-    hi = (f"M{X(60)} {Y(236)} C{X(78)} {Y(214)} {X(104)} {Y(204)} {X(122)} {Y(206)}")
-    return (f'<path d="{path}" fill="{INK}" stroke="{INK}" stroke-width="22" stroke-linejoin="round"/>'
+def lens(side):
+    """Ultimate Spider-Man lens: flat top edge slanting up and out, rounded bottom, thick black border."""
+    s_ = 1 if side > 0 else -1
+    def P(x, y): return f"{200 + s_ * x:.1f} {y:.1f}"
+    path = (f"M{P(14, 300)} L{P(36, 232)} C{P(56, 198)} {P(100, 178)} {P(144, 184)} C{P(160, 188)} {P(160, 210)} {P(150, 236)} "
+            f"C{P(130, 282)} {P(84, 314)} {P(42, 322)} C{P(22, 325)} {P(12, 316)} {P(14, 300)} Z")
+    hi = f"M{P(50, 236)} C{P(66, 214)} {P(98, 200)} {P(128, 200)}"
+    return (f'<path d="{path}" fill="{INK}" stroke="{INK}" stroke-width="26" stroke-linejoin="round"/>'
             f'<path d="{path}" fill="url(#gLens)" stroke="{INK}" stroke-width="6" stroke-linejoin="round"/>'
             f'<path d="{hi}" fill="none" stroke="#ffffff" stroke-width="7" stroke-linecap="round" opacity="0.9"/>')
 
@@ -73,10 +72,10 @@ def head(front):
             f'<stop offset="0.55" stop-color="{RED}"/><stop offset="1" stop-color="{RED_D}"/></radialGradient>'
             '<linearGradient id="gLens" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#cfd8e6"/></linearGradient>')
     if front:
-        w = web(200, 290, 16, [40, 78, 118, 160, 204, 250], 330, bend=0.05, a0=-math.pi / 2, width=2.4, squash=1.08)
+        w = web(200, 296, 14, [44, 88, 136, 188, 244], 340, bend=0.04, a0=-math.pi / 2, width=2.0, squash=1.06)
         detail = "".join(lens(s) for s in (-1, 1))
     else:
-        w = web(200, 150, 16, [36, 74, 114, 156, 200, 248, 296], 380, bend=0.05, a0=-math.pi / 2, width=2.4, squash=1.15)
+        w = web(200, 140, 14, [44, 90, 140, 194, 252, 312], 400, bend=0.04, a0=-math.pi / 2, width=2.0, squash=1.12)
         detail = ""
     body = cutout(HEAD, "url(#gHead)", ink=10, extra=f'<g clip-path="url(#hc)">{w}</g>{detail}'
                   f'<path d="{HEAD}" fill="none" stroke="{INK}" stroke-width="10" stroke-linejoin="round"/>')
@@ -108,14 +107,19 @@ def narrow(path, k=0.8, cx=200):
     return " ".join(out)
 
 
-TORSO, CHEST, BELT = narrow(TORSO), narrow(CHEST), narrow(BELT)
+TORSO = ("M70 46 C110 22 290 22 330 46 C362 62 372 96 364 140 C352 200 316 262 290 310 C282 330 282 352 288 380 "
+         "L292 440 C292 452 280 460 266 460 L134 460 C120 460 108 452 108 440 L112 380 C118 352 118 330 110 310 "
+         "C84 262 48 200 36 140 C28 96 38 62 70 46 Z")
+CHEST = ("M74 52 C114 32 286 32 326 52 C346 64 350 96 338 128 C318 176 280 214 252 248 C236 268 228 300 226 330 "
+         "L226 376 L174 376 L174 330 C172 300 164 268 148 248 C120 214 82 176 62 128 C50 96 54 64 74 52 Z")
+BELT = "M112 372 C170 364 230 364 288 372 L292 440 C230 450 170 450 108 440 Z"
 
 
 def spider(cx, cy, s, fill=None):
     """Spider emblem. fill=None: solid black (chest); fill=color: that color with a black outline (classic back spider)."""
     legs = [
-        [(8, -30), (60, -70), (128, -96)], [(10, -18), (78, -34), (150, -30)],
-        [(10, 8), (80, 30), (130, 92)], [(8, 24), (52, 84), (82, 160)],
+        [(8, -30), (64, -78), (124, -112)], [(10, -18), (84, -40), (150, -44)],  # long legs up toward the shoulders
+        [(10, 8), (80, 26), (128, 80)], [(8, 24), (50, 84), (70, 158)],
     ]
     def shapes(col, grow):
         out = []
@@ -135,10 +139,10 @@ def spider(cx, cy, s, fill=None):
 
 def torso(front):
     defs = (f'<clipPath id="cc"><path d="{CHEST}"/></clipPath><clipPath id="bc"><path d="{BELT}"/></clipPath><clipPath id="tc"><path d="{TORSO}"/></clipPath>')
-    cy = 150 if front else 168  # the web radiates from the spider
-    w = web(200, cy, 14, [34, 68, 104, 142, 182, 224], 300, bend=0.05, a0=-math.pi / 2, width=2.2, squash=1.0)
-    belt_web = "".join(f'<path d="M{200 + (110 + i * 23 - 200) * 0.8:.1f} 352 L{200 + (108 + i * 23.5 - 200) * 0.8:.1f} 440" stroke="{INK}" stroke-width="2.2"/>' for i in range(9)) + \
-        f'<path d="M100 396 C170 404 230 404 300 396" fill="none" stroke="{INK}" stroke-width="2.2"/>'
+    cy = 150 if front else 160  # the web radiates from the spider
+    w = web(200, cy, 12, [40, 82, 128, 178, 232], 320, bend=0.04, a0=-math.pi / 2, width=2.0, squash=1.0)
+    belt_web = "".join(f'<path d="M{122 + i * 20:.1f} 366 L{120 + i * 20.5:.1f} 448" stroke="{INK}" stroke-width="2"/>' for i in range(9)) + \
+        f'<path d="M108 406 C170 414 230 414 292 406" fill="none" stroke="{INK}" stroke-width="2"/>'
     shading = (f'<path d="{narrow("M300 60 C350 90 340 200 300 290 C290 330 290 380 296 430 L262 446 C270 380 272 320 286 270 C318 190 326 110 300 60 Z")}" fill="{BLUE_D}" opacity="0.55"/>'
                f'<path d="{narrow("M84 70 C64 110 74 170 96 220")}" fill="none" stroke="{BLUE_L}" stroke-width="8" stroke-linecap="round" opacity="0.7"/>')
     muscles = "" if not front else (
@@ -149,7 +153,7 @@ def torso(front):
                   f'<path d="{CHEST}" fill="url(#gRed)" stroke="{INK}" stroke-width="5"/>'
                   f'<g clip-path="url(#cc)">{w}<path d="{narrow("M290 60 C320 120 280 200 240 260 L232 312 L250 312 C262 240 330 150 300 60 Z")}" fill="{RED_D}" opacity="0.4"/></g>'
                   f'<path d="{BELT}" fill="url(#gRed)" stroke="{INK}" stroke-width="5"/><g clip-path="url(#bc)">{belt_web}</g>'
-                  + muscles + '<g clip-path="url(#tc)">' + spider(200, 150 if front else 168, 0.85 if front else 1.25, None if front else RED_L) + '</g>' +
+                  + muscles + '<g clip-path="url(#tc)">' + spider(200, 150 if front else 160, 1.12 if front else 1.3) + '</g>' +
                   f'<path d="{TORSO}" fill="none" stroke="{INK}" stroke-width="10" stroke-linejoin="round"/>')
     return svg(400, 480, body, defs)
 
