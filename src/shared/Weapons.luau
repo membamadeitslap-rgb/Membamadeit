@@ -108,6 +108,76 @@ B.HellfireChain = function(m) -- Johnny Blaze's chain whip: links hanging from t
 	f.Lifetime = NumberRange.new(0.3, 0.5); f.Speed = NumberRange.new(1, 2); f.Parent = m.Link6
 end
 
+-- ===== Cartoon Network / Nickelodeon weapons =====
+local function wedge(part) local sm = Instance.new("SpecialMesh"); sm.MeshType = Enum.MeshType.Wedge; sm.Parent = part; return part end
+local function katana(m, wrap, diamond, tsuba, blade, len) -- shared katana: wrapped tsuka, diamond hishigami, tsuba, curved blade "Blade"
+	p(m, "Grip", Vector3.new(0.22, 1.1, 0.24), CFrame.new(), wrap, Enum.Material.Fabric)
+	for i = 0, 3 do p(m, "Hishigami" .. i, Vector3.new(0.23, 0.12, 0.12), CFrame.new(0, -0.38 + i * 0.25, -0.06) * CFrame.Angles(math.rad(45), 0, 0), diamond, Enum.Material.SmoothPlastic) end
+	p(m, "Kashira", Vector3.new(0.25, 0.12, 0.27), CFrame.new(0, -0.6, 0), C(40, 35, 30), Enum.Material.Metal)
+	p(m, "Tsuba", Vector3.new(0.12, 0.62, 0.62), CFrame.new(0, 0.6, 0) * up, tsuba, Enum.Material.Metal, cyl)
+	p(m, "Habaki", Vector3.new(0.12, 0.18, 0.28), CFrame.new(0, 0.74, 0.01), C(215, 175, 80), Enum.Material.Metal)
+	len = len or 3.2
+	local bl = p(m, "Blade", Vector3.new(0.06, len, 0.24), CFrame.new(0, 0.83 + len / 2, 0.06) * CFrame.Angles(math.rad(-3), 0, 0), blade, Enum.Material.Metal)
+	p(m, "Edge", Vector3.new(0.04, len * 0.98, 0.05), bl.CFrame * CFrame.new(0, 0, -0.13), blade:Lerp(Color3.new(1, 1, 1), 0.5), Enum.Material.SmoothPlastic)
+	local tip = wedge(p(m, "Kissaki", Vector3.new(0.06, 0.32, 0.24), bl.CFrame * CFrame.new(0, len / 2 + 0.16, 0), blade, Enum.Material.Metal))
+	return bl, tip
+end
+B.JackKatana = function(m) -- Samurai Jack's god-forged katana: white/black diamond-wrapped grip, round gold tsuba, long clean blade
+	katana(m, C(240, 238, 230), C(25, 25, 30), C(205, 165, 60), C(225, 230, 240), 3.4)
+end
+B.LeoKatana = function(m) -- Leonardo's ninjaken: blue-wrapped grip, black square-ish guard
+	katana(m, C(35, 70, 170), C(20, 20, 25), C(30, 30, 35), C(210, 215, 225), 2.6)
+	p(m, "Sageo", Vector3.new(0.05, 0.5, 0.05), CFrame.new(0.12, -0.75, 0), C(35, 70, 170), Enum.Material.Fabric)
+end
+B.FinnSword = function(m) -- Finn's golden sword: red-wrapped grip, round pommel gem, straight gold blade with a fuller
+	p(m, "Grip", Vector3.new(0.24, 0.9, 0.24), CFrame.new(), C(170, 40, 40), Enum.Material.Fabric)
+	p(m, "Pommel", Vector3.new(0.36, 0.36, 0.36), CFrame.new(0, -0.6, 0), C(225, 185, 60), Enum.Material.Metal, Enum.PartType.Ball)
+	p(m, "Gem", Vector3.new(0.4, 0.18, 0.18), CFrame.new(0, -0.6, 0), C(200, 30, 50), Enum.Material.SmoothPlastic, cyl)
+	p(m, "Guard", Vector3.new(0.24, 0.22, 1.3), CFrame.new(0, 0.55, 0), C(225, 185, 60), Enum.Material.Metal)
+	for _, z in { -1, 1 } do p(m, "GuardTip", Vector3.new(0.28, 0.28, 0.28), CFrame.new(0, 0.55, z * 0.68), C(225, 185, 60), Enum.Material.Metal, Enum.PartType.Ball) end
+	local bl = p(m, "Blade", Vector3.new(0.1, 2.9, 0.4), CFrame.new(0, 2.1, 0), C(240, 200, 70), Enum.Material.Metal)
+	p(m, "Fuller", Vector3.new(0.12, 2.3, 0.08), CFrame.new(0, 1.95, 0), C(200, 150, 40), Enum.Material.Metal)
+	for _, z in { -1, 1 } do
+		wedge(p(m, "Point", Vector3.new(0.1, 0.4, 0.2), bl.CFrame * CFrame.new(0, 1.65, z * 0.1) * CFrame.Angles(0, z > 0 and 0 or math.rad(180), 0), C(240, 200, 70), Enum.Material.Metal))
+	end
+end
+B.Omnitrix = function(m) -- Ben's watch on the left wrist: gray band, black faceplate, green hourglass dial
+	local g = p(m, "Grip", Vector3.one * 0.2, CFrame.new(), C(0, 0, 0)); g.Transparency = 1
+	-- weapon +Z runs up the forearm, -X is the outer side of the left wrist
+	p(m, "Band", Vector3.new(1.12, 1.12, 0.42), CFrame.new(0, 0, 0.45), C(205, 208, 212), Enum.Material.Metal)
+	p(m, "BandStripe", Vector3.new(1.16, 1.16, 0.1), CFrame.new(0, 0, 0.45), C(30, 30, 35), Enum.Material.SmoothPlastic)
+	p(m, "Housing", Vector3.new(0.22, 0.82, 0.82), CFrame.new(-0.62, 0, 0.45), C(210, 212, 216), Enum.Material.Metal, cyl)
+	p(m, "Face", Vector3.new(0.08, 0.66, 0.66), CFrame.new(-0.75, 0, 0.45), C(20, 20, 24), Enum.Material.SmoothPlastic, cyl)
+	local dialCF = CFrame.new(-0.8, 0, 0.45)
+	for _, a in { 35, -35 } do -- hourglass: two crossing bars + top/bottom caps
+		p(m, "Hourglass", Vector3.new(0.03, 0.06, 0.6), dialCF * CFrame.Angles(math.rad(a), 0, 0), C(80, 255, 90), Enum.Material.Neon)
+	end
+	for _, z in { -0.24, 0.24 } do p(m, "HourCap", Vector3.new(0.03, 0.36, 0.06), dialCF * CFrame.new(0, 0, z), C(80, 255, 90), Enum.Material.Neon) end
+	p(m, "DialRing", Vector3.new(0.05, 0.72, 0.72), CFrame.new(-0.77, 0, 0.45), C(80, 255, 90), Enum.Material.Neon, cyl).Transparency = 0.6
+	for _, y in { -0.35, 0.35 } do p(m, "Button", Vector3.new(0.18, 0.12, 0.16), CFrame.new(-0.6, y, 0.45), C(80, 220, 90), Enum.Material.SmoothPlastic) end
+	local l = Instance.new("PointLight"); l.Color = C(90, 255, 100); l.Range = 5; l.Brightness = 1; l.Parent = m.Face
+end
+B.AangStaff = function(m) -- Aang's airbender glider staff: long wooden shaft, folded orange glider wings at the top, red cap
+	p(m, "Grip", Vector3.new(0.24, 1.0, 0.24), CFrame.new(), C(140, 95, 55), Enum.Material.Wood)
+	local shaft = p(m, "Blade", Vector3.new(0.2, 5.6, 0.2), CFrame.new(0, 1.3, 0), C(150, 105, 60), Enum.Material.Wood) -- "Blade" = trail axis, tip at +Y
+	p(m, "Butt", Vector3.new(0.24, 0.3, 0.24), CFrame.new(0, -1.55, 0), C(170, 40, 30), Enum.Material.Wood)
+	p(m, "Cap", Vector3.new(0.26, 0.3, 0.26), CFrame.new(0, 4.15, 0), C(170, 40, 30), Enum.Material.Wood)
+	for _, y in { 0.7, 2.0 } do p(m, "Band", Vector3.new(0.24, 0.1, 0.24), CFrame.new(0, y, 0), C(60, 40, 25), Enum.Material.Wood) end
+	for _, x in { -1, 1 } do -- folded wings hugging the top of the shaft
+		p(m, "Wing", Vector3.new(0.12, 1.6, 0.36), CFrame.new(x * 0.16, 3.2, 0) * CFrame.Angles(0, 0, math.rad(-x * 4)), C(230, 130, 40), Enum.Material.Fabric)
+		p(m, "WingRib", Vector3.new(0.05, 1.6, 0.06), CFrame.new(x * 0.23, 3.2, 0) * CFrame.Angles(0, 0, math.rad(-x * 4)), C(170, 40, 30), Enum.Material.Wood)
+		wedge(p(m, "WingTip", Vector3.new(0.12, 0.4, 0.36), CFrame.new(x * 0.18, 2.2, 0) * CFrame.Angles(math.rad(180), 0, 0), C(230, 130, 40), Enum.Material.Fabric))
+	end
+	return shaft
+end
+B.Spatula = function(m) -- Krusty Krab spatula: black handle, steel shank, slotted flipper head
+	p(m, "Grip", Vector3.new(0.22, 1.1, 0.16), CFrame.new(), C(30, 30, 34), Enum.Material.SmoothPlastic)
+	for i = -1, 1 do p(m, "Rivet", Vector3.new(0.24, 0.07, 0.07), CFrame.new(0, i * 0.3, 0), C(190, 190, 195), Enum.Material.Metal) end
+	p(m, "Shank", Vector3.new(0.08, 1.0, 0.1), CFrame.new(0, 1.05, 0), C(195, 198, 205), Enum.Material.Metal)
+	local bl = p(m, "Blade", Vector3.new(0.05, 1.1, 0.85), CFrame.new(0, 2.05, 0.08) * CFrame.Angles(math.rad(-12), 0, 0), C(205, 208, 215), Enum.Material.Metal)
+	for i = -1, 1 do p(m, "Slot", Vector3.new(0.07, 0.65, 0.08), bl.CFrame * CFrame.new(0, 0.05, i * 0.22), C(60, 60, 65), Enum.Material.SmoothPlastic) end
+end
+
 function W.Build(id)
 	local m = Instance.new("Model"); m.Name = id
 	B[id](m); m.PrimaryPart = m.Grip

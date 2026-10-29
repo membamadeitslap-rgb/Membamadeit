@@ -194,6 +194,72 @@ S.Data = {
 		Mythic = v("Omega Darkseid", C(30, 30, 35), C(255, 40, 40)),
 		Secret = v("Absolute Darkseid", C(10, 10, 15), C(170, 80, 255)),
 	},
+	-- ===== Cartoon Network =====
+	SamuraiJack = { -- Primary = gi, Secondary = sash/collar trim; flags: Beard, Armor, Kasa, Ghost
+		Common = v("Classic Jack", C(242, 238, 228), C(222, 215, 198)),
+		Rare = v("Bearded Jack (Season 5)", C(225, 218, 200), C(190, 180, 160), { Beard = true }),
+		Epic = v("Armored Jack", C(70, 65, 70), C(150, 30, 30), { Beard = true, Armor = C(130, 132, 140) }),
+		Legendary = v("Ronin Jack", C(55, 70, 110), C(200, 190, 160), { Kasa = true }),
+		Mythic = v("Ghost Samurai", C(190, 225, 250), C(120, 200, 255), { Ghost = true }),
+		Secret = v("Aku-Slayer Jack", C(250, 240, 210), C(230, 185, 60), { Armor = C(225, 180, 60) }),
+	},
+	Finn = { -- Primary = shirt, Secondary = shorts; flags: Hat, Pack, Hatless, Bunny, GrassArm, RobotArm, Fern, Skin
+		Common = v("Classic Finn", C(95, 175, 235), C(30, 60, 150)),
+		Rare = v("Hatless Finn", C(95, 175, 235), C(30, 60, 150), { Hatless = true }),
+		Epic = v("Grass Sword Finn", C(95, 175, 235), C(30, 60, 150), { GrassArm = true }),
+		Legendary = v("Fionna", C(80, 150, 230), C(40, 80, 190), { Hat = C(245, 245, 250), Pack = C(240, 120, 170), Bunny = true }),
+		Mythic = v("Farmworld Finn", C(130, 100, 70), C(80, 60, 45), { RobotArm = true, Hat = C(225, 215, 190), Pack = C(110, 120, 60) }),
+		Secret = v("Fern", C(80, 160, 60), C(40, 100, 40), { Fern = true, Skin = C(120, 190, 90), Hat = C(170, 220, 140), Pack = C(60, 130, 50) }),
+	},
+	Ben10 = { -- Primary = shirt/jacket, Secondary = pants; flags: Tee, Trim, Stripe, Logo, Suit, AlienX
+		Common = v("Classic Ben", C(245, 245, 245), C(80, 140, 70), { Tee = true, Stripe = C(25, 25, 28) }),
+		Rare = v("Alien Force Ben", C(60, 160, 60), C(55, 80, 140)),
+		Epic = v("Ultimate Alien Ben", C(30, 30, 34), C(50, 70, 120), { Trim = C(60, 170, 60), Stripe = C(245, 245, 245) }),
+		Legendary = v("Omniverse Ben", C(30, 30, 34), C(150, 130, 95), { Tee = true, Stripe = C(80, 210, 80), Logo = true }),
+		Mythic = v("Ben 10,000", C(25, 25, 28), C(25, 25, 28), { Suit = true }),
+		Secret = v("Alien X", C(12, 12, 20), C(245, 245, 245), { AlienX = true }),
+	},
+	Blossom = { -- Primary = dress, Secondary = waist stripe; flags: Bow, Hair, Iris, Ponytail, Armor, Belt, Tights
+		Common = v("Classic Blossom", C(245, 135, 190), C(20, 20, 22)),
+		Rare = v("2016 Reboot Blossom", C(250, 150, 200), C(20, 20, 22), { Hair = C(240, 95, 50), Bow = C(235, 30, 60) }),
+		Epic = v("Hyper Blossom (Powerpuff Z)", C(240, 90, 150), C(250, 250, 250), { Ponytail = true, Belt = C(250, 250, 250), Tights = C(240, 90, 150) }),
+		Legendary = v("Dynamo Pilot Blossom", C(245, 135, 190), C(20, 20, 22), { Armor = C(170, 175, 190) }),
+		Mythic = v("Dark Blossom", C(30, 25, 35), C(220, 30, 60), { Bow = C(20, 20, 22), Iris = C(220, 30, 60), Tights = C(30, 25, 35) }),
+		Secret = v("Chemical X Overload", C(250, 220, 240), C(255, 80, 160), { Bow = C(255, 80, 160), Hair = C(255, 170, 90), Iris = C(255, 60, 140), Armor = C(255, 215, 120) }),
+	},
+	-- ===== Nickelodeon =====
+	Aang = { -- Primary = shirt/pants, Secondary = shawl; flags: Pants, Headband, Hair, Glow, Goatee, Ghost
+		Common = v("Air Nomad Aang", C(245, 190, 60), C(230, 120, 30)),
+		Rare = v("Fire Nation Disguise", C(150, 30, 30), C(60, 30, 30), { Headband = true, Pants = C(40, 30, 30) }),
+		Epic = v("Book 3 Aang", C(240, 175, 60), C(200, 90, 30), { Hair = true }),
+		Legendary = v("Avatar State Aang", C(245, 190, 60), C(230, 120, 30), { Glow = true }),
+		Mythic = v("Avatar Aang (Legend of Korra)", C(235, 165, 55), C(200, 70, 30), { Goatee = true }),
+		Secret = v("Spirit World Aang", C(200, 230, 255), C(120, 200, 255), { Glow = true, Ghost = true }),
+	},
+	Leonardo = { -- Primary = mask, Secondary = gear; flags: Skin, Shell, Plastron, Letter, Iris, Wrap, Tech, Robe
+		Common = v("2012 Leonardo", C(30, 80, 200), C(120, 80, 45)),
+		Rare = v("1987 Leonardo", C(40, 100, 230), C(150, 95, 50), { Skin = C(100, 170, 70), Letter = "L", Iris = C(250, 250, 250) }),
+		Epic = v("Rise of the TMNT Leo", C(30, 120, 230), C(70, 60, 60), { Skin = C(70, 140, 100), Shell = C(80, 70, 50), Plastron = C(200, 190, 120) }),
+		Legendary = v("Mutant Mayhem Leo", C(50, 110, 235), C(110, 80, 50), { Skin = C(95, 155, 60), Wrap = C(225, 225, 215) }),
+		Mythic = v("Fast Forward Leo", C(30, 90, 220), C(70, 75, 90), { Tech = C(150, 160, 180) }),
+		Secret = v("Foot Clan Leader Leo", C(170, 20, 25), C(25, 25, 30), { Skin = C(60, 120, 55), Robe = C(20, 20, 25), Iris = C(200, 30, 30) }),
+	},
+	SpongeBob = { -- Primary = sponge, Secondary = pants; flags: Shirt, Tie, Iris, Hat, Karate, Gar, Cape, Emblem, Mask
+		Common = v("Classic SpongeBob", C(255, 235, 70), C(150, 100, 50)),
+		Rare = v("Krusty Krab Fry Cook", C(255, 235, 70), C(150, 100, 50), { Hat = true }),
+		Epic = v("Karate SpongeBob", C(255, 235, 70), C(150, 100, 50), { Karate = C(245, 245, 245) }),
+		Legendary = v("Invincibubble", C(255, 235, 70), C(30, 60, 160), { Shirt = C(30, 60, 160), Tie = C(255, 215, 60), Cape = C(200, 30, 40), Emblem = "◎", Mask = C(30, 60, 160) }),
+		Mythic = v("SpongeGar", C(225, 200, 80), C(150, 105, 60), { Gar = true }),
+		Secret = v("Goofy Goober Rock God", C(255, 240, 120), C(40, 30, 60), { Shirt = C(25, 25, 30), Tie = C(170, 60, 255), Cape = C(110, 40, 180), Emblem = "ϟ", Extra = { { "Shoulders", C(200, 200, 215), true } } }),
+	},
+	DannyPhantom = { -- Primary = suit, Secondary = trim; flags: Eye, Skin, Hair, Human, Armor, Dan, King
+		Common = v("Danny Phantom", C(22, 22, 26), C(245, 245, 245)),
+		Rare = v("Danny Fenton", C(200, 30, 30), C(50, 80, 150), { Human = true }),
+		Epic = v("Fenton Ghost Peeler", C(22, 22, 26), C(245, 245, 245), { Armor = C(150, 155, 165) }),
+		Legendary = v("Phantom Planet Danny", C(15, 15, 22), C(225, 240, 255), { Eye = C(140, 255, 200) }),
+		Mythic = v("Dan Phantom", C(20, 20, 25), C(235, 240, 250), { Dan = true, Skin = C(120, 175, 215), Eye = C(255, 70, 70), Hair = C(225, 240, 255) }),
+		Secret = v("Ghost King Danny", C(25, 30, 35), C(200, 170, 70), { King = true, Eye = C(140, 255, 170) }),
+	},
 }
 
 local Rarity = require(script.Parent.Rarity)
