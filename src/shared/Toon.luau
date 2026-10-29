@@ -1,5 +1,5 @@
 -- Ink-doodle look (from the user's reference): flat matte colors, no shine, no self-shadowing,
--- and a thick black ink outline drawn client-side by client/Toon.client.luau (Highlight on tagged models).
+-- and a white paper-border outline drawn client-side by client/Toon.client.luau (Highlight on tagged models).
 local CollectionService = game:GetService("CollectionService")
 local Toon = {}
 local KEEP = { Neon = true, Glass = true, ForceField = true } -- glows, lenses, energy stay as they are

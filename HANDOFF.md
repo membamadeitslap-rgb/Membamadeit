@@ -78,7 +78,17 @@ State lives as Character attributes: Hero, Stamina, Ult, Blocking, StunUntil, IF
 4. Rebirths (reset cash for an income multiplier), the classic Brainrot progression.
 5. Animations: idle on pedestal heroes, walk on convoy/walk-home, M1 and ability anims in duels.
 6. Ranked ELO for fight mode, a leaderboard board in the world, a robux shop (lock-time boost, 2x cash) via MarketplaceService.
-7. Custom meshes: the user REJECTED the generated-mesh attempts ("goofy"). Do not build meshes; stick to the part-built Roblox style (see the user's Ghost Rider reference: blocky body, detailed accessories).
+7. Custom meshes: the user REJECTED the generated-mesh attempts ("goofy"). Characters stay part-built (see "Character art (session 6)").
+
+## Character art (session 6)
+- User complaints: "blocky, all the same, ugly"; wants accurate proportions, weapons, accessories and uniforms. Chosen art style: **option 3 = 3D characters + white paper-border outline** (Paper Mario feel without flattening, so 3D moves stay readable). Flat cutouts (`src/shared/Paper.luau`, `Paper.Flatten`) exist as an unused prototype.
+- `src/shared/Body.luau`: `Body.Shape` resizes R15 parts per hero (presets Hero, Lean, Brute, Titan, Female, Teen, Kid, Chibi, Sponge, Turtle, Armored; each hero picks one with `Build = { "Preset", { overrides } }` in `Heroes/<Id>.luau`), then `Body.Sculpt` covers the box parts with rounded forms in the costume colors and hides the boxes. Called from `Skins.Apply` (Shape before costume, Sculpt after).
+- `src/shared/Toon.luau` + `client/Toon.client.luau`: matte SmoothPlastic, no self-shadows, white Highlight outline on the closest 24 characters (Roblox renders max 31 Highlights). Lobby avatars get the outline only. Mythic+ keep their colored RarityGlow outline.
+- One file per hero/weapon so work can run in parallel: `Costumes/<Id>`, `SkinData/<Id>` (6 rarities), `WeaponModels/<WeaponId>` ("Grip" = hand, main part "Blade" with tip at +Y, cylinders are X-length).
+- Many costumes hide the R15 head and build their own rounded head; never set Transparency on every part of a model blindly (BaseService stolen display only touches parts with Transparency < 1).
+- Duels reset the player's avatar to a blank HumanoidDescription before applying the hero (R15 only).
+- **Preview tool** `tools/preview/preview.sh` (see its README): runs the real shared code under luau with a Roblox mock and renders front/3-4/back PNGs. Use it to check every visual change. Roster renders are in `progress/`.
+- Red Hood now holds twin pistols (his "All-Caste Blade" move has no blade model); ask the user whether to give him a knife.
 
 ## Publishing
 Live at place 95876647985129 (universe 10772668310). Run `ROBLOX_API_KEY=<key> ./scripts/publish.sh` (needs rojo; the environment must allow apis.roblox.com). Ask the user for the key; never commit it. Last published: version 15 (comic-accuracy + detailed faces + glow fix).

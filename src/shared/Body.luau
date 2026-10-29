@@ -12,11 +12,11 @@ local Body = {}
 -- tall: overall height; shoulders/chest(depth)/waist/hips: torso; arm/leg: { thickness, length }
 -- head: head scale; hand/foot: size; muscle: bulge amount (0 = smooth, 1 = athletic, 1.6 = brute); female: figure
 local B = {}
-B.Hero = { tall = 1.05, shoulders = 1.12, chest = 1.1, waist = 0.84, hips = 0.92, arm = { 0.78, 1.05 }, leg = { 0.82, 1.08 }, head = 0.9, hand = 0.85, foot = 0.85, muscle = 1 }
-B.Lean = { tall = 1.02, shoulders = 1.0, chest = 0.95, waist = 0.78, hips = 0.86, arm = { 0.68, 1.06 }, leg = { 0.74, 1.1 }, head = 0.88, hand = 0.8, foot = 0.8, muscle = 0.6 }
+B.Hero = { tall = 1.05, shoulders = 1.12, chest = 1.06, waist = 0.84, hips = 0.92, arm = { 0.74, 1.05 }, leg = { 0.82, 1.08 }, head = 0.9, hand = 0.85, foot = 0.85, muscle = 1 }
+B.Lean = { tall = 1.02, shoulders = 1.0, chest = 0.92, waist = 0.78, hips = 0.86, arm = { 0.62, 1.06 }, leg = { 0.74, 1.1 }, head = 0.88, hand = 0.8, foot = 0.8, muscle = 0.6 }
 B.Brute = { tall = 1.32, shoulders = 1.6, chest = 1.5, waist = 1.18, hips = 1.12, arm = { 1.2, 1.12 }, leg = { 1.15, 0.98 }, head = 0.82, hand = 1.35, foot = 1.25, muscle = 1.7 }
 B.Titan = { tall = 1.22, shoulders = 1.42, chest = 1.35, waist = 1.1, hips = 1.08, arm = { 1.05, 1.08 }, leg = { 1.05, 1.0 }, head = 0.85, hand = 1.15, foot = 1.1, muscle = 1.35 }
-B.Female = { tall = 1.0, shoulders = 0.92, chest = 0.95, waist = 0.68, hips = 0.98, arm = { 0.6, 1.02 }, leg = { 0.72, 1.12 }, head = 0.86, hand = 0.7, foot = 0.72, muscle = 0.45, female = true }
+B.Female = { tall = 1.0, shoulders = 0.92, chest = 0.92, waist = 0.68, hips = 0.98, arm = { 0.55, 1.02 }, leg = { 0.72, 1.12 }, head = 0.86, hand = 0.7, foot = 0.72, muscle = 0.45, female = true }
 B.Teen = { tall = 0.92, shoulders = 0.95, chest = 0.9, waist = 0.78, hips = 0.84, arm = { 0.62, 1.0 }, leg = { 0.7, 1.05 }, head = 0.95, hand = 0.75, foot = 0.8, muscle = 0.35 }
 B.Kid = { tall = 0.78, shoulders = 0.86, chest = 0.85, waist = 0.8, hips = 0.84, arm = { 0.58, 0.88 }, leg = { 0.64, 0.86 }, head = 1.12, hand = 0.72, foot = 0.85, muscle = 0.15 }
 B.Chibi = { tall = 0.62, shoulders = 0.7, chest = 0.85, waist = 0.7, hips = 0.78, arm = { 0.42, 0.72 }, leg = { 0.48, 0.62 }, head = 1.75, hand = 0.6, foot = 0.85, muscle = 0, chibi = true }
@@ -128,7 +128,7 @@ local function limb(model, p, mus, lower, isLeg)
 	form(model, p, "Core", V(d * 0.93, s.Y * 1.0, d * 0.93), CF(), "Cyl")
 	if not lower then
 		-- one long muscle belly that overlaps both joints, so the limb reads as a continuous taper
-		form(model, p, "Muscle", V(s.X * (1.0 + 0.05 * mus), s.Y * 1.3, s.Z * (1.0 + 0.06 * mus)), CF(0, s.Y * 0.06, 0), "Ball")
+		form(model, p, "Muscle", V(s.X * (0.94 + 0.1 * mus), s.Y * 1.3, s.Z * (0.94 + 0.12 * mus)), CF(0, s.Y * 0.06, 0), "Ball")
 		if mus > 0.3 and not isLeg then -- biceps peak on the front, triceps behind
 			form(model, p, "Biceps", V(s.X * 0.6, s.Y * 0.7, s.Z * 0.5), CF(0, -s.Y * 0.05, -s.Z * (0.2 + 0.05 * mus)), "Ball")
 			form(model, p, "Triceps", V(s.X * 0.62, s.Y * 0.8, s.Z * 0.5), CF(0, s.Y * 0.05, s.Z * (0.2 + 0.04 * mus)), "Ball")
@@ -136,7 +136,8 @@ local function limb(model, p, mus, lower, isLeg)
 		if isLeg then -- quad sweep on the front, hamstring behind
 			form(model, p, "Quad", V(s.X * 0.8, s.Y * 0.95, s.Z * 0.6), CF(0, s.Y * 0.0, -s.Z * 0.2), "Ball")
 		else -- deltoid caps the top of the arm and hides the shoulder seam
-			form(model, p, "Deltoid", V(s.X * (1.08 + 0.08 * mus), s.Y * 0.7, s.Z * (1.06 + 0.06 * mus)), CF(0, s.Y * 0.3, 0), "Ball")
+			-- deltoid size follows the build: slim caps on lean heroes, big boulders on brutes
+			form(model, p, "Deltoid", V(s.X * (0.94 + 0.16 * mus), s.Y * (0.5 + 0.14 * mus), s.Z * (0.94 + 0.14 * mus)), CF(0, s.Y * (0.36 - 0.04 * mus), 0), "Ball")
 		end
 		form(model, p, "Joint", V(d * 0.92, d * 0.92, d * 0.92), CF(0, -s.Y / 2, 0), "Ball")
 	else
@@ -160,8 +161,8 @@ local function torso(model, up, low, prof)
 		if prof.female then
 			form(model, up, "Bust", V(s.X * 0.32, s.Y * 0.26, s.Z * 0.5), CF(x * s.X * 0.16, s.Y * 0.12, -s.Z * 0.24), "Ball")
 		elseif mus > 0.4 then -- pecs stop just short of the front face so chest emblems stay visible
-			local pd = s.Z * (0.2 + 0.05 * mus)
-			form(model, up, "Pec", V(s.X * 0.5, s.Y * 0.26, pd), CF(x * s.X * 0.21, s.Y * 0.24, -s.Z * 0.5 + pd / 2 - 0.015) * CFrame.Angles(0, 0, math.rad(x * 8)), "Ball")
+			local pd = s.Z * (0.16 + 0.05 * mus) -- shallow pec that blends into the chest instead of a ledge
+			form(model, up, "Pec", V(s.X * 0.52, s.Y * 0.34, pd), CF(x * s.X * 0.2, s.Y * 0.22, -s.Z * 0.5 + pd / 2 - 0.02) * CFrame.Angles(0, 0, math.rad(x * 6)), "Ball")
 		end
 		if mus > 0.9 then -- lats flare under the arms
 			form(model, up, "Lat", V(s.X * 0.28, s.Y * 0.55, s.Z * 0.75), CF(x * s.X * 0.34, s.Y * 0.0, s.Z * 0.05), "Ball")

@@ -1,4 +1,4 @@
--- Black ink outlines around characters. Roblox renders at most 31 Highlights at once, so only the
+-- White paper-sticker outline around characters (art style option 3: 3D characters + paper border). Roblox renders at most 31 Highlights at once, so only the
 -- closest tagged models get one (leaving room for the impact-frame and rarity highlights).
 local CollectionService = game:GetService("CollectionService")
 local RS = game:GetService("ReplicatedStorage")
@@ -10,7 +10,7 @@ local function outline(m)
 	local h = m:FindFirstChild("InkOutline")
 	if not h then
 		h = Instance.new("Highlight"); h.Name = "InkOutline"
-		h.FillTransparency = 1; h.OutlineTransparency = 0; h.OutlineColor = Color3.new(0, 0, 0)
+		h.FillTransparency = 1; h.OutlineTransparency = 0; h.OutlineColor = Color3.new(1, 1, 1)
 		h.DepthMode = Enum.HighlightDepthMode.Occluded; h.Parent = m
 	end
 	return h
