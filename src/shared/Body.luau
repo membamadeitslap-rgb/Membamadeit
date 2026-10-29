@@ -31,11 +31,6 @@ function Body.Profile(heroId)
 	local entry = h and h.Build or { "Hero" }
 	local prof = table.clone(B[entry[1]])
 	for k, v in entry[2] or {} do prof[k] = v end
-	if not prof.round and not prof.chibi and not prof.boxy then
-		-- blocky Roblox look: limbs stay chunky and legs touch; builds differ by size, not by skinny limbs
-		prof.arm = { 1 + (prof.arm[1] - 0.78) * 0.6, prof.arm[2] }
-		prof.leg = { 1 + (prof.leg[1] - 0.82) * 0.6, prof.leg[2] }
-	end
 	return prof
 end
 

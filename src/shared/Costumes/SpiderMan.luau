@@ -59,24 +59,27 @@ return function(s, H, rarity)
 	end
 
 	local pieces = {}
-	-- Head: block head (like the reference), web mask, framed lenses
+	-- Head: the round Roblox head is the mask. Web = rings around the head + lines running up from the
+	-- nose and over the top; big angled white lenses with thick black frames sit on the curved front.
 	table.insert(pieces, function(m)
 		local hd = m:FindFirstChild("Head"); if not hd then return end
-		hd.Transparency = 1
 		local s = hd.Size
-		local head = piece(m, hd, "BlockHead", Vector3.new(s.X * 1.12, s.Y * 1.0, s.Z * 1.08), CFrame.new(0, s.Y * 0.02, 0), red)
-		for _, face in { "Front", "Back", "Left", "Right", "Top" } do
-			local f = paint(head, face)
-			f:Fill(red, { grad = shade(red) })
-			if face == "Top" then webs(f, 0.5, 0.5, 8, 3)
-			elseif face == "Front" then webs(f, 0.5, 0.42, 12, 5)
-			else webs(f, face == "Back" and 0.5 or 0.5, 0.0, 9, 4) end
-			if (face == "Left" or face == "Right") and blue ~= red then f:Rect(0, 0.72, 1, 0.28, blue, { z = 2 }) end
+		local r = s.X / 2
+		local thin = math.max(0.02, s.X * 0.018)
+		for i, y in { -0.3, -0.12, 0.06, 0.24 } do -- rings around the mask
+			H.band(m, hd, "WebRing", s.X * (1.012 - math.abs(y) * 0.06), thin, CFrame.new(0, s.Y * y, 0), web)
 		end
-		local f = paint(head, "Front")
-		for _, x in { -1, 1 } do -- big angled lenses with thick black frames
-			f:Box(0.5 + x * 0.21, 0.42, 0.36, 0.25, cfg.frame, { round = 0.5, rot = x * -20, z = 40 })
-			f:Box(0.5 + x * 0.21, 0.43, 0.27, 0.16, cfg.lens, { round = 0.5, rot = x * -20, z = 41 })
+		for i = -5, 5 do -- strands fanning from the nose around the head
+			local a = math.rad(i * 30)
+			piece(m, hd, "WebLine", Vector3.new(thin, s.Y * 0.72, thin), CFrame.Angles(0, a, 0) * CFrame.new(0, -s.Y * 0.02, -r * 1.005), web)
+		end
+		for i = 0, 5 do -- over the crown
+			piece(m, hd, "WebTop", Vector3.new(thin, thin, s.Z * 0.9), CFrame.new(0, s.Y * 0.5, 0) * CFrame.Angles(0, math.rad(i * 30), 0), web)
+		end
+		for _, x in { -1, 1 } do -- lenses: frame + white eye, angled up and out, wrapped onto the curve
+			local at = CFrame.Angles(0, math.rad(x * 26), 0) * CFrame.new(0, s.Y * 0.06, -r * 1.0) * CFrame.Angles(0, 0, math.rad(x * -24))
+			H.round(m, hd, "LensFrame", Vector3.new(s.X * 0.5, s.Y * 0.36, 0.08), at, cfg.frame)
+			H.round(m, hd, "Lens", Vector3.new(s.X * 0.38, s.Y * 0.23, 0.08), at * CFrame.new(x * s.X * 0.01, -s.Y * 0.005, -0.025), cfg.lens, Enum.Material.SmoothPlastic)
 		end
 	end)
 	-- Torso: red center with web, blue side panels, spider front + back, web belt
@@ -87,6 +90,10 @@ return function(s, H, rarity)
 			f:Fill(blue, { grad = shade(blue) })
 			if face == "Front" or face == "Back" then
 				f:Rect(0.18, 0, 0.64, 1, red, { z = 2 })
+				if face == "Front" then -- soft pec and ab shading under the webbing
+					for _, x in { -1, 1 } do f:Box(0.5 + x * 0.17, 0.3, 0.3, 0.2, red:Lerp(BLACK, 0.12), { round = 0.5, z = 3 }) end
+					f:Line(0.5, 0.45, 0.5, 0.95, 0.012, red:Lerp(BLACK, 0.2), { z = 3 })
+				end
 				f:Box(0.5, 0.9, 1, 0.2, red, { z = 2 }) -- red band across the bottom of the ribs
 				webs(f, 0.5, 0.35, 12, 5)
 				f:Rect(0, 0, 0.1, 1, blue, { z = 30 }); f:Rect(0.9, 0, 0.1, 1, blue, { z = 30 }) -- keep the sides clean blue
